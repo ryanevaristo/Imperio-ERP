@@ -1,0 +1,44 @@
+
+{% extends 'base-login.html' %}
+
+{% load static %}
+
+{% block 'title' %}Login{% endblock %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'usuarios/css/usuario-login.css' %}"/>
+{% endblock %}
+
+{% block 'body' %}
+
+
+<div class="sidenav" >
+    <div class="login-main-text">
+       <h2>IMPERIO<br> Bem Vindo ao soft de Gestão</h2>
+       <p>Para acessar o sitema basta colocar seu email e senha.</p>
+    </div>
+ </div>
+ <div class="main">
+    <div class="col-md-6 col-sm-12">
+       <div class="login-form">
+         <form action="{% url 'usuarios:login' %}" method="post"> {% csrf_token %}
+             <div class="form-group">
+                <label>User Name</label>
+                <input type="email" name="email" id="email" class="form-control" placeholder="Digite seu Email">
+             </div>
+             <div class="form-group">
+                <label>Senha</label>
+                <input type="password" name="senha" id="senha" class="form-control" placeholder="Digite sua Senha">
+             </div>
+             <br>
+             <button type="submit" class="btn btn-black">Login</button>
+            </form>
+       </div>
+    </div>
+ </div>
+
+{% endblock %}
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
