@@ -29,9 +29,9 @@ def cadastrar_vendedor(request):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def listar_vendedor(request):
+def vendedores(request):
     vendedores = Users.objects.filter(cargo='V')
-    return render(request, 'listar_vendedor.html', {'vendedores': vendedores})
+    return render(request, 'vendedores.html', {'vendedores': vendedores})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
