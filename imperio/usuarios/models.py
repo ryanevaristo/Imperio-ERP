@@ -10,3 +10,6 @@ class Users(AbstractUser):
         ('V','vendedor')
     )
     cargo = models.CharField(max_length=1, choices=choice_cargo, default='user')
+
+    def __str__(self):
+        return self.username
