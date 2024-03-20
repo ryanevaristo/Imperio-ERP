@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 
 class ContaPagar(models.Model):
@@ -8,13 +9,14 @@ class ContaPagar(models.Model):
         ('C', 'Cartão de Crédito'),
         ('B', 'Boleto'),
         ('T', 'Transferência Bancária'),
-        ('C', 'Cheque')
+        ('C', 'Cheque'),
+        ('P', 'PIX')
     )
 
     descricao = models.CharField(max_length=100)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
-    data_vencimento = models.DateField()
-    data_pagamento = models.DateField(null=True, blank=True)
+    data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
+    data_pagamento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     forma_pagamento = models.CharField(max_length=1, choices=choice_forma_pagamento,default='D',null=True, blank=True)
     pago = models.BooleanField(default=False)
 
@@ -80,9 +82,9 @@ class Cheque(models.Model):
     numero = models.CharField(max_length=20)
     nome_titular = models.CharField(max_length=100)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
-    banco = models.CharField(max_length=3, choices=choice_banco)
-    data_emissao = models.DateField()
-    data_compensacao = models.DateField(null=True, blank=True)
+    banco = models.CharField(max_length=3, choices=choice_banco, default='001',null=True, blank=True)
+    data_emissao = models.DateField( null=True, blank=True, default=datetime(1900, 1, 1))
+    data_compensacao = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     situacao = models.CharField(max_length=1, choices=choice_situacao,default='E',null=True, blank=True)
 
     def __str__(self):

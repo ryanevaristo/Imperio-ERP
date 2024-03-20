@@ -1,0 +1,21 @@
+.form-group {
+    margin-bottom: 10px;
+    max-width: 700px;
+    
+}
+.form-group label {
+    margin-bottom: 5px;
+}
+    
+#container{
+    margin-top: 30px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    border-top: 5px solid rgb(11, 27, 99);
+
+}
+.btn{
+    margin-top: 20px;
+    margin-bottom: 5px;
+}

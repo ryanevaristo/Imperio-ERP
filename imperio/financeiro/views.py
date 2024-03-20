@@ -26,11 +26,18 @@ def cadastrar_contas_pagar(request):
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
+        data_pagamento = request.POST.get('data_pagamento')
         forma_pagamento = request.POST.get('forma_pagamento')
         pago = request.POST.get('pago')
-        print(descricao, valor, data_vencimento, forma_pagamento, pago)
+        if pago == "S":
+            pago = True
+        else:
+            pago = False
+        print(descricao, valor, data_vencimento,data_pagamento, forma_pagamento, pago)
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
-        conta_pagar = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, forma_pagamento=forma_pagamento, pago=pago)
+        conta_pagar = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, 
+                                data_pagamento=data_pagamento, forma_pagamento=forma_pagamento,
+                                pago=pago)
         conta_pagar.save()
         return HttpResponse("Conta a pagar cadastrada com sucesso!")
     
