@@ -60,9 +60,27 @@ class Cheque(models.Model):
         ('S', 'Sem Fundo'),
         ('D', 'Devolvido')
     )
+    choice_banco = (
+        ('001', 'Banco do Brasil'),
+        ('104', 'Caixa Econômica Federal'),
+        ('237', 'Bradesco'),
+        ('341', 'Itaú'),
+        ('356', 'Santander'),
+        ('033', 'Banco Santander (Brasil)'),
+        ('745', 'Citibank'),
+        ('399', 'HSBC'),
+        ('422', 'Safra'),
+        ('389', 'Mercantil do Brasil'),
+        ('633', 'Rendimento'),
+        ('652', 'Itaú Unibanco Holding'),
+        ('745', 'Banco Citibank'),
+        ('748', 'Sicredi'),
+        ('756', 'Sicoob')
+    )
     numero = models.CharField(max_length=20)
     nome_titular = models.CharField(max_length=100)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
+    banco = models.CharField(max_length=3, choices=choice_banco)
     data_emissao = models.DateField()
     data_compensacao = models.DateField(null=True, blank=True)
     situacao = models.CharField(max_length=1, choices=choice_situacao,default='E',null=True, blank=True)

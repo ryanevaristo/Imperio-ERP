@@ -6,6 +6,12 @@ from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
 
 
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def financeiro(request):
+    return render(request, 'financeiro.html')
+
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def contas_pagar(request):

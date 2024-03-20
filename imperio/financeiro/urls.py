@@ -3,6 +3,7 @@ from . import views
 
 app_name = 'financeiro'
 urlpatterns = [
+    path('', views.financeiro, name='financeiro'),
     #contas a pagar
     path('contas_pagar/', views.contas_pagar, name='contas_pagar'),
     path('cadastrar_contas_pagar/', views.cadastrar_contas_pagar, name='cadastrar_contas_pagar'),
