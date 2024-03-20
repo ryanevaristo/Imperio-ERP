@@ -5,8 +5,9 @@
 <link rel="stylesheet" href="{% static 'financeiro/css/cadastrar_contas_pagar.css' %}">
 {% endblock %}
 {% block 'body' %}
-<h3>Cadastrar Contas a Pagar</h3>
 <div class="container-fluid" id="container">
+    <h3>Cadastrar Contas a Pagar</h3>
+    <hr>
     <form action="{% url 'financeiro:cadastrar_contas_pagar' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
