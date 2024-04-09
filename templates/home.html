@@ -6,21 +6,83 @@
 {% endblock %}
 
 {% block 'body' %}
-<h3>home page</h3>
 
 
-<div class="box-body">
-    <a class="btn btn-app" href="{% url 'usuarios:vendedores' %}"
-     id="button">
-        <i class="bi bi-person-fill" id="icone"></i>Vendedores
-    </a>  
-    <a class="btn btn-app" href="{% url 'financeiro:financeiro' %}" id="button">
-        <i class="bi bi-currency-dollar" id="icone"></i>Financeiro
-    </a>  
-    <a class="btn btn-app" href="" id="button">
-        <i class="bi bi-table" id="icone"></i>Relatorios
-    </a>  
+<h2 id="dashboard">Dashboard</h2>
+<div class="box-body" id="container">
+    <h2>links de acesso</h2>
+    <p>acesso rapido para cada categoria.</p>
+    <div id="linha">
+        <div class="group">
+            <h2>Grupo 1</h2>
+            <div id="linha">
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-box-seam" id="icone"></i>Produtos
+                </a>  
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-archive-fill" id="icone"></i>Estoque
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-cart fill" id="icone"></i>Vendas
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-bag-fill" id="icone"></i>Compras
+                </a>
+            </div>
+        </div>
+
+        <div class="group">
+            <h2>Grupo 2</h2>
+
+            <div id="linha">
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-cash-stack" id="icone"></i>Despesas
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-cassette" id="icone"></i>Cheques
+                </a>
+                <a class="btn btn-app" href="{% url 'usuarios:vendedores' %}" id="button">
+                    <i class="bi bi-person-fill" id="icone"></i>Vendedores
+                </a>  
+                <a class="btn btn-app" id="button">
+                    <i class="bi bi-people-fill" id="icone"></i>Clientes
+                </a>
+            </div>
+        </div>
+
+        <div class="group">
+            <h2>Grupo 3</h2>
+            <div id="linha">
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-table" id="icone"></i>Relatorios
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-table" id="icone"></i>Relatorios
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-table" id="icone"></i>Relatorios
+                </a>
+            </div>
+        </div>
+
+        
+        
+    </div>
 </div>
+
+{% include 'charts.html' %}
 
 {% endblock %}
 
+
+
+
+<!-- <a class="btn btn-app" href="{% url 'financeiro:financeiro' %}" id="button">
+    <i class="bi bi-currency-dollar" id="icone"></i>Financeiro
+</a>  
+<a class="btn btn-app" href="" id="button">
+    <i class="bi bi-table" id="icone"></i>Relatorios
+</a>   -->

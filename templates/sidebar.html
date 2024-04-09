@@ -12,49 +12,78 @@
                 <a href="{% url 'home' %}">Randtech</a>
             </div>
         </div>
-        <ul class="sidebar-nav">
+
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-user"></i>
-                    <span>Profile</span>
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Produtos" aria-expanded="false" aria-controls="Produtos">
+                    <i class="bi bi-box-seam"></i>
+                    <span>Produtos</span>
                 </a>
+                <ul id="Produtos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Listar Produtos</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="sidebar-link">Cadastrar Produtos</a>
+                    </li>
+                </ul>
             </li>
+
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-agenda"></i>
-                    <span>Task</span>
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Estoque" aria-expanded="false" aria-controls="Estoque">
+                    <i class="bi bi-archive-fill"></i>
+                    <span>Estoque</span>
                 </a>
+                <ul id="Estoque" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Listar Estoque</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Cadastrar Estoque</a>
+                    </li>
+                </ul>
+
             </li>
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
-                    <i class="lni lni-user"></i>
-                    <span>Usuários</span>
+                    data-bs-target="#Vendas" aria-expanded="false" aria-controls="Vendas">
+                    <i class="bi bi-cart fill"></i>
+                    <span>Vendas</span>
                 </a>
-                <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                <ul id="Vendas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Listar Vendas</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Cadastrar Vendas</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'usuarios:vendedores' %}" class="sidebar-link" data-bs-toggle="collapse"
+                data-bs-target="#Vendedores" aria-expanded="false" aria-controls="Vendedores">
+                    <i class="bi bi-person-fill"></i>
+                    <span>Vendedores</span>
+                </a>
+                <ul id="Vendas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link">Listar Vendedores</a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="sidebar-link">Cadastrar Vendedor</a>
+                        <a href="#" class="sidebar-link">Cadastrar Vendedores</a>
                     </li>
                 </ul>
             </li>
+
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
-                    <i class="lni lni-user"></i>
-                    <span>Usuários</span>
+                <a href="#" class="sidebar-link">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Clientes</span>
                 </a>
-                <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="" class="sidebar-link">Listar Vendedores</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="sidebar-link">Cadastrar Vendedor</a>
-                    </li>
-                </ul>
-            </li>
+
+
+           
             
             
             <li class="sidebar-item">
