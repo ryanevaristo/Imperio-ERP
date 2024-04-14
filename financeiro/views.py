@@ -14,14 +14,14 @@ def financeiro(request):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def contas_pagar(request):
-    contas_pagar = ContaPagar.objects.all()
-    return render(request, 'contas_pagar.html', {'contas_pagar': contas_pagar})
+def despesas(request):
+    despesas = ContaPagar.objects.all()
+    return render(request, 'despesas.html', {'despesas': despesas})
 
 @login_required(login_url='/auth/login/')
-def cadastrar_contas_pagar(request):
+def cadastrar_despesas(request):
     if request.method == "GET":
-        return render(request, 'cadastrar_contas_pagar.html')
+        return render(request, 'cadastrar_despesas.html')
     elif request.method == "POST":
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -42,10 +42,10 @@ def cadastrar_contas_pagar(request):
         return HttpResponse("Conta a pagar cadastrada com sucesso!")
     
 @login_required(login_url='/auth/login/')
-def editar_contas_pagar(request, id):
+def editar_despesas(request, id):
     conta_pagar = ContaPagar.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'editar_contas_pagar.html', {'conta_pagar': conta_pagar})
+        return render(request, 'editar_despesas.html', {'conta_pagar': conta_pagar})
     elif request.method == "POST":
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -63,7 +63,7 @@ def editar_contas_pagar(request, id):
         return HttpResponse("Conta a pagar atualizada com sucesso!")
     
 @login_required(login_url='/auth/login/')
-def excluir_contas_pagar(request, id):
+def excluir_despesas(request, id):
     conta_pagar = ContaPagar.objects.get(id=id)
     conta_pagar.delete()
     return HttpResponse("Conta a pagar excluída com sucesso!")

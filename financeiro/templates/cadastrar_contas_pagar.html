@@ -2,13 +2,13 @@
 {% block 'title' %}Cadastrar Contas a Pagar{% endblock %}
 {% load static %}
 {% block 'head' %}
-<link rel="stylesheet" href="{% static 'financeiro/css/cadastrar_contas_pagar.css' %}">
+<link rel="stylesheet" href="{% static 'financeiro/css/cadastrar_despesas.css' %}">
 {% endblock %}
 {% block 'body' %}
 <div class="container-fluid" id="container">
     <h3>Cadastrar Contas a Pagar</h3>
     <hr>
-    <form action="{% url 'financeiro:cadastrar_contas_pagar' %}" method="post">
+    <form action="{% url 'financeiro:cadastrar_despesas' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
             <label for="descricao">Descrição</label>

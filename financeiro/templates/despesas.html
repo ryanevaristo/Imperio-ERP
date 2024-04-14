@@ -2,7 +2,7 @@
 {% block 'title' %}Contas a pagar{% endblock %}
 {% load static %}
 {% block 'head' %}
-<link rel="stylesheet" href="{% static 'financeiro/css/contas_pagar.css' %}">
+<link rel="stylesheet" href="{% static 'financeiro/css/despesas.css' %}">
 {% endblock %}
 {% block 'body' %}
 <div class="container-fluid" id="container">
@@ -10,9 +10,9 @@
         <div class="col-md-12">
             <h1>Contas a Pagar</h1>
             <hr>
-            <a href="{% url 'financeiro:cadastrar_contas_pagar' %}" class="btn btn-primary">Adicionar nova Conta</a>
+            <a href="{% url 'financeiro:cadastrar_despesas' %}" class="btn btn-primary">Adicionar nova Conta</a>
             <a href="" class="btn btn-success float-right">Gerar Excel</a>
-            {% if contas_pagar %}
+            {% if despesas %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive">
@@ -29,7 +29,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for contasPagar in contas_pagar %}
+                                {% for contasPagar in despesas %}
                                     <tr>
                                         <td>{{ contasPagar.descricao }}</td>
                                         <td>{{ contasPagar.valor }}</td>

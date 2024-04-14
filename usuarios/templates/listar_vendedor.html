@@ -1,0 +1,58 @@
+{% extends 'base-home.html' %}
+
+{% block 'title' %}Vendedores{% endblock %}
+
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'usuarios/css/vendedores.css' %}">
+{% endblock %}
+
+{% block 'body' %}
+<div class="container-fluid" id="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Vendedores</h1>
+            <hr>
+            <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="btn btn-primary">Adicionar novo Vendedor</a>
+            <a href="" class="btn btn-success float-right">Gerar Excel</a>
+            {% if vendedores %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table  table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Email</th>
+                                    <th>Telefone</th>
+                                    <th>Opções</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for vendedor in vendedores %}
+                                    <tr>
+                                        <td>{{ vendedor.nome }}</td>
+                                        <td>{{ vendedor.email }}</td>
+                                        <td>{{ vendedor.telefone }}</td>
+                                        <td>
+                                            <a href="{% url 'usuarios:editar_vendedor' vendedor.id %}" class="btn btn-primary">Editar</a>
+                                            <a href="{% url 'usuarios:excluir_vendedor' vendedor.id %}" class="btn btn-danger">Excluir</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    Nenhum vendedor cadastrado.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
