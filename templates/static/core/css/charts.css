@@ -1,26 +1,33 @@
 
 
 #container-charts{
-   
+   padding: 1rem;
     margin-top: 20px;
     background-color: #ffffffde;
-    padding: 20px;
     border-radius: 5px;
     border-top: 5px solid #0f0f0f;
-    white-space: normal;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    width: 50%;
+
    
 }
 
-#linha-charts {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    }
 
+    
+.box-title{
+    color: #0f0f0f;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+}
+.box-body{
+    padding: 10px;
+    border-radius: 5px;
+    margin: auto;
+    font-size: 1rem;
+    text-align: center;
+    max-height: 400px;
+    
+}
