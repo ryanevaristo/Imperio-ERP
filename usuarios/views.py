@@ -5,6 +5,7 @@ from django.contrib import auth ,messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse
+import openpyxl
 # Create your views here.
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -38,7 +39,7 @@ def vendedores(request):
 def editar_vendedor(request, id):
     vendedor = Users.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'editar_vendedor.html', {'vendedor': vendedor})
+        return render(request, 'cadastrar_vendedor.html', {'vendedor': vendedor})
     elif request.method == "POST":
         nome = request.POST.get('nome')
         email = request.POST.get('email')
@@ -57,6 +58,22 @@ def excluir_vendedor(request, id):
     vendedor = Users.objects.get(id=id)
     vendedor.delete()
     return HttpResponse("Vendedor excluído com sucesso!")
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def gerar_excel_vendedores(request):
+
+    
+
+    vendedores = Users.objects.filter(cargo='V')
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(['Nome', 'Email'])
+    for vendedor in vendedores:
+        ws.append([vendedor.first_name, vendedor.email])
+    wb.save('vendedores.xlsx')
+    return HttpResponse("Excel gerado com sucesso!")
+
 
 def login(request):
     if request.method == "GET":

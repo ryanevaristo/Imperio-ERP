@@ -1,0 +1,45 @@
+#container{
+    margin-top: 30px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    border-top: 5px solid rgb(11, 27, 99);
+
+}
+.btn{
+
+    margin-bottom: 10px;
+}
+
+td{
+    font-size: 1rem;
+    text-align: center;
+}
+
+h2{
+    font-size: 20px;
+    color: #0f0f0f;
+    margin: 0;
+    margin-bottom: 10px;
+    font-weight: normal;
+}
+/* siga o padrão de tamanho de fonte com base no h2 acima */
+p{
+    font-size: 15px;
+    color: #666;
+    margin: 0;
+}
+td{
+    font-size: 0.92rem;
+    text-align: center;
+}
+
+th{
+    font-size: 0.92rem;
+    text-align: center;
+}
+a{
+    font-size: 0.95rem;
+    text-decoration: none;
+    color: #0f0f0f;
+}
