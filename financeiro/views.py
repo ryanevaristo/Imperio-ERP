@@ -69,14 +69,35 @@ def excluir_despesas(request, id):
     return redirect('/financeiro/despesas/')
 
 
+# @login_required(login_url='/auth/login/')
+# @has_role_decorator("vendedor")
+# def total_despesas(request):
+#     despesas = ContaPagar.objects.all()
+#     total = 0
+    
+#     for despesa in despesas:
+#         total += despesa.valor
+#     return JsonResponse({'total': total})
+
+# total despesas por tipo
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def total_despesas(request):
     despesas = ContaPagar.objects.all()
-    total = 0
+    total_valor = 0
+    total_despesas = {
+        'D': 0,
+        'C': 0,
+        'B': 0,
+        'T': 0,
+        'P': 0,
+    
+    }
     for despesa in despesas:
-        total += despesa.valor
-    return JsonResponse({'total': total})
+        total_valor += despesa.valor
+        total_despesas[despesa.forma_pagamento] += despesa.valor
+    return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas})
+
 
 
 @login_required(login_url='/auth/login/')

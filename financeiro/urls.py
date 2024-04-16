@@ -3,12 +3,12 @@ from . import views
 
 app_name = 'financeiro'
 urlpatterns = [
-    path('', views.financeiro, name='financeiro'),
-    #contas a pagar
+    #despesas
     path('despesas/', views.despesas, name='despesas'),
     path('cadastrar_despesas/', views.cadastrar_despesas, name='cadastrar_despesas'),
     path('editar_despesas/<int:id>/', views.editar_despesas, name='editar_despesas'),
     path('excluir_despesas/<int:id>/', views.excluir_despesas, name='excluir_despesas'),
+    path('total_despesas/', views.total_despesas, name='total_despesas'),
     #contas a receber
     path('contas_receber/', views.contas_receber, name='contas_receber'),
     path('cadastrar_contas_receber/', views.cadastrar_contas_receber, name='cadastrar_contas_receber'),
