@@ -8,7 +8,8 @@
 <div class="container-fluid" id="container">
     <div class="row">
         <div class="col-md-12">
-            <h1>Contas a Pagar</h1>
+            <h1>Despesas</h1>
+            <p>Aqui você gerencia o quanto foi gasto dentro da sua empresa</p>
             <hr>
             <a href="{% url 'financeiro:cadastrar_despesas' %}" class="btn btn-primary">Adicionar nova Conta</a>
             <a href="" class="btn btn-success float-right">Gerar Excel</a>
@@ -29,23 +30,23 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for contasPagar in despesas %}
+                                {% for despesa in despesas %}
                                     <tr>
-                                        <td>{{ contasPagar.descricao }}</td>
-                                        <td>{{ contasPagar.valor }}</td>
-                                        <td>{{ contasPagar.data_vencimento }}</td>
-                                        <td>{{ contasPagar.data_pagamento }}</td>
-                                        {% if contasPagar.forma_pagamento == 'D' %}
+                                        <td>{{ despesa.descricao }}</td>
+                                        <td>{{ despesa.get_valor }}</td>
+                                        <td>{{ despesa.get_data_vencimento }}</td>
+                                        <td>{{ despesa.get_data_pagamento }}</td>
+                                        {% if despesa.forma_pagamento == 'D' %}
                                             <td>Dinheiro</td>
-                                        {% elif contasPagar.forma_pagamento == 'C' %}
+                                        {% elif despesa.forma_pagamento == 'C' %}
                                             <td>Cartão de Crédito</td>
-                                        {% elif contasPagar.forma_pagamento == 'B' %}
+                                        {% elif despesa.forma_pagamento == 'B' %}
                                             <td>Cartão de Débito</td>
-                                        {% elif contasPagar.forma_pagamento == 'T' %}
+                                        {% elif despesa.forma_pagamento == 'T' %}
                                             <td>Transferência Bancária</td>
-                                        {% elif contasPagar.forma_pagamento == 'C' %}
+                                        {% elif despesa.forma_pagamento == 'C' %}
                                             <td>Cheque</td>
-                                        {% elif contasPagar.forma_pagamento == 'P' %}
+                                        {% elif despesa.forma_pagamento == 'P' %}
                                             <td>Pix</td>
                                         {% endif %}
                                         {% if contasPagar.pago == 'S' %}
@@ -55,8 +56,8 @@
                                         {% endif %}
                                         
                                         <td>
-                                            <a href="" class="btn btn-primary">Editar</a>
-                                            <a href="" class="btn btn-danger">Excluir</a>
+                                            <a href="{% url 'financeiro:editar_despesas' despesa.id %}" class="btn btn-primary">Editar</a>
+                                            <a href="{% url 'financeiro:excluir_despesas' despesa.id %}" class="btn btn-danger">Excluir</a>
                                         </td>
                                     </tr>
                                 {% endfor %}

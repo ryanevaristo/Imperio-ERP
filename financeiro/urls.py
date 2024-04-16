@@ -19,5 +19,11 @@ urlpatterns = [
     path('cadastrar_cheque/', views.cadastrar_cheque, name='cadastrar_cheque'),
     path('editar_cheque/<int:id>/', views.editar_cheque, name='editar_cheque'),
     path('excluir_cheque/<int:id>/', views.excluir_cheque, name='excluir_cheque'),
+    #fornecedores
+    path('fornecedores/', views.fornecedores, name='fornecedores'),
+    path('cadastrar_fornecedor/', views.cadastrar_fornecedor, name='cadastrar_fornecedor'),
+    path('editar_fornecedor/<int:id>/', views.editar_fornecedor, name='editar_fornecedor'),
+    path('excluir_fornecedor/<int:id>/', views.excluir_fornecedor, name='excluir_fornecedor'),
+    
     
 ]

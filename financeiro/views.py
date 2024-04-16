@@ -1,16 +1,12 @@
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import redirect, render
+from django.http import HttpResponse, JsonResponse
 from django.template import loader
-from .models import ContaPagar, ContaReceber, Cheque
+from .models import ContaPagar, ContaReceber, Cheque, Fornecedor
 from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
 
 
 
-@login_required(login_url='/auth/login/')
-@has_role_decorator("vendedor")
-def financeiro(request):
-    return render(request, 'financeiro.html')
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -19,6 +15,7 @@ def despesas(request):
     return render(request, 'despesas.html', {'despesas': despesas})
 
 @login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def cadastrar_despesas(request):
     if request.method == "GET":
         return render(request, 'cadastrar_despesas.html')
@@ -28,6 +25,7 @@ def cadastrar_despesas(request):
         data_vencimento = request.POST.get('data_vencimento')
         data_pagamento = request.POST.get('data_pagamento')
         forma_pagamento = request.POST.get('forma_pagamento')
+        
         pago = request.POST.get('pago')
         if pago == "S":
             pago = True
@@ -35,17 +33,18 @@ def cadastrar_despesas(request):
             pago = False
         print(descricao, valor, data_vencimento,data_pagamento, forma_pagamento, pago)
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
-        conta_pagar = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, 
+        despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, 
                                 data_pagamento=data_pagamento, forma_pagamento=forma_pagamento,
                                 pago=pago)
-        conta_pagar.save()
-        return HttpResponse("Conta a pagar cadastrada com sucesso!")
+        despesas.save()
+        return redirect('/financeiro/despesas/')
     
 @login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def editar_despesas(request, id):
-    conta_pagar = ContaPagar.objects.get(id=id)
+    despesas = ContaPagar.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'editar_despesas.html', {'conta_pagar': conta_pagar})
+        return render(request, 'cadastrar_despesas.html', {'despesas': despesas})
     elif request.method == "POST":
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -54,19 +53,31 @@ def editar_despesas(request, id):
         pago = request.POST.get('pago')
         print(descricao, valor, data_vencimento, forma_pagamento, pago)
         # Aqui você deve atualizar os dados da conta a pagar no banco de dados
-        conta_pagar.descricao = descricao
-        conta_pagar.valor = valor
-        conta_pagar.data_vencimento = data_vencimento
-        conta_pagar.forma_pagamento = forma_pagamento
-        conta_pagar.pago = pago
-        conta_pagar.save()
-        return HttpResponse("Conta a pagar atualizada com sucesso!")
+        despesas.descricao = descricao
+        despesas.valor = valor
+        despesas.data_vencimento = data_vencimento
+        despesas.forma_pagamento = forma_pagamento
+        despesas.pago = pago
+        despesas.save()
+        return redirect('/financeiro/despesas/')
     
 @login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def excluir_despesas(request, id):
-    conta_pagar = ContaPagar.objects.get(id=id)
-    conta_pagar.delete()
-    return HttpResponse("Conta a pagar excluída com sucesso!")
+    despesas = ContaPagar.objects.get(id=id)
+    despesas.delete()
+    return redirect('/financeiro/despesas/')
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def total_despesas(request):
+    despesas = ContaPagar.objects.all()
+    total = 0
+    for despesa in despesas:
+        total += despesa.valor
+    return JsonResponse({'total': total})
+
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -88,9 +99,10 @@ def cadastrar_contas_receber(request):
         # Aqui você deve salvar os dados da conta a receber no banco de dados
         conta_receber = ContaReceber(descricao=descricao, valor=valor, data_vencimento=data_vencimento, forma_recebimento=forma_recebimento, recebido=recebido)
         conta_receber.save()
-        return HttpResponse("Conta a receber cadastrada com sucesso!")
+        return redirect('contas_receber')
     
 @login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def editar_contas_receber(request, id):
     conta_receber = ContaReceber.objects.get(id=id)
     if request.method == "GET":
@@ -113,6 +125,7 @@ def editar_contas_receber(request, id):
     
 
 @login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def excluir_contas_receber(request, id):
     conta_receber = ContaReceber.objects.get(id=id)
     conta_receber.delete()
@@ -126,6 +139,7 @@ def cheques(request):
     return render(request, 'cheques.html', {'cheques': cheques})
 
 @login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def cadastrar_cheque(request):
     if request.method == "GET":
         return render(request, 'cadastrar_cheque.html')
@@ -161,13 +175,64 @@ def editar_cheque(request, id):
         cheque.data_compensacao = data_compensacao
         cheque.emitente = emitente
         cheque.save()
-        return HttpResponse("Cheque atualizado com sucesso!")
+        return redirect('cheques')
     
 
 @login_required(login_url='/auth/login/')
 def excluir_cheque(request, id):
     cheque = Cheque.objects.get(id=id)
     cheque.delete()
-    return HttpResponse("Cheque excluído com sucesso!")
+    return redirect('cheques')
+
+
+
 
 # Path: imperio/financeiro/models.py
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def fornecedores(request):
+    fornecedores = Fornecedor.objects.all()
+    return render(request, 'fornecedores.html', {'fornecedores': fornecedores})
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def cadastrar_fornecedor(request):
+    if request.method == "GET":
+        return render(request, 'cadastrar_fornecedor.html')
+    elif request.method == "POST":
+        nome = request.POST.get('nome')
+        cnpj = request.POST.get('cnpj')
+        print(nome, cnpj)
+        # Aqui você deve salvar os dados do fornecedor no banco de dados
+        fornecedor = Fornecedor(nome=nome, cnpj=cnpj)
+        fornecedor.save()
+        return redirect('fornecedores')
+    
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def editar_fornecedor(request, id):
+    fornecedor = Fornecedor.objects.get(id=id)
+    if request.method == "GET":
+        return render(request, 'editar_fornecedor.html', {'fornecedor': fornecedor})
+    elif request.method == "POST":
+        nome = request.POST.get('nome')
+        cnpj = request.POST.get('cnpj')
+        print(nome, cnpj)
+        # Aqui você deve atualizar os dados do fornecedor no banco de dados
+        fornecedor.nome = nome
+        fornecedor.cnpj = cnpj
+        fornecedor.save()
+        return redirect('fornecedores')
+    
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def excluir_fornecedor(request, id):
+    fornecedor = Fornecedor.objects.get(id=id)
+    fornecedor.delete()
+    return redirect('fornecedores')
+
+
+
+    

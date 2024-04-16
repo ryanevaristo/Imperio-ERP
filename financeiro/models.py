@@ -29,6 +29,13 @@ class ContaPagar(models.Model):
     def get_data_vencimento(self):
         return self.data_vencimento.strftime('%d/%m/%Y')
     
+    def get_data_pagamento(self):
+        return self.data_pagamento.strftime('%d/%m/%Y')
+    def edit_data_vencimento(self):
+        return self.data_vencimento.strftime('%Y-%m-%d')
+    def edit_data_pagamento(self):
+        return self.data_pagamento.strftime('%Y-%m-%d')
+    
 
 class ContaReceber(models.Model):
     choice_forma_recebimento = (
@@ -53,6 +60,7 @@ class ContaReceber(models.Model):
     
     def get_data_vencimento(self):
         return self.data_vencimento.strftime('%d/%m/%Y')
+    
     
 class Cheque(models.Model):
     choice_situacao = (
@@ -100,4 +108,17 @@ class Cheque(models.Model):
         return self.data_compensacao.strftime('%d/%m/%Y')
     
     
+
+class Fornecedor(models.Model):
+    nome = models.CharField(max_length=100)
+    cnpj = models.CharField(max_length=20)
+    telefone = models.CharField(max_length=20)
+    email = models.EmailField(max_length=100)
+    endereco = models.CharField(max_length=100)
+    cidade = models.CharField(max_length=100)
+    estado = models.CharField(max_length=2)
+    cep = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.nome
 # Create your models here.

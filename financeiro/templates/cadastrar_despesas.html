@@ -1,0 +1,95 @@
+{% extends 'base-home.html' %}
+{% block 'title' %}Cadastre uma Despesa{% endblock %}
+{% load static %}
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'financeiro/css/cadastrar_despesas.css' %}">
+{% endblock %}
+{% block 'body' %}
+<div class="container-fluid" id="container">
+    <h2 class="page-title">Cadastre uma Despesa</h2>
+    <hr>
+    <form action="{% url 'financeiro:cadastrar_despesas' %}" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Erro!</strong> Por favor, corrija os erros abaixo.
+            </div>
+        {% endif %}
+        {% if despesas  %}
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <input type="text" class="form-control" id="descricao" name="descricao" value="{{ despesas.descricao }}" required>
+            </div>
+            <div class="form-group">
+                <label for="valor">Valor</label>
+                <input type="number" class="form-control" id="valor" name="valor"  value="{{ despesas.valor}}" equired>
+            </div>
+            <div class="form-group">
+                <label for="data_vencimento">Data de Vencimento</label>
+                <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" value="{{despesas.edit_data_vencimento}}" required>
+            </div>
+            <div class="form-group">
+                <label for="data_pagamento">Data de Pagamento</label>
+                <input type="date" class="form-control" id="data_pagamento" name="data_pagamento" value="{{despesas.edit_data_pagamento}}">
+                
+            <div class="form-group">
+                <label for="forma_pagamento">Forma de Pagamento</label>
+                <select class="form-control" id="forma_pagamento" name="forma_pagamento"  value="{{despesas.forma_pagamento}}" required>
+                    <option value="D">Dinheiro</option>
+                    <option value="C">Cartão de Crédito</option>
+                    <option value="B">Cartão de Débito</option>
+                    <option value="T">Transferência Bancária</option>
+                    <option value="C">Cheque</option>
+                    <option value="P">Pix</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status">Pago ?</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="S">Sim</option>
+                    <option value="N">Não</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Cadastrar</button>
+            
+        {% else %}
+            <div class="form-group">
+                <label for="descricao">Descrição</label>
+                <input type="text" class="form-control" id="descricao" name="descricao" required>
+            </div>
+            <div class="form-group">
+                <label for="valor">Valor</label>
+                <input type="number" class="form-control" id="valor" name="valor" required>
+            </div>
+            <div class="form-group">
+                <label for="data_vencimento">Data de Vencimento</label>
+                <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" required>
+            </div>
+            <div class="form-group">
+                <label for="data_pagamento">Data de Pagamento</label>
+                <input type="date" class="form-control" id="data_pagamento" name="data_pagamento">
+            <div class="form-group">
+                <label for="forma_pagamento">Forma de Pagamento</label>
+                <select class="form-control" id="forma_pagamento" name="forma_pagamento" required>
+                    <option value="D">Dinheiro</option>
+                    <option value="C">Cartão de Crédito</option>
+                    <option value="B">Cartão de Débito</option>
+                    <option value="T">Transferência Bancária</option>
+                    <option value="C">Cheque</option>
+                    <option value="P">Pix</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="status">Pago ?</label>
+                <select class="form-control" id="status" name="status" required>
+                    <option value="S">Sim</option>
+                    <option value="N">Não</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">Cadastrar</button>
+        {% endif %}
+        
+    </form>
+</div>
+{% endblock %}
+```
