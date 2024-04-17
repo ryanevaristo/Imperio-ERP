@@ -12,7 +12,7 @@
                 <a href="{% url 'home' %}">Randtech</a>
             </div>
         </div>
-
+        <ul class="list-unstyled">
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#Produtos" aria-expanded="false" aria-controls="Produtos">
@@ -24,7 +24,7 @@
                         <a href="#" class="sidebar-link">Listar Produtos</a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="sidebar-link">Cadastrar Produtos</a>
+                        <a href="#" class="sidebar-link">Cadastrar Produtos</a>
                     </li>
                 </ul>
             </li>
@@ -61,14 +61,29 @@
                 </ul>
             </li>
             <li class="sidebar-item">
-                <a href="{% url 'usuarios:vendedores' %}" class="sidebar-link" data-bs-toggle="collapse"
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Despesas" aria-expanded="false" aria-controls="Despesas">
+                    <i class="bi bi-cash-stack" id="icone"></i>
+                    <span>Despesas</span>
+                </a>
+                <ul id="Despesas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:despesas' %}" class="sidebar-link">Listar Despesas</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:cadastrar_despesas' %}" class="sidebar-link">Cadastrar Despesas</a>
+                    </li>
+                </ul>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                 data-bs-target="#Vendedores" aria-expanded="false" aria-controls="Vendedores">
                     <i class="bi bi-person-fill"></i>
                     <span>Vendedores</span>
                 </a>
-                <ul id="Vendas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                <ul id="Vendedores" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar Vendedores</a>
+                        <a href="{% url 'usuarios:vendedores' %}" class="sidebar-link">Listar Vendedores</a>
                     </li>
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link">Cadastrar Vendedores</a>
@@ -76,28 +91,6 @@
                 </ul>
             </li>
 
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Clientes</span>
-                </a>
-
-
-           
-            
-            
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-popup"></i>
-                    <span>Notification</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-cog"></i>
-                    <span>Setting</span>
-                </a>
-            </li>
         </ul>
         <div class="sidebar-footer">
             <a href="{% url 'usuarios:logout' %}" class="sidebar-link">
