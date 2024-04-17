@@ -1,0 +1,54 @@
+{% load static %}
+
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'financeiro/css/cadastrar_categoria.css' %}">
+{% endblock %}
+
+{% block 'body' %}
+<div class="container-fluid" id="container">
+
+    <h2 class="page-title">Cadastre uma Categoria</h2>
+    <hr>
+    <form action="{% url 'financeiro:cadastrar_categoria' %}" method="post">
+        {% csrf_token %}
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <strong>Erro!</strong> Por favor, corrija os erros abaixo.
+            </div>
+        {% endif %}
+        <div class="form-group
+        ">
+            <label for="descricao">Descrição</label>
+            <input type="text" class="form-control" id="descricao" name="descricao" value="{{ categoria.descricao }}" required>
+        </div>
+        <button type="submit" class="btn btn-success">Cadastrar</button>
+    </form>
+</div>
+
+<!-- listar categorias -->
+
+<div class="container-fluid" id="container">
+    <h2 class="page-title">Categorias</h2>
+    <hr>
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Descrição</th>
+                <th>Opções</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for categoria in categorias %}
+                <tr>
+                    <td>{{ categoria.descricao }}</td>
+                    <td>
+                        <a href="{% url 'financeiro:editar_categoria' categoria.id %}" class="btn btn-primary">Editar</a>
+                        <a href="{% url 'financeiro:excluir_categoria' categoria.id %}" class="btn btn-danger">Excluir</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+```

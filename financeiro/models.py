@@ -18,6 +18,7 @@ class ContaPagar(models.Model):
     data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     data_pagamento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     forma_pagamento = models.CharField(max_length=1, choices=choice_forma_pagamento,default='D',null=True, blank=True)
+    categoria = models.ForeignKey('DespesasCategoria', on_delete=models.CASCADE, null=True, blank=True)
     pago = models.BooleanField(default=False)
 
     def __str__(self):
@@ -36,6 +37,12 @@ class ContaPagar(models.Model):
     def edit_data_pagamento(self):
         return self.data_pagamento.strftime('%Y-%m-%d')
     
+
+class DespesasCategoria(models.Model):
+    descricao = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.descricao
 
 class ContaReceber(models.Model):
     choice_forma_recebimento = (

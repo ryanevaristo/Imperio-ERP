@@ -136,7 +136,7 @@
                             labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
                             datasets: [{
                                 
-                                data: [ 12, 19, 3, 5, 2, 3],
+                                data: [],
                                 backgroundColor: [
                                     'rgba(255, 99, 132, 0.8)',
                                     'rgba(54, 162, 235, 0.8)',
@@ -164,7 +164,7 @@
                             },
                             plugins: {
                                 legend: {
-                                    display: false
+                                    display: true
                                 }
                             }
                             
@@ -175,6 +175,35 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block 'scripts' %}
+<script>
+    $.ajax({
+        url: "{% url 'financeiro:total_despesas' %}",
+        method: 'GET',
+        success: function(response) {
+            // transformar objeto em map 
+            var despesas = Object.entries(response['total_despesas']);
+            // console.log(despesas);
+            valores = [];
+            labels = [];
+            despesas.forEach(element => {
+                valores.push(element[1]);
+                labels.push(element[0]);
+            });
+            myChart.data.datasets[0].data = valores;
+            myChart.data.labels = labels;
+            
+            myChart.update();
+            // myChart.data.datasets[0].data = response['total_despesas'][];
+        },
+        error: function(error) {
+            // Handle the error here
+        }
+    });
+</script>
 
 {% endblock %}
 

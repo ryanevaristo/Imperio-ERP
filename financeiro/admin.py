@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ContaPagar, ContaReceber, Cheque
+from .models import ContaPagar, ContaReceber, Cheque, DespesasCategoria
 @admin.register(ContaPagar)
 class ContaPagarAdmin(admin.ModelAdmin):
     list_display = ('descricao', 'valor', 'data_vencimento', 'forma_pagamento', 'pago')
@@ -19,6 +19,11 @@ class ChequeAdmin(admin.ModelAdmin):
     list_display = ('numero', 'nome_titular', 'situacao', 'data_compensacao', 'valor')
     list_filter = ('situacao', 'nome_titular')
     search_fields = ('numero', 'nome_titular')
+
+@admin.register(DespesasCategoria)
+class DespesasCategoriaAdmin(admin.ModelAdmin):
+    list_display = ('descricao',)
+    search_fields = ('descricao',)
 
 
 

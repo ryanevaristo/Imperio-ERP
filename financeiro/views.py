@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
 from django.template import loader
-from .models import ContaPagar, ContaReceber, Cheque, Fornecedor
+from .models import ContaPagar, ContaReceber, Cheque, Fornecedor, DespesasCategoria
 from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
 
@@ -18,46 +18,56 @@ def despesas(request):
 @has_role_decorator("vendedor")
 def cadastrar_despesas(request):
     if request.method == "GET":
-        return render(request, 'cadastrar_despesas.html')
+        cadastrar_categorias = DespesasCategoria.objects.all()
+        return render(request, 'cadastrar_despesas.html', {'categorias': cadastrar_categorias})
     elif request.method == "POST":
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
         data_pagamento = request.POST.get('data_pagamento')
         forma_pagamento = request.POST.get('forma_pagamento')
-        
+        categoria = request.POST.get('categoria')
         pago = request.POST.get('pago')
-        if pago == "S":
+        if pago == 'S':
             pago = True
         else:
             pago = False
-        print(descricao, valor, data_vencimento,data_pagamento, forma_pagamento, pago)
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
-        despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, 
-                                data_pagamento=data_pagamento, forma_pagamento=forma_pagamento,
-                                pago=pago)
+        despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_pagamento=data_pagamento, forma_pagamento=forma_pagamento, categoria=DespesasCategoria.objects.get(id=categoria), pago=pago)
         despesas.save()
         return redirect('/financeiro/despesas/')
+    
+
+
     
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def editar_despesas(request, id):
     despesas = ContaPagar.objects.get(id=id)
+    categorias = DespesasCategoria.objects.all()
     if request.method == "GET":
-        return render(request, 'cadastrar_despesas.html', {'despesas': despesas})
+        return render(request, 'cadastrar_despesas.html', {'despesas': despesas, 'categorias': categorias})
     elif request.method == "POST":
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
         forma_pagamento = request.POST.get('forma_pagamento')
         pago = request.POST.get('pago')
-        print(descricao, valor, data_vencimento, forma_pagamento, pago)
+        categoria = request.POST.get('categoria')
+        print(pago)
+        if pago == 'S':
+            pago = True
+        else:
+            pago = False
+        print("aqui é a categoria: "+categoria +" e aqui é se ta pago: "+str(pago))
         # Aqui você deve atualizar os dados da conta a pagar no banco de dados
         despesas.descricao = descricao
         despesas.valor = valor
         despesas.data_vencimento = data_vencimento
         despesas.forma_pagamento = forma_pagamento
         despesas.pago = pago
+        despesas.categoria = DespesasCategoria.objects.get(id=categoria)
         despesas.save()
         return redirect('/financeiro/despesas/')
     
@@ -69,17 +79,6 @@ def excluir_despesas(request, id):
     return redirect('/financeiro/despesas/')
 
 
-# @login_required(login_url='/auth/login/')
-# @has_role_decorator("vendedor")
-# def total_despesas(request):
-#     despesas = ContaPagar.objects.all()
-#     total = 0
-    
-#     for despesa in despesas:
-#         total += despesa.valor
-#     return JsonResponse({'total': total})
-
-# total despesas por tipo
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def total_despesas(request):
@@ -96,8 +95,32 @@ def total_despesas(request):
     for despesa in despesas:
         total_valor += despesa.valor
         total_despesas[despesa.forma_pagamento] += despesa.valor
+
+    total_despesas['Dinheiro'] = total_despesas.pop('D')
+    total_despesas['Cartão de Crédito'] = total_despesas.pop('C')
+    total_despesas['Boleto'] = total_despesas.pop('B')
+    total_despesas['Transferência Bancária'] = total_despesas.pop('T')
+    total_despesas['PIX'] = total_despesas.pop('P')
+
+
     return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas})
 
+
+#categoria
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def cadastrar_categorias(request):
+    if request.method == "GET":
+        cadastrar_categorias = DespesasCategoria.objects.all()
+        return render(request, 'cadastrar_categoria.html', {'categorias': cadastrar_categorias})
+    elif request.method == "POST":
+        descricao = request.POST.get('descricao')
+        print(descricao)
+        # Aqui você deve salvar os dados da categoria no banco de dados
+        categoria = DespesasCategoria(descricao=descricao)
+        categoria.save()
+        return redirect('/financeiro/despesas/')
 
 
 @login_required(login_url='/auth/login/')

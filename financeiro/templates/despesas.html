@@ -26,6 +26,7 @@
                                     <th>Data de Pagamento</th>
                                     <th>Forma Pagamento</th>
                                     <th>Situação</th>
+                                    <th>Categoria</th>
                                     <th>Opções</th>
                                 </tr>
                             </thead>
@@ -49,11 +50,12 @@
                                         {% elif despesa.forma_pagamento == 'P' %}
                                             <td>Pix</td>
                                         {% endif %}
-                                        {% if contasPagar.pago == 'S' %}
+                                        {% if despesa.pago == True %}
                                             <td>Pago</td>
                                         {% else %}
                                             <td>Pendente</td>
                                         {% endif %}
+                                        <td>{{ despesa.categoria.descricao }}</td>
                                         
                                         <td>
                                             <a href="{% url 'financeiro:editar_despesas' despesa.id %}" class="btn btn-primary">Editar</a>
