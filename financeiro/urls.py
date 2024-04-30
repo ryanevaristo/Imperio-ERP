@@ -9,6 +9,7 @@ urlpatterns = [
     path('editar_despesas/<int:id>/', views.editar_despesas, name='editar_despesas'),
     path('excluir_despesas/<int:id>/', views.excluir_despesas, name='excluir_despesas'),
     path('total_despesas/', views.total_despesas, name='total_despesas'),
+    path('gerar_excel_despesas/', views.gerar_excel_despesas, name='gerar_excel_despesas'),
     #categorias
     path('cadastrar_categoria/', views.cadastrar_categorias, name='cadastrar_categoria'),
     #contas a receber

@@ -4,7 +4,8 @@ from django.template import loader
 from .models import ContaPagar, ContaReceber, Cheque, Fornecedor, DespesasCategoria
 from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
-
+import pandas as pd
+from django.core.paginator import Paginator
 
 
 
@@ -12,7 +13,11 @@ from rolepermissions.decorators import has_role_decorator
 @has_role_decorator("vendedor")
 def despesas(request):
     despesas = ContaPagar.objects.all()
-    return render(request, 'despesas.html', {'despesas': despesas})
+    paginator = Paginator(despesas, 1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'despesas.html', {'page_obj': page_obj})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -104,6 +109,14 @@ def total_despesas(request):
 
 
     return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas})
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def gerar_excel_despesas(request):
+    despesas = ContaPagar.objects.all()
+    
+    return response
 
 
 #categoria

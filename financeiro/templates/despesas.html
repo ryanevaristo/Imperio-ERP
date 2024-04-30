@@ -13,7 +13,7 @@
             <hr>
             <a href="{% url 'financeiro:cadastrar_despesas' %}" class="btn btn-primary">Adicionar nova Conta</a>
             <a href="" class="btn btn-success float-right">Gerar Excel</a>
-            {% if despesas %}
+            {% if page_obj %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive">
@@ -31,7 +31,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for despesa in despesas %}
+                                {% for despesa in page_obj %}
                                     <tr>
                                         <td>{{ despesa.descricao }}</td>
                                         <td>{{ despesa.get_valor }}</td>
@@ -65,8 +65,9 @@
                                 {% endfor %}
                             </tbody>
                         </table>
+                       
                     </div>
-
+                    {% include 'pagination.html' %}
             </div>
 
         </div>
