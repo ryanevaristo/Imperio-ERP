@@ -34,8 +34,8 @@ class ContaPagar(models.Model):
         return self.data_pagamento.strftime('%d/%m/%Y')
     def edit_data_vencimento(self):
         return self.data_vencimento.strftime('%Y-%m-%d')
-    def edit_data_pagamento(self):
-        return self.data_pagamento.strftime('%Y-%m-%d')
+    def data_pagamento_mês_atual(self):
+        return self.data_pagamento.strftime('%m')
     
 
 class DespesasCategoria(models.Model):

@@ -18,13 +18,13 @@
             <h2 class="box-title">Comercial</h2>
             <div id="linha">
                 <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-box-seam" id="icone"></i>Produtos
+                    <i class="bi bi-box-seam" id="icone"></i>Produtos (em breve)
                 </a>  
                 <a class="btn btn-app" href="" id="button">
                     <i class="bi bi-cart fill" id="icone"></i>Vendas
                 </a>
                 <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-bag-fill" id="icone"></i>PDV
+                    <i class="bi bi-bag-fill" id="icone"></i>PDV (em breve)
                 </a>
             </div>
         </div>
@@ -42,7 +42,9 @@
                     <i class="bi bi-cassette" id="icone"></i>Cheques
                 </a>
                 <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-table" id="icone"></i>Relatorios
+                    <i class="
+                    bi bi-currency-dollar" id="icone"></i>Entrada (em construção)
+                    
                 </a>
                 
             </div>
@@ -59,7 +61,7 @@
                     <i class="bi bi-person-fill" id="icone"></i>Vendedores
                 </a>
                 <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores
+                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores (em breve)
                 </a>
                 
             </div>
@@ -72,7 +74,7 @@
     <div class="col-md-8" >
         <div class="box box-primary" id="container-charts">
             <div class="box-header">
-                <h3 class="box-title">Gráfico de vendas</h3>
+                <h3 class="box-title">Gráfico de vendas  (Em construção)</h3>
             </div>
             <div class="box-body">
                 <div>
@@ -124,7 +126,7 @@
     <div class="col-md-4">
         <div class="box box-primary"  id="container-charts">
             <div class="box-header">
-                <h3 class="box-title">Principais despesas (April 2024)</h3>
+                <h3 id="titulo_chart2" class="box-title">Principais despesas</h3>
             </div>
             <div class="box-body" style="display: flex; justify-content: center;">
                 <canvas id="myChart" ></canvas>
@@ -188,7 +190,8 @@
         success: function(response) {
             // transformar objeto em map 
             var despesas = Object.entries(response['total_despesas']);
-            // console.log(despesas);
+            var mes_atual = response['mes_atual'];
+            console.log(mes_atual);
             valores = [];
             labels = [];
             despesas.forEach(element => {
@@ -199,6 +202,32 @@
             myChart.data.labels = labels;
             
             myChart.update();
+            if (mes_atual == 1) {
+                mes_atual = 'Janeiro';
+            } else if (mes_atual == 2) {
+                mes_atual = 'Fevereiro';
+            } else if (mes_atual == 3) {
+                mes_atual = 'Março';
+            } else if (mes_atual == 4) {
+                mes_atual = 'Abril';
+            } else if (mes_atual == 5) {
+                mes_atual = 'Maio';
+            } else if (mes_atual == 6) {
+                mes_atual = 'Junho';
+            } else if (mes_atual == 7) {
+                mes_atual = 'Julho';
+            } else if (mes_atual == 8) {
+                mes_atual = 'Agosto';
+            } else if (mes_atual == 9) {
+                mes_atual = 'Setembro';
+            } else if (mes_atual == 10) {
+                mes_atual = 'Outubro';
+            } else if (mes_atual == 11) {
+                mes_atual = 'Novembro';
+            } else if (mes_atual == 12) {
+                mes_atual = 'Dezembro';
+            }
+            document.getElementById('titulo_chart2').innerHTML = 'Principais despesas do mês ' + mes_atual;
             // myChart.data.datasets[0].data = response['total_despesas'][];
         },
         error: function(error) {

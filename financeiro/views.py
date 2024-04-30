@@ -7,6 +7,7 @@ from rolepermissions.decorators import has_role_decorator
 import pandas as pd
 from django.core.paginator import Paginator
 from django.contrib import messages
+from datetime import datetime
 
 
 
@@ -14,7 +15,7 @@ from django.contrib import messages
 @has_role_decorator("vendedor")
 def despesas(request):
     despesas = ContaPagar.objects.all()
-    paginator = Paginator(despesas, 1)
+    paginator = Paginator(despesas, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -89,27 +90,39 @@ def excluir_despesas(request, id):
 @has_role_decorator("vendedor")
 def total_despesas(request):
     despesas = ContaPagar.objects.all()
+    #maiores despesas no mês atual
+    # despesas = ContaPagar.objects.filter(data_vencimento__month=9)
+    despesas = ContaPagar.objects.filter(data_vencimento__month=datetime.now().month).order_by('-valor')[:5]
     total_valor = 0
     total_despesas = {
-        'D': 0,
-        'C': 0,
-        'B': 0,
-        'T': 0,
-        'P': 0,
+
     
     }
     for despesa in despesas:
         total_valor += despesa.valor
-        total_despesas[despesa.forma_pagamento] += despesa.valor
+        total_despesas[despesa.descricao] = despesa.valor
 
-    total_despesas['Dinheiro'] = total_despesas.pop('D')
-    total_despesas['Cartão de Crédito'] = total_despesas.pop('C')
-    total_despesas['Boleto'] = total_despesas.pop('B')
-    total_despesas['Transferência Bancária'] = total_despesas.pop('T')
-    total_despesas['PIX'] = total_despesas.pop('P')
+    # total_valor = 0
+    # total_despesas = {
+    #     'D': 0,
+    #     'C': 0,
+    #     'B': 0,
+    #     'T': 0,
+    #     'P': 0,
+    
+    # }
+    # for despesa in despesas:
+    #     total_valor += despesa.valor
+    #     total_despesas[despesa.forma_pagamento] += despesa.valor
+
+    # total_despesas['Dinheiro'] = total_despesas.pop('D')
+    # total_despesas['Cartão de Crédito'] = total_despesas.pop('C')
+    # total_despesas['Boleto'] = total_despesas.pop('B')
+    # total_despesas['Transferência Bancária'] = total_despesas.pop('T')
+    # total_despesas['PIX'] = total_despesas.pop('P')
 
 
-    return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas})
+    return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas, 'mes_atual': datetime.now().month})
 
 
 @login_required(login_url='/auth/login/')
