@@ -50,7 +50,22 @@
                                         {% else %}
                                             <td>Devolvido</td>
                                         {% endif %}
-                                        <td>{{ cheque.banco }}</td>
+                                        {%if cheque.banco == '001'%}
+                                            <td>Banco do Brasil</td>
+                                        {% elif cheque.banco == '104' %}
+                                            <td>Caixa Econômica Federal</td>
+                                        {% elif cheque.banco == '237' %}
+                                            <td>Bradesco</td>
+                                        {% elif cheque.banco == '341' %}
+                                            <td>Itaú</td>
+                                        {% elif cheque.banco == '356' %}
+                                            <td>Santander</td>
+                                        {% elif cheque.banco == '033' %}
+                                            <td>Banco Santander (Brasil)</td>
+                                        {% else %}
+                                            <td>Citibank</td>
+                                        {% endif %}
+
                                         <td>
                                             <a href="{% url 'financeiro:editar_cheque' cheque.id %}" class="btn btn-primary">Editar</a>
                                             <a href="{% url 'financeiro:excluir_cheque' cheque.id %}" class="btn btn-danger">Excluir</a>

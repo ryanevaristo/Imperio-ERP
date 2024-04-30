@@ -231,7 +231,7 @@ def cadastrar_cheque(request):
 def editar_cheque(request, id):
     cheque = Cheque.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'editar_cheque.html', {'cheque': cheque})
+        return render(request, 'cheques/cadastrar_cheque.html', {'cheque': cheque})
     elif request.method == "POST":
         numero = request.POST.get('numero')
         valor = request.POST.get('valor')
@@ -246,14 +246,14 @@ def editar_cheque(request, id):
         cheque.data_compensacao = data_compensacao
         cheque.emitente = emitente
         cheque.save()
-        return redirect('cheques')
+        return redirect('financeiro:cheques')
     
 
 @login_required(login_url='/auth/login/')
 def excluir_cheque(request, id):
     cheque = Cheque.objects.get(id=id)
     cheque.delete()
-    return redirect('cheques')
+    return redirect('financeiro:cheques')
 
 
 

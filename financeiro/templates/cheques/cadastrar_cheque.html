@@ -8,10 +8,81 @@
 <div class="container-fluid" id="container">
     <div class="row">
         <div class="col-md-12">
+            {% if cheque %}
+            <h2 class="page-title">Editar Cheque</h2>
+            <p>Atualize o cheque</p>
+            {% else %}
             <h2 class="page-title
             ">Cadastrar Cheque</h2>
             <p>Adicione um novo cheque</p>
+
+            {% endif %}
+            
             <hr>
+            {% if cheque %}
+            <form action="{% url 'financeiro:editar_cheque' cheque.id %}" method="post">
+                {% csrf_token %}
+                <div class="form-group
+                ">
+                    <label for="nome">Nome do Titular</label>
+                    <input type="text" class="form-control" id="nome_titular" name="nome_titular" value="{{ cheque.nome_titular }}" required>
+                </div>
+                <div class="form-group
+                ">
+                    <label for="nome_repassador">Nome do Repassador</label>
+                    <input type="text" class="form-control" id="nome_repassador" name="nome_repassador" value="{{ cheque.nome_repassador }}" required>
+                </div>
+                <div class="form-group
+                ">
+                    <label for="numero">Numero do Cheque</label>
+                    <input type="text" class="form-control" id="numero" name="numero" value="{{ cheque.numero }}" required>
+                </div>
+                <div class="form-group
+                ">
+                    <label for="valor">Valor</label>
+                    <input type="text" class="form-control" id="valor" name="valor" value="{{ cheque.valor }}" required>
+                </div>
+                <div class="form-group
+                ">
+                    <label for="data_emissao">Data de Compensação</label>
+                    <input type="date" class="form-control" id="data_compensacao" name="data_compensacao" value="{{ cheque.get_data_compensacao }}" required>
+                </div>
+                <div class="form-group
+                ">
+                    <label for="banco">Banco</label>
+                    <select class="form-control" id="banco" name="banco" value="{{ cheque.banco }}" required>
+                        <option value="001">Banco do Brasil</option>
+                        <option value="104">Caixa Econômica Federal</option>
+                        <option value="237">Bradesco</option>
+                        <option value="341">Itaú</option>
+                        <option value="356">Santander</option>
+                        <option value="033">Banco Santander (Brasil)</option>
+                        <option value="745">Citibank</option>
+                        <option value="399">HSBC</option>
+                        <option value="422">Safra</option>
+                        <option value="389">Mercantil do Brasil</option>
+                        <option value="633">Rendimento</option>
+                        <option value="652">Itaú Unibanco Holding</option>
+                        <option value="745">Banco Citibank</option>
+                        <option value="748">Sicredi</option>
+                        <option value="756">Sicoob</option>
+                    </select>
+                </div>
+                <div class="form-group
+                ">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="status" value="{{ cheque.situacao }}" required>
+                        <option value="E">Emitido</option>
+                        <option value="C">Compensado</option>
+                        <option value="V">Vencido</option>
+                        <option value="S">Sem Fundo</option>
+                        <option value="D">Devolvido</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+                        
+            {% else %}
             <form method="POST">
                 {% csrf_token %}
                 <div class="form-group
@@ -25,8 +96,8 @@
                 </div>
                 <div class="form-group
                 ">
-                    <label for="numero_cheque">Numero do Cheque</label>
-                    <input type="text" class="form-control" id="numero_cheque" name="numero_cheque" placeholder="Insira o Numero do cheque">
+                    <label for="numero">Numero do Cheque</label>
+                    <input type="text" class="form-control" id="numero" name="numero" placeholder="Insira o Numero do cheque">
                 </div>
 
                 <div class="form-group
@@ -72,6 +143,7 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Cadastrar</button>
             </form>
+            {% endif %}
         </div>
     </div>
 </div>
