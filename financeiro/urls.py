@@ -13,10 +13,10 @@ urlpatterns = [
     #categorias
     path('cadastrar_categoria/', views.cadastrar_categorias, name='cadastrar_categoria'),
     #contas a receber
-    path('contas_receber/', views.contas_receber, name='contas_receber'),
-    path('cadastrar_contas_receber/', views.cadastrar_contas_receber, name='cadastrar_contas_receber'),
-    path('editar_contas_receber/<int:id>/', views.editar_contas_receber, name='editar_contas_receber'),
-    path('excluir_contas_receber/<int:id>/', views.excluir_contas_receber, name='excluir_contas_receber'),
+    path('entrada/', views.entrada, name='entradas'),
+    path('cadastrar_entrada/', views.cadastrar_entrada, name='cadastrar_entrada'),
+    path('editar_entrada/<int:id>/', views.editar_entrada, name='editar_entrada'),
+    path('excluir_entrada/<int:id>/', views.excluir_entrada, name='excluir_entrada'),
     #cheques
     path('cheques/', views.cheques, name='cheques'),
     path('cadastrar_cheque/', views.cadastrar_cheque, name='cadastrar_cheque'),

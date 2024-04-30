@@ -17,7 +17,7 @@
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#Produtos" aria-expanded="false" aria-controls="Produtos">
                     <i class="bi bi-box-seam"></i>
-                    <span>Produtos</span>
+                    <span>Produtos (em breve)</span>
                 </a>
                 <ul id="Produtos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
@@ -27,23 +27,6 @@
                         <a href="#" class="sidebar-link">Cadastrar Produtos</a>
                     </li>
                 </ul>
-            </li>
-
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Estoque" aria-expanded="false" aria-controls="Estoque">
-                    <i class="bi bi-archive-fill"></i>
-                    <span>Estoque</span>
-                </a>
-                <ul id="Estoque" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar Estoque</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Cadastrar Estoque</a>
-                    </li>
-                </ul>
-
             </li>
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
@@ -60,6 +43,22 @@
                     </li>
                 </ul>
             </li>
+            <!-- pdv -->
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#PDV" aria-expanded="false" aria-controls="PDV">
+                    <i class="bi bi-bag-fill"></i>
+                    <span>PDV (em breve)</span>
+                </a>
+                <ul id="PDV" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Listar PDV</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Cadastrar PDV</a>
+                    </li>
+                </ul>
+            
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#Despesas" aria-expanded="false" aria-controls="Despesas">
@@ -77,6 +76,55 @@
             </li>
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Cheques" aria-expanded="false" aria-controls="Cheques">
+                    <i class="bi bi-cassette" id="icone"></i>
+                    <span>Cheques</span>
+                </a>
+                <ul id="Cheques" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:cheques' %}" class="sidebar-link">Listar Cheques</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:cadastrar_cheque' %}" class="sidebar-link">Cadastrar Cheques</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Entradas" aria-expanded="false" aria-controls="Entradas">
+                    <i class="bi bi-currency-dollar" id="icone"></i>
+                    <span>Entradas</span>
+                </a>
+                <ul id="Entradas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:entradas' %}" class="sidebar-link">Listar Entradas</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:cadastrar_entrada' %}" class="sidebar-link">Cadastrar Entradas</a>
+                    </li>
+                </ul>
+            </li>
+            
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Clientes" aria-expanded="false" aria-controls="Clientes">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Clientes (em breve)</span>
+                </a>
+                <ul id="Clientes" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Listar Clientes</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Cadastrar Clientes</a>
+                    </li>
+                </ul>
+            </li>
+
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                 data-bs-target="#Vendedores" aria-expanded="false" aria-controls="Vendedores">
                     <i class="bi bi-person-fill"></i>
                     <span>Vendedores</span>
@@ -87,6 +135,22 @@
                     </li>
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link">Cadastrar Vendedores</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Fornecedores" aria-expanded="false" aria-controls="Fornecedores">
+                    <i class="bi bi-truck-front-fill"></i>
+                    <span>Fornecedores (em breve)</span>
+                </a>
+                <ul id="Fornecedores" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Listar Fornecedores</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Cadastrar Fornecedores</a>
                     </li>
                 </ul>
             </li>

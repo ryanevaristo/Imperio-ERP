@@ -34,6 +34,8 @@ class ContaPagar(models.Model):
         return self.data_pagamento.strftime('%d/%m/%Y')
     def edit_data_vencimento(self):
         return self.data_vencimento.strftime('%Y-%m-%d')
+    def edit_data_pagamento(self):
+        return self.data_pagamento.strftime('%Y-%m-%d')
     def data_pagamento_mês_atual(self):
         return self.data_pagamento.strftime('%m')
     
@@ -47,15 +49,16 @@ class DespesasCategoria(models.Model):
 class ContaReceber(models.Model):
     choice_forma_recebimento = (
         ('D', 'Dinheiro'),
-        ('C', 'Cartão de Crédito'),
+        ('E', 'Cartão de Crédito'),
         ('B', 'Boleto'),
         ('T', 'Transferência Bancária'),
         ('C', 'Cheque')
     )
-    descricao = models.CharField(max_length=100)
+    cliente = models.CharField(max_length=100, null=True, blank=True)
+    descricao = models.TextField(null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
-    data_vencimento = models.DateField()
-    data_recebimento = models.DateField(null=True, blank=True)
+    data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
+    data_recebimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     recebido = models.BooleanField(default=False)
     forma_recebimento = models.CharField(max_length=1, choices=choice_forma_recebimento,default='D',null=True, blank=True)
 
@@ -67,7 +70,12 @@ class ContaReceber(models.Model):
     
     def get_data_vencimento(self):
         return self.data_vencimento.strftime('%d/%m/%Y')
-    
+    def get_data_recebimento(self):
+        return self.data_recebimento.strftime('%d/%m/%Y')
+    def edit_data_vencimento(self):
+        return self.data_vencimento.strftime('%Y-%m-%d')
+    def edit_data_recebimento(self):
+        return self.data_recebimento.strftime('%Y-%m-%d')
     
 class Cheque(models.Model):
     choice_situacao = (

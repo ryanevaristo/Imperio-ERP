@@ -7,11 +7,18 @@
 {% block 'body' %}
 <div class="container-fluid" id="container">
     {% if despesas %}
-        <h1>Editar Despesa</h1>
+        <h2 class="page-title">Editar Despesa</h2>
     {% else %}
-        <h1>Cadastrar Despesa</h1>
+        <h2 class="page-title">Cadastrar Despesa</h2>
     {% endif %}
     <hr>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
     
         {% if despesas  %}
         <form action="{% url 'financeiro:editar_despesas' despesas.id %}" method="post">
@@ -117,9 +124,9 @@
             
             <button type="submit" class="btn btn-success">Cadastrar</button>
         </form>
-        {% endif %}
+    {% endif %}
         
-    </form>
+
 </div>
 {% endblock %}
 ```

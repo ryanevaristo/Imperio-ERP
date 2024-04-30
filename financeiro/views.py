@@ -157,55 +157,72 @@ def cadastrar_categorias(request):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def contas_receber(request):
-    contas_receber = ContaReceber.objects.all()
-    return render(request, 'contas_receber.html', {'contas_receber': contas_receber})
+def entrada(request):
+    entrada = ContaReceber.objects.all()
+    paginator = Paginator(entrada, 10)
+    page_number = request.GET.get('page')
+    entrada_obj = paginator.get_page(page_number)
+    return render(request, 'entradas.html', {'entrada_obj': entrada_obj})
 
 @login_required(login_url='/auth/login/')
-def cadastrar_contas_receber(request):
+def cadastrar_entrada(request):
     if request.method == "GET":
-        return render(request, 'cadastrar_contas_receber.html')
+        return render(request, 'cadastrar_entrada.html')
     elif request.method == "POST":
+        cliente = request.POST.get('cliente')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
+        data_recebimento = request.POST.get('data_recebimento')
         forma_recebimento = request.POST.get('forma_recebimento')
         recebido = request.POST.get('recebido')
+        if recebido == 'S':
+            recebido = True
+        else:
+            recebido = False
         print(descricao, valor, data_vencimento, forma_recebimento, recebido)
         # Aqui você deve salvar os dados da conta a receber no banco de dados
-        conta_receber = ContaReceber(descricao=descricao, valor=valor, data_vencimento=data_vencimento, forma_recebimento=forma_recebimento, recebido=recebido)
+        conta_receber = ContaReceber(cliente=cliente,descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
         conta_receber.save()
-        return redirect('contas_receber')
+        return redirect('financeiro:entradas')
     
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def editar_contas_receber(request, id):
-    conta_receber = ContaReceber.objects.get(id=id)
+def editar_entrada(request, id):
+    entrada = ContaReceber.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'editar_contas_receber.html', {'conta_receber': conta_receber})
+        return render(request, 'cadastrar_entrada.html', {'entrada': entrada})
     elif request.method == "POST":
+        cliente = request.POST.get('cliente')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
+        data_recebimento = request.POST.get('data_recebimento')
         forma_recebimento = request.POST.get('forma_recebimento')
         recebido = request.POST.get('recebido')
+        if recebido == 'S':
+            recebido = True
+        else:
+            recebido = False
         print(descricao, valor, data_vencimento, forma_recebimento, recebido)
         # Aqui você deve atualizar os dados da conta a receber no banco de dados
-        conta_receber.descricao = descricao
-        conta_receber.valor = valor
-        conta_receber.data_vencimento = data_vencimento
-        conta_receber.forma_recebimento = forma_recebimento
-        conta_receber.recebido = recebido
-        conta_receber.save()
-        return HttpResponse("Conta a receber atualizada com sucesso!")
+        entrada.cliente = cliente
+        entrada.descricao = descricao
+        entrada.valor = valor
+        entrada.data_vencimento = data_vencimento
+        entrada.data_recebimento = data_recebimento
+        entrada.forma_recebimento = forma_recebimento
+        entrada.recebido = recebido
+        entrada.save()
+        return redirect('financeiro:entradas')
     
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def excluir_contas_receber(request, id):
+def excluir_entrada(request, id):
     conta_receber = ContaReceber.objects.get(id=id)
     conta_receber.delete()
-    return HttpResponse("Conta a receber excluída com sucesso!")
+    return redirect('financeiro:entradas')
 
 
 @login_required(login_url='/auth/login/')

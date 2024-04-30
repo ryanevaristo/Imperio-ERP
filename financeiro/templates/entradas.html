@@ -1,0 +1,76 @@
+{% extends 'base-home.html' %}
+{% block title %}Entradas{% endblock %}
+{% load static %}
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'financeiro/css/despesas.css' %}">
+{% endblock %}
+{% block 'body' %}
+<div class="container-fluid" id="container">
+    <h1>Entradas</h1>
+    <hr>
+    <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-primary">Adicionar nova Entrada</a>
+    <a href="" class="btn btn-success float-right">Gerar Excel</a>
+    {% if entrada_obj %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table  table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Descrição</th>
+                            <th scope="col">Valor</th>
+                            <th scope="col">Data de Vencimento</th>
+                            <th scope="col">Data de Recebimento</th>
+                            <th scope="col">Forma de Recebimento</th>
+                            <th scope="col">Recebido</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entrada in entrada_obj %}
+                        <tr>
+                            <td>{{entrada.cliente}}</td>
+                            <td>{{ entrada.descricao }}</td>
+                            <td>{{ entrada.valor }}</td>
+                            <td>{{ entrada.get_data_vencimento}}</td>
+                            <td>{{ entrada.get_data_recebimento }}</td>
+                            {% if entrada.forma_recebimento == 'D' %}
+                            <td>Dinheiro</td>
+                            {% elif entrada.forma_recebimento == 'E' %}
+                            <td>Cartão de Crédito</td>
+                            {% elif entrada.forma_recebimento == 'T' %}
+                            <td>Transferência Bancária</td>
+                            {% elif entrada.forma_recebimento == 'C' %}
+                            <td>Cheque</td>
+                            {% elif entrada.forma_recebimento == 'P' %}
+                            <td>Pix</td>
+                            {% endif %}
+                            {% if entrada.recebido == True %}
+                            <td>Recebido</td>
+                            {% else %}
+                            <td>Pendente</td>
+                            {% endif %}
+                            <td>
+                                <a href="{% url 'financeiro:editar_entrada' entrada.id %}" class="btn btn-primary">Editar</a>
+                                <a href="{% url 'financeiro:excluir_entrada' entrada.id %}" class="btn btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% include 'pagination.html' %}
+    </div>
+    {% else %}
+    <div class="alert alert-info" role="alert">
+        Não há entradas cadastradas.
+     </div>
+    {% endif %}
+</div>
+    
+{% endblock %}
+```
+
+```html

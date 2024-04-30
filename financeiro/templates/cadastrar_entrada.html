@@ -1,0 +1,110 @@
+{%extends 'base-home.html'%}
+{%block 'title'%}financeiro{%endblock%}
+{% load static %}
+{%block 'head'%}
+<link rel="stylesheet" href="{% static 'financeiro/css/cadastrar_despesas.css' %}">
+{%endblock%}
+{%block 'body'%}
+<div class="container-fluid" id="container">
+    {% if entrada %}
+        <h2 class="page-title">Editar Entrada</h2>
+    {% else %}
+        <h2 class="page-title">Cadastrar Entrada</h2>
+    {% endif %}
+    <hr>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if entrada %}
+    <form action="{% url 'financeiro:editar_entrada' entrada.id %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="descricao">Descrição</label>
+            <input type="text" class="form-control" id="descricao" name="descricao" value="{{ entrada.descricao }}" required>
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor</label>
+            <input type="number" class="form-control" id="valor" name="valor" value="{{ entrada.valor }}" required>
+        </div>
+        <div class="form-group">
+            <label for="data_vencimento">Data de Vencimento</label>
+            <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" value="{{ entrada.edit_data_vencimento }}" required>
+        </div>
+        <div class="form-group">
+            <label for="data_recebimento">Data de Recebimento</label>
+            <input type="date" class="form-control" id="data_recebimento" name="data_recebimento" value="{{ entrada.edit_data_recebimento }}">
+        </div>
+        <div class="form-group">
+            <label for="forma_recebimento">Forma de Recebimento</label>
+            <select class="form-control" id="forma_recebimento" name="forma_recebimento" value="{{ entrada.forma_recebimento }}" required>
+                <option value="D">Dinheiro</option>
+                <option value="C">Cartão de Crédito</option>
+                <option value="B">Cartão de Débito</option>
+                <option value="T">Transferência Bancária</option>
+                <option value="C">Cheque</option>
+                <option value="P">Pix</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="pago">Pago ?</label>
+            <select class="form-control" id="pago" name="pago" value="{{ entrada.pago }}" required>
+                <option value="S">Sim</option>
+                <option value="N">Não</option>
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Editar</button>
+    </form>
+
+        
+
+    {% else %}
+    <form action="{% url 'financeiro:cadastrar_entrada' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="cliente">Cliente</label>
+            <input type="text" class="form-control" id="cliente" name="cliente" required>
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor</label>
+            <input type="number" step="01" class="form-control" id="valor" name="valor" required>
+        </div>
+        <div class="form-group">
+            <label for="descricao">Descrição</label>
+            <input type="text" class="form-control" id="descricao" name="descricao" required>
+        <div class="form-group">
+            <label for="data_vencimento">Data de Vencimento</label>
+            <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" required>
+        </div>
+        <div class="form-group">
+            <label for="data_recebimento">Data de Recebimento</label>
+            <input type="date" class="form-control" id="data_recebimento" name="data_recebimento">
+        <div class="form-group">
+            <label for="forma_recebimento">Forma de Recebimento</label>
+            <select class="form-control" id="forma_recebimento" name="forma_recebimento" required>
+                <option value="D">Dinheiro</option>
+                <option value="E">Cartão de Crédito</option>
+                <option value="T">Transferência Bancária</option>
+                <option value="B">Boleto</option>
+                <option value="C">Cheque</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="recebido">Recebido ?</label>
+            <select class="form-control" id="recebido" name="recebido" required>
+                <option value="S">Sim</option>
+                <option value="N">Não</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </form>
+
+    {% endif %}
+    
+</div>
+{%endblock%}
+<!-- Compare this snippet from imperio/financeiro/templates/cadastrar_entrada.html: -->

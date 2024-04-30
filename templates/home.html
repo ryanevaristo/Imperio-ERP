@@ -41,9 +41,9 @@
                 <a class="btn btn-app" href="{% url 'financeiro:cheques' %}" id="button">
                     <i class="bi bi-cassette" id="icone"></i>Cheques
                 </a>
-                <a class="btn btn-app" href="" id="button">
+                <a class="btn btn-app" href="{% url 'financeiro:entradas' %}" id="button">
                     <i class="
-                    bi bi-currency-dollar" id="icone"></i>Entrada (em construção)
+                    bi bi-currency-dollar" id="icone"></i>Entradas
                     
                 </a>
                 
@@ -55,7 +55,7 @@
             <div id="linha">
                 
                 <a class="btn btn-app" id="button">
-                    <i class="bi bi-people-fill" id="icone"></i>Clientes
+                    <i class="bi bi-people-fill" id="icone"></i>Clientes  (em construção)
                 </a>
                 <a class="btn btn-app" href="{% url 'usuarios:vendedores' %}" id="button">
                     <i class="bi bi-person-fill" id="icone"></i>Vendedores
@@ -74,7 +74,7 @@
     <div class="col-md-8" >
         <div class="box box-primary" id="container-charts">
             <div class="box-header">
-                <h3 class="box-title">Gráfico de vendas  (Em construção)</h3>
+                <h3 class="box-title">Gráfico de Vendas Mensal (Em construção)</h3>
             </div>
             <div class="box-body">
                 <div>
@@ -227,7 +227,7 @@
             } else if (mes_atual == 12) {
                 mes_atual = 'Dezembro';
             }
-            document.getElementById('titulo_chart2').innerHTML = 'Principais despesas do mês ' + mes_atual;
+            document.getElementById('titulo_chart2').innerHTML = 'Principais despesas em ' + mes_atual;
             // myChart.data.datasets[0].data = response['total_despesas'][];
         },
         error: function(error) {
