@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse
 import openpyxl
+
+from django.core.paginator import Paginator
 # Create your views here.
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -19,20 +21,26 @@ def cadastrar_vendedor(request):
         print(nome, email, senha)
         #validação de email
         users = Users.objects.filter(email=email)
+
         if users.exists():
             #TODO: utilizar mensagens do django
-            messages.error(request, 'Email já cadastrado')
+            messages.error(request,'Email já cadastrado', extra_tags='danger')
             return redirect(reverse('usuarios:cadastrar_vendedor'))
         # Aqui você deve salvar os dados do vendedor no banco de dados
+
         users = Users.objects.create_user(username=email, password=senha, email=email, first_name=nome, cargo='V')
         users.save()
-        return HttpResponse("Vendedor cadastrado com sucesso!")
+        return redirect(reverse('usuarios:vendedores'))
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def vendedores(request):
     vendedores = Users.objects.filter(cargo='V')
-    return render(request, 'vendedores.html', {'vendedores': vendedores})
+    paginator = Paginator(vendedores, 10)
+    page_number = request.GET.get('page')
+    vendedores_obj = paginator.get_page(page_number)
+
+    return render(request, 'vendedores.html', {'vendedores': vendedores_obj})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")

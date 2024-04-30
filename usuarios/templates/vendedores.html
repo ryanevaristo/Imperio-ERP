@@ -13,10 +13,11 @@
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-title">Vendedores</h2>
+            <p>Aqui você gerencia os vendedores cadastrados na sua empresa</p>
             <hr>
             <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="btn btn-primary">Adicionar novo Vendedor</a>
             <a href="" class="btn btn-success float-right">Gerar Excel</a>
-            {% if vendedores %}
+            {% if vendedores_obj %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive">
@@ -30,7 +31,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for vendedor in vendedores %}
+                                {% for vendedor in vendedores_obj %}
                                     <tr>
                                         <td>{{ vendedor.nome }}</td>
                                         <td>{{ vendedor.email }}</td>
@@ -46,6 +47,7 @@
                     </div>
                 </div>
             </div>
+            {% include 'pagination.html' %}
             {% else %}
                 <div class="alert alert-info" role="alert">
                     Nenhum vendedor cadastrado.

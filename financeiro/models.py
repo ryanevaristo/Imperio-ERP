@@ -94,7 +94,7 @@ class Cheque(models.Model):
         ('748', 'Sicredi'),
         ('756', 'Sicoob')
     )
-    numero = models.CharField(max_length=20)
+    numero = models.CharField(max_length=20, unique=True, null=True, blank=True)
     nome_titular = models.CharField(max_length=100)
     nome_repassador = models.CharField(max_length=100, null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
@@ -103,13 +103,10 @@ class Cheque(models.Model):
     situacao = models.CharField(max_length=1, choices=choice_situacao,default='E',null=True, blank=True)
 
     def __str__(self):
-        return self.numero
+        return self.nome_titular
     
     def get_valor(self):
         return "R$ " + str(self.valor).replace('.', ',')
-    
-    def get_data_emissao(self):
-        return self.data_emissao.strftime('%d/%m/%Y')
     
     def get_data_compensacao(self):
         return self.data_compensacao.strftime('%d/%m/%Y')

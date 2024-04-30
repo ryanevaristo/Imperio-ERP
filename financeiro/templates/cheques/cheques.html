@@ -1,0 +1,75 @@
+{% extends 'base-home.html' %}
+{% load static %}
+{% block title %}Cheques{% endblock %}
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'financeiro/css/despesas.css' %}">
+{% endblock %}
+{% block 'body' %}
+<div class="container-fluid" id="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-title
+            ">Cheques</h2>
+            <p>Aqui você gerencia os cheques cadastrados na sua empresa</p>
+            <hr>
+            <a href="{% url 'financeiro:cadastrar_cheque' %}" class="btn btn-primary">Adicionar novo Cheque</a>
+            <a href="" class="btn btn-success float-right">Gerar Excel</a>
+            {% if cheques_obj %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table  table-striped table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome do Titular</th>
+                                    <th>Nome Repassador</th>
+                                    <th>Numero</th>
+                                    <th>Valor</th>
+                                    <th>Data de Compensação</th>
+                                    <th>Banco</th>
+                                    <th>Situação</th>
+                                    <th>Opções</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cheque in cheques_obj %}
+                                    <tr>
+                                        <td>{{ cheque.nome_titular }}</td>
+                                        <td>{{cheque.nome_repassador}}</td>
+                                        <td>{{ cheque.numero }}</td>
+                                        <td>{{ cheque.valor }}</td>
+                                        <td>{{ cheque.get_data_compensacao }}</td>
+                                        {% if cheque.situacao == 'C' %}
+                                            <td>Compensado</td>
+                                        {% elif cheque.situacao == 'E' %}
+                                            <td>Emitido</td>
+                                        {% elif cheque.situacao == 'V' %}
+                                            <td>Vencido</td>
+                                        {% elif cheque.situacao == 'S' %}
+                                            <td>Sem Fundos</td>
+                                        {% else %}
+                                            <td>Devolvido</td>
+                                        {% endif %}
+                                        <td>{{ cheque.banco }}</td>
+                                        <td>
+                                            <a href="{% url 'financeiro:editar_cheque' cheque.id %}" class="btn btn-primary">Editar</a>
+                                            <a href="{% url 'financeiro:excluir_cheque' cheque.id %}" class="btn btn-danger">Excluir</a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% include 'pagination.html' %}
+            {% else %}
+                <div class="alert alert-info" role="alert">
+                    Nenhum cheque cadastrado.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+```

@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
 import pandas as pd
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 
 
@@ -37,7 +38,7 @@ def cadastrar_despesas(request):
             pago = True
         else:
             pago = False
-        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+        
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
         despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_pagamento=data_pagamento, forma_pagamento=forma_pagamento, categoria=DespesasCategoria.objects.get(id=categoria), pago=pago)
         despesas.save()
@@ -116,7 +117,12 @@ def total_despesas(request):
 def gerar_excel_despesas(request):
     despesas = ContaPagar.objects.all()
     
-    return response
+    df = pd.DataFrame(columns=['Descrição', 'Valor', 'Data de Vencimento', 'Data de Pagamento', 'Forma de Pagamento', 'Categoria', 'Pago'])
+    for despesa in despesas:
+        df = df.append({'Descrição': despesa.descricao, 'Valor': despesa.valor, 'Data de Vencimento': despesa.data_vencimento, 'Data de Pagamento': despesa.data_pagamento, 'Forma de Pagamento': despesa.forma_pagamento, 'Categoria': despesa.categoria, 'Pago': despesa.pago}, ignore_index=True)
+
+    df.to_excel('despesas.xlsx', index=False)
+    return HttpResponse("Excel gerado com sucesso!")
 
 
 #categoria
@@ -193,24 +199,32 @@ def excluir_contas_receber(request, id):
 @has_role_decorator("vendedor")
 def cheques(request):
     cheques = Cheque.objects.all()
-    return render(request, 'cheques.html', {'cheques': cheques})
+    paginator = Paginator(cheques, 10)
+    page_number = request.GET.get('page')
+    cheques_obj = paginator.get_page(page_number)
+    return render(request, 'cheques/cheques.html', {'cheques_obj': cheques_obj})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def cadastrar_cheque(request):
     if request.method == "GET":
-        return render(request, 'cadastrar_cheque.html')
+        return render(request, 'cheques/cadastrar_cheque.html')
     elif request.method == "POST":
         numero = request.POST.get('numero')
         valor = request.POST.get('valor')
-        data_vencimento = request.POST.get('data_vencimento')
         data_compensacao = request.POST.get('data_compensacao')
-        emitente = request.POST.get('emitente')
-        print(numero, valor, data_vencimento, data_compensacao, emitente)
+        nome_titular = request.POST.get('nome_titular')
+        nome_repassador = request.POST.get('nome_repassador')
+        banco = request.POST.get('banco')
+        print(numero, valor, data_compensacao, nome_titular, banco)
         # Aqui você deve salvar os dados do cheque no banco de dados
-        cheque = Cheque(numero=numero, valor=valor, data_vencimento=data_vencimento, data_compensacao=data_compensacao, emitente=emitente)
+        cheque_unico = Cheque.objects.filter(numero=numero)
+        if cheque_unico.exists():
+            messages.error(request,'Cheque já cadastrado', extra_tags='danger')
+            return redirect("financeiro:cadastrar_cheque")
+        cheque = Cheque(numero=numero, valor=valor,  data_compensacao=data_compensacao, nome_titular=nome_titular, banco=banco, nome_repassador=nome_repassador)
         cheque.save()
-        return HttpResponse("Cheque cadastrado com sucesso!")
+        return redirect('financeiro:cheques')
 
 
 @login_required(login_url='/auth/login/')
