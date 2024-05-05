@@ -20,7 +20,7 @@
             <hr>
             <a href="{% url 'cliente:cadastrar_clientes' %}" class="btn btn-primary">Adicionar novo Cliente</a>
             <a href="" class="btn btn-success float-right">Gerar Excel</a>
-            {% if page_obj %}
+            {% if clientes_obj %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive">
@@ -39,9 +39,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for cliente in page_obj %}
+                                {% for cliente in clientes_obj %}
                                     <tr>
-                                        <td>{{ cliente.nome }}</td>
+                                        <td>{{ cliente.nome_completo }}</td>
                                         <td>{{ cliente.cpf_cnpj }}</td>
                                         <td>{{ cliente.email }}</td>
                                         <td>{{ cliente.telefone }}</td>

@@ -19,49 +19,79 @@
             </div>
         {% endfor %}
     {% endif %}
-    {% if clientes  %}
-        <form action="{% url 'cliente:editar_clientes' clientes.id %}" method="post">
+    {% if cliente  %}
+        <form action="{% url 'cliente:editar_clientes' cliente.id %}" method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="nome">Nome</label>
-                <input type="text" class="form-control" id="nome" name="nome" value="{{ clientes.nome }}" required>
+                <label for="nome_completo">Nome</label>
+                <input type="text" class="form-control" id="nome_completo" name="nome_completo" value="{{ cliente.nome_completo }}" required>
             </div>
             <div class="form-group">
                 <label for="cpf_cnpj">Cnpj/Cpf</label>
-                <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj"  value="{{ clientes.cpf_cnpj}}" equired>
+                <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj"  value="{{ cliente.cpf_cnpj}}" equired>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email"  value="{{ clientes.email}}" equired>
+                <input type="email" class="form-control" id="email" name="email"  value="{{ cliente.email}}" equired>
             </div>
             <div class="form-group">
                 <label for="telefone">Telefone</label>
-                <input type="text" class="form-control" id="telefone" name="telefone" value="{{clientes.telefone}}" required>
+                <input type="text" class="form-control" id="telefone" name="telefone" value="{{cliente.telefone}}" required>
             </div>
             <div class="form-group">
                 <label for="endereco">Endereço</label>
-                <input type="text" class="form-control" id="endereco" name="endereco" value="{{clientes.endereco}}" required>
+                <input type="text" class="form-control" id="endereco" name="endereco" value="{{cliente.endereco}}" required>
             </div>
             <div class="form-group">
                 <label for="cidade">Cidade</label>
-                <input type="text" class="form-control" id="cidade" name="cidade" value="{{clientes.cidade}}" required>
+                <input type="text" class="form-control" id="cidade" name="cidade" value="{{cliente.cidade}}" required>
             </div>
             <div class="form-group">
                 <label for="estado">Estado</label>
-                <input type="text" class="form-control" id="estado" name="estado" value="{{clientes.estado}}" required>
+                <select name="estado" id="estado" class="form-control">
+                    <option value="{{cliente.estado}}">{{cliente.estado}}</option>
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Pará</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                    
+                </select>
             </div>
             <div class="form-group">
                 <label for="cep">Cep</label>
-                <input type="text" class="form-control" id="cep" name="cep" value="{{clientes.cep}}" required>
+                <input type="text" class="form-control" id="cep" name="cep" value="{{cliente.cep}}" required>
             </div>
             <button type="submit" class="btn btn-primary">Salvar</button>
         </form>
     {% else %}
-        <form action="{% url 'cliente:cadastrar_clientes' %}" method="post">
+        <form action="{% url 'cliente:cadastrar_cliente' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
-                <label for="nome">Nome</label>
-                <input type="text" class="form-control" id="nome" name="nome" required>
+                <label for="nome_completo">Nome</label>
+                <input type="text" class="form-control" id="nome_completo" name="nome_completo" required>
             </div>
             <div class="form-group">
                 <label for="cpf_cnpj">Cnpj/Cpf</label>
@@ -85,7 +115,36 @@
             </div>
             <div class="form-group">
                 <label for="estado">Estado</label>
-                <input type="text" class="form-control" id="estado" name="estado" required>
+                <select name="estado" id="estado" class="form-control">
+                    <option value="">Selecione um estado</option>
+                    <option value="AC">Acre</option>
+                    <option value="AL">Alagoas</option>
+                    <option value="AP">Amapá</option>
+                    <option value="AM">Amazonas</option>
+                    <option value="BA">Bahia</option>
+                    <option value="CE">Ceará</option>
+                    <option value="DF">Distrito Federal</option>
+                    <option value="ES">Espírito Santo</option>
+                    <option value="GO">Goiás</option>
+                    <option value="MA">Maranhão</option>
+                    <option value="MT">Mato Grosso</option>
+                    <option value="MS">Mato Grosso do Sul</option>
+                    <option value="MG">Minas Gerais</option>
+                    <option value="PA">Pará</option>
+                    <option value="PB">Paraíba</option>
+                    <option value="PR">Paraná</option>
+                    <option value="PE">Pernambuco</option>
+                    <option value="PI">Piauí</option>
+                    <option value="RJ">Rio de Janeiro</option>
+                    <option value="RN">Rio Grande do Norte</option>
+                    <option value="RS">Rio Grande do Sul</option>
+                    <option value="RO">Rondônia</option>
+                    <option value="RR">Roraima</option>
+                    <option value="SC">Santa Catarina</option>
+                    <option value="SP">São Paulo</option>
+                    <option value="SE">Sergipe</option>
+                    <option value="TO">Tocantins</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="cep">Cep</label>

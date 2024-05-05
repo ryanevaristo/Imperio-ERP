@@ -15,7 +15,7 @@ def listar_clientes(request):
     paginator = Paginator(clientes, 10)
     page = request.GET.get('page')
     clientes = paginator.get_page(page)
-    return render(request, 'clientes.html', {'clientes': clientes})
+    return render(request, 'clientes.html', {'clientes_obj': clientes})
 
 @login_required(login_url='/login/')
 def cadastrar_clientes(request):
@@ -23,12 +23,12 @@ def cadastrar_clientes(request):
         nome_completo = request.POST['nome_completo']
         email = request.POST['email']
         telefone = request.POST['telefone']
-        cnpj = request.POST['cnpj']
+        cpf_cnpj = request.POST['cpf_cnpj']
         endereco = request.POST['endereco']
         cidade = request.POST['cidade']
         estado = request.POST['estado']
         cep = request.POST['cep']
-        cliente = Cliente(nome_completo=nome_completo, email=email, telefone=telefone, cnpj=cnpj, endereco=endereco, cidade=cidade, estado=estado, cep=cep)
+        cliente = Cliente(nome_completo=nome_completo, email=email, telefone=telefone, cpf_cnpj=cpf_cnpj, endereco=endereco, cidade=cidade, estado=estado, cep=cep)
         cliente.save()
         messages.success(request, 'Cliente cadastrado com sucesso!')
         return redirect('/clientes/')
@@ -41,7 +41,7 @@ def editar_clientes(request, id):
         cliente.nome_completo = request.POST['nome_completo']
         cliente.email = request.POST['email']
         cliente.telefone = request.POST['telefone']
-        cliente.cnpj = request.POST['cnpj']
+        cliente.cpf_cnpj = request.POST['cpf_cnpj']
         cliente.endereco = request.POST['endereco']
         cliente.cidade = request.POST['cidade']
         cliente.estado = request.POST['estado']
@@ -49,7 +49,7 @@ def editar_clientes(request, id):
         cliente.save()
         messages.success(request, 'Cliente editado com sucesso!')
         return redirect('/clientes/')
-    return render(request, 'criar_clientes.html', {'cliente': cliente})
+    return render(request, 'cadastrar_clientes.html', {'cliente': cliente})
 
 @login_required(login_url='/login/')
 def deletar_clientes(request, id):
