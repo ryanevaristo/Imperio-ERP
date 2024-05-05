@@ -110,14 +110,14 @@
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#Clientes" aria-expanded="false" aria-controls="Clientes">
                     <i class="bi bi-people-fill"></i>
-                    <span>Clientes (em breve)</span>
+                    <span>Clientes</span>
                 </a>
                 <ul id="Clientes" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar Clientes</a>
+                        <a href="{% url 'cliente:listar_clientes' %}" class="sidebar-link">Listar Clientes</a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Cadastrar Clientes</a>
+                        <a href="{% url 'cliente:cadastrar_clientes' %}" class="sidebar-link">Cadastrar Clientes</a>
                     </li>
                 </ul>
             </li>

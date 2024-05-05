@@ -10,7 +10,7 @@
     color: #666;
     border: 1px solid #ddd;
     background-color: #f4f4f4;
-    font-size: 15px;
+    font-size: 13px;
     display: flex;
     flex-direction: column;
     white-space: normal;
@@ -72,13 +72,6 @@
     color: #0f0f0f;
 }
 
-@media (max-width: 768px) {
-    .group {
-        min-height: 150px;
-        border-top: 15px solid #0f0f0f;
-    }
-}
-
 .group{
     text-align: center;
     margin: auto;
@@ -98,5 +91,30 @@
     color: #0f0f0f;
     margin: 0;
     font-weight: bolder;
+    
+}
+@media (max-width: 1490px){
+    #container{
+        padding: 10px;
+    }
+    #container h2{
+        font-size: 15px;
+    }
+    #container p{
+        font-size: 12px;
+    }
+    #container #linha #coluna #icone{
+        font-size: 30px;
+    }
+    .group{
+        padding: 10px;
+        margin-top: 15px;
+    }
+    .page-title{
+        font-size: 20px;
+    }
+    
+
+
     
 }

@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
-from django.template import loader
 from .models import ContaPagar, ContaReceber, Cheque, Fornecedor, DespesasCategoria
 from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'rolepermissions',
     'core',
     'financeiro',
+    'cliente',
 ]
 
 MIDDLEWARE = [
