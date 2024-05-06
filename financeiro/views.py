@@ -7,6 +7,8 @@ import pandas as pd
 from django.core.paginator import Paginator
 from django.contrib import messages
 from datetime import datetime
+import tempfile
+import io
 
 
 
@@ -128,19 +130,42 @@ def total_despesas(request):
 
     return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas, 'mes_atual': datetime.now().month})
 
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def exportar_despesas_xlsx(request):
+    despesas = ContaPagar.objects.all()
+    
+    df = pd.DataFrame(list(despesas.values()))
+    df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).descricao)
+    df.drop('categoria_id', axis=1, inplace=True)
+
+    df['forma_pagamento'] = df['forma_pagamento'].apply(lambda x: dict(ContaPagar.choice_forma_pagamento)[x])
+    output = io.BytesIO()
+    excel = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(excel, sheet_name='Sheet1', index=False)
+    excel.close()
+    output.seek(0)
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=despesas.xlsx'
+    return response
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def gerar_excel_despesas(request):
+def exportar_despesas_pdf(request):
     despesas = ContaPagar.objects.all()
+    df = pd.DataFrame(list(despesas.values()))
+    df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).descricao)
+    df.drop('categoria_id', axis=1, inplace=True)
+    output = io.BytesIO()
+    excel = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(excel, sheet_name='Sheet1', index=False)
+    excel.close()
+    output.seek(0)
+    response = HttpResponse(output, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=despesas.pdf'
+    return response
+
     
-    df = pd.DataFrame(columns=['Descrição', 'Valor', 'Data de Vencimento', 'Data de Pagamento', 'Forma de Pagamento', 'Categoria', 'Pago'])
-    for despesa in despesas:
-        df = df.append({'Descrição': despesa.descricao, 'Valor': despesa.valor, 'Data de Vencimento': despesa.data_vencimento, 'Data de Pagamento': despesa.data_pagamento, 'Forma de Pagamento': despesa.forma_pagamento, 'Categoria': despesa.categoria, 'Pago': despesa.pago}, ignore_index=True)
-
-    df.to_excel('despesas.xlsx', index=False)
-    return HttpResponse("Excel gerado com sucesso!")
-
 
 #categoria
 
