@@ -166,6 +166,22 @@ def entrada(request):
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
     entrada_obj = paginator.get_page(page_number)
+
+    if request.GET.get('start_date') and request.GET.get('end_date'):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        entrada_obj = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+        paginator = Paginator(entrada_obj, 10)
+        page_number = request.GET.get('page')
+        entrada_obj = paginator.get_page(page_number)
+    
+    if request.GET.get('pesquisar'):
+        pesquisar = request.GET.get('pesquisar')
+        entrada_obj = ContaReceber.objects.filter(descricao__icontains=pesquisar)
+        paginator = Paginator(entrada_obj, 10)
+        page_number = request.GET.get('page')
+        entrada_obj = paginator.get_page(page_number)
+
     return render(request, 'entradas.html', {'entrada_obj': entrada_obj})
 
 @login_required(login_url='/auth/login/')
@@ -236,6 +252,23 @@ def cheques(request):
     paginator = Paginator(cheques, 10)
     page_number = request.GET.get('page')
     cheques_obj = paginator.get_page(page_number)
+
+    if request.GET.get('start_date') and request.GET.get('end_date'):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        cheques_obj = Cheque.objects.filter(data_compensacao__range=[start_date, end_date])
+        paginator = Paginator(cheques_obj, 10)
+        page_number = request.GET.get('page')
+        cheques_obj = paginator.get_page(page_number)
+
+
+    if request.GET.get('pesquisar'):
+        pesquisar = request.GET.get('pesquisar')
+        cheques_obj = Cheque.objects.filter(nome_titular__icontains=pesquisar)
+        paginator = Paginator(cheques_obj, 10)
+        page_number = request.GET.get('page')
+        
+        
     return render(request, 'cheques/cheques.html', {'cheques_obj': cheques_obj})
 
 @login_required(login_url='/auth/login/')

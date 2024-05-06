@@ -8,8 +8,31 @@
 <div class="container-fluid" id="container">
     <h1>Entradas</h1>
     <hr>
-    <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-primary">Adicionar nova Entrada</a>
-    <a href="" class="btn btn-success float-right">Gerar Excel</a>
+    <div class="button-container">
+        <div>
+            <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-primary my-2 my-2-sm-0 btn-sm" style="margin-top: 10px;">Adicionar nova Entrada</a>
+            <a href="" class="btn btn-secondary  my-2 my-2-sm-0  btn-sm">
+                <i class="bi bi-file-excel"></i>
+                Excel
+            </a>
+            <a href="" class="btn btn-secondary my-2 my-2-sm-0  btn-sm">
+                <i class="bi bi-file-pdf"></i>
+                PDF
+                </a>
+                
+        </div>
+       <div class="alinhar-direita">
+         <form class="form-inline my-2 my-lg-0-pull-right">
+            <label for="start_date">Data inicial:</label>
+            <input type="date" id="start_date" name="start_date" class="form-control-sm">
+            <label for="end_date">Data final:</label>
+            <input type="date" id="end_date" name="end_date" class="form-control-sm">
+            <button type="submit" class="btn btn-primary my-2 my-2-sm-0 btn-sm">Filtrar</button>
+         </form>
+       </div>
+        
+    </div>
+
     {% if entrada_obj %}
     <div class="row">
         <div class="col-md-12">
@@ -62,11 +85,17 @@
             </div>
         </div>
         {% include 'pagination.html' %}
+        <form>
+            <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
+        </form>
     </div>
     {% else %}
     <div class="alert alert-info" role="alert">
         Não há entradas cadastradas.
      </div>
+     <form>
+        <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
+    </form>
     {% endif %}
 </div>
     
