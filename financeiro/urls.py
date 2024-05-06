@@ -18,11 +18,13 @@ urlpatterns = [
     path('cadastrar_entrada/', views.cadastrar_entrada, name='cadastrar_entrada'),
     path('editar_entrada/<int:id>/', views.editar_entrada, name='editar_entrada'),
     path('excluir_entrada/<int:id>/', views.excluir_entrada, name='excluir_entrada'),
+    path('exportar_entradas_xlsx', views.exportar_entrada_xlsx, name='exportar_entradas_xlsx'),
     #cheques
     path('cheques/', views.cheques, name='cheques'),
     path('cadastrar_cheque/', views.cadastrar_cheque, name='cadastrar_cheque'),
     path('editar_cheque/<int:id>/', views.editar_cheque, name='editar_cheque'),
     path('excluir_cheque/<int:id>/', views.excluir_cheque, name='excluir_cheque'),
+    path('exportar_cheques_xlsx', views.exportar_cheque_xlsx, name='exportar_cheques_xlsx'),
     #fornecedores
     path('fornecedores/', views.fornecedores, name='fornecedores'),
     path('cadastrar_fornecedor/', views.cadastrar_fornecedor, name='cadastrar_fornecedor'),

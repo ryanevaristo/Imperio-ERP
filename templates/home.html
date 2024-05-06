@@ -51,10 +51,10 @@
         </div>
 
         <div class="group">
-            <h2 class="box-title">Usuários</h2>
+            <h2 class="box-title">Pessoas</h2>
             <div id="linha">
                 
-                <a class="btn btn-app" id="button">
+                <a class="btn btn-app" href="{% url 'cliente:listar_clientes' %}" id="button">
                     <i class="bi bi-people-fill" id="icone"></i>Clientes
                 </a>
                 <a class="btn btn-app" href="{% url 'usuarios:vendedores' %}" id="button">

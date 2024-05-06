@@ -22,25 +22,49 @@
         {% endif %}
         <h2 class="page-title">Cadastro de vendedor</h2>
         <br>
-        <form action="{% url 'usuarios:cadastrar_vendedor' %}" method="post"> {% csrf_token %}
-            <div class="form-group">
+        {% if vendedor %}
+            <form action="{% url 'usuarios:editar_vendedor' vendedor.id %}" method="post"> {% csrf_token %}
+                <div class="form-group">
                 <label for="nome">Nome:</label>
-                <input type="text" name="nome" id="nome" class="form-control"  placeholder="Digite seu nome" required> 
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" name="email" id="email" class="form-control"  placeholder="Digite seu email" required>
-            </div>
-            <div class="form-group">
-                <label for="text">Telefone:</label>
-                <input type="phone" name="telefone" id="telefone" class="form-control"  placeholder="Digite seu telefone" >
-            </div>
-            <div class="form-group">
-                <label for="senha">Senha:</label>
-                <input type="password" name="senha" id="senha" class="form-control"  placeholder="Digite sua senha" required>
-            </div>
-            <button type="submit" class="btn btn-success">Cadastrar</button>
-        </form>
+                <input type="text" name="nome" id="nome" class="form-control"  placeholder="Digite seu nome" value="{{vendedor.first_name}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" class="form-control"  placeholder="Digite seu email" value="{{vendedor.email}}" required>
+                </div>
+                <div class="form-group">
+                    <label for="text">Telefone:</label>
+                    <input type="phone" name="telefone" id="telefone" class="form-control"  placeholder="Digite seu telefone" value="{{vendedor.telefone}}" >
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" name="senha" id="senha" class="form-control"  placeholder="Digite sua senha" required>
+                </div>
+                <button type="submit" class="btn btn-success">Salvar</button>
+
+            </form>
+        {% else %}
+
+            <form action="{% url 'usuarios:cadastrar_vendedor' %}" method="post"> {% csrf_token %}
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" name="nome" id="nome" class="form-control"  placeholder="Digite seu nome" required> 
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" id="email" class="form-control"  placeholder="Digite seu email" required>
+                </div>
+                <div class="form-group">
+                    <label for="text">Telefone:</label>
+                    <input type="phone" name="telefone" id="telefone" class="form-control"  placeholder="Digite seu telefone" >
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" name="senha" id="senha" class="form-control"  placeholder="Digite sua senha" required>
+                </div>
+                <button type="submit" class="btn btn-success">Cadastrar</button>
+            </form>
+        {% endif %}
     </div>
 {% endblock %}
         

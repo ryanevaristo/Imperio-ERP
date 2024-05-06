@@ -270,6 +270,21 @@ def excluir_entrada(request, id):
     conta_receber.delete()
     return redirect('financeiro:entradas')
 
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def exportar_entrada_xlsx(request):
+    entrada = ContaReceber.objects.all()
+    
+    df = pd.DataFrame(list(entrada.values()))
+    df['forma_recebimento'] = df['forma_recebimento'].apply(lambda x: dict(ContaReceber.choice_forma_recebimento)[x])
+    output = io.BytesIO()
+    excel = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(excel, sheet_name='Sheet1', index=False)
+    excel.close()
+    output.seek(0)
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=entrada.xlsx'
+    return response
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -347,6 +362,24 @@ def excluir_cheque(request, id):
     cheque = Cheque.objects.get(id=id)
     cheque.delete()
     return redirect('financeiro:cheques')
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def exportar_cheque_xlsx(request):
+    cheques = Cheque.objects.all()
+    
+    df = pd.DataFrame(list(cheques.values()))
+    df['situacao'] = df['situacao'].apply(lambda x: dict(Cheque.choice_situacao)[x])
+    df['banco'] = df['banco'].apply(lambda x: dict(Cheque.choice_banco)[x])
+    output = io.BytesIO()
+    excel = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(excel, sheet_name='Sheet1', index=False)
+    excel.close()
+    output.seek(0)
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=cheques.xlsx'
+    return response
 
 
 

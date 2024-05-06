@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.urls import reverse
 import openpyxl
+import pandas as pd
+import io
 
 from django.core.paginator import Paginator
 # Create your views here.
@@ -40,7 +42,15 @@ def vendedores(request):
     page_number = request.GET.get('page')
     vendedores_obj = paginator.get_page(page_number)
 
-    return render(request, 'vendedores.html', {'vendedores': vendedores_obj})
+    if request.GET.get("pesquisar"):
+        pesquisar = request.GET.get("pesquisar")
+        vendedores_obj = Users.objects.filter(first_name__icontains=pesquisar, cargo='V')
+        paginator = Paginator(vendedores_obj, 10)
+        page_number = request.GET.get('page')
+        vendedores_obj = paginator.get_page(page_number)
+        
+
+    return render(request, 'vendedores.html', {'vendedores_obj': vendedores_obj})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -52,36 +62,40 @@ def editar_vendedor(request, id):
         nome = request.POST.get('nome')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
+        telefone = request.POST.get('telefone')
         print(nome, email, senha)
         # Aqui você deve atualizar os dados do vendedor no banco de dados
         vendedor.first_name = nome
         vendedor.email = email
+        vendedor.telefone = telefone
         vendedor.set_password(senha)
         vendedor.save()
-        return HttpResponse("Vendedor atualizado com sucesso!")
+        messages.success(request, 'Vendedor atualizado com sucesso!')
+        return redirect(reverse('usuarios:vendedores'))
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def excluir_vendedor(request, id):
     vendedor = Users.objects.get(id=id)
     vendedor.delete()
-    return HttpResponse("Vendedor excluído com sucesso!")
+    return redirect(reverse('usuarios:vendedores'))
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def gerar_excel_vendedores(request):
-
-    
-
+def exportar_vendedores_xlsx(request):
     vendedores = Users.objects.filter(cargo='V')
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.append(['Nome', 'Email'])
-    for vendedor in vendedores:
-        ws.append([vendedor.first_name, vendedor.email])
-    wb.save('vendedores.xlsx')
-    return HttpResponse("Excel gerado com sucesso!")
+    df = pd.DataFrame(list(vendedores.values()))
+    df = df.drop(columns=['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'cargo', 'id'])
+    output = io.BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, sheet_name='Vendedores')
+    writer.close()
+    output.seek(0)
 
+    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=vendedores.xlsx'
+    return response
+     
 
 def login(request):
     if request.method == "GET":
