@@ -34,11 +34,11 @@
                 </div>
                 
                <div class="alinhar-direita">
-                 <form action="post" class="form-inline my-2 my-lg-0-pull-right">
-                    <label for="dataFiltro">Data inicial:</label>
-                    <input type="date" id="dataFiltro" name="dataFiltro" class="form-control-sm">
-                    <label for="dataFiltro">Data final:</label>
-                    <input type="date" id="dataFiltro" name="dataFiltro" class="form-control-sm">
+                 <form class="form-inline my-2 my-lg-0-pull-right">
+                    <label for="start_date">Data inicial:</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control-sm">
+                    <label for="end_date">Data final:</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control-sm">
                     <button type="submit" class="btn btn-primary my-2 my-2-sm-0 btn-sm">Filtrar</button>
                  </form>
                </div>
@@ -102,8 +102,8 @@
                             </tbody>
                         </table>
                     </div>
-                    <form action="post" method="post">
-                        <input type="text" class="form-control" placeholder="Pesquise aqui e aperte enter">
+                    <form>
+                        <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
                     </form>
                     
                     {% include 'pagination.html' %}
@@ -116,6 +116,9 @@
     <div class="alert alert-info">
         Nenhuma despesa cadastrada.
     </div>
+    <form>
+        <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
+    </form>
 {% endif %}
 </div>
 {% endblock %}

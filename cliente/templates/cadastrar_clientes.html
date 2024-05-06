@@ -87,7 +87,7 @@
             <button type="submit" class="btn btn-primary">Salvar</button>
         </form>
     {% else %}
-        <form action="{% url 'cliente:cadastrar_cliente' %}" method="post">
+        <form action="{% url 'cliente:cadastrar_clientes' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
                 <label for="nome_completo">Nome</label>

@@ -19,6 +19,21 @@ def despesas(request):
     page_obj = paginator.get_page(page_number)
     page_obj = page_obj[::-1]
 
+    if request.GET.get('start_date') and request.GET.get('end_date'):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        despesas = ContaPagar.objects.filter(data_vencimento__range=[start_date, end_date])
+        paginator = Paginator(despesas, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+    
+    if request.GET.get('pesquisar'):
+        pesquisar = request.GET.get('pesquisar')
+        despesas = ContaPagar.objects.filter(descricao__icontains=pesquisar)
+        paginator = Paginator(despesas, 10)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
     return render(request, 'despesas.html', {'page_obj': page_obj})
 
 @login_required(login_url='/auth/login/')
