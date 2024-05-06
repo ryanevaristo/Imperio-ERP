@@ -204,6 +204,7 @@ def cadastrar_entrada(request):
         # Aqui você deve salvar os dados da conta a receber no banco de dados
         conta_receber = ContaReceber(cliente=cliente,descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
         conta_receber.save()
+        messages.success(request, "Entrada Cadastrada com Sucesso!")
         return redirect('financeiro:entradas')
     
 @login_required(login_url='/auth/login/')

@@ -75,8 +75,8 @@
                             <td>Pendente</td>
                             {% endif %}
                             <td>
-                                <a href="{% url 'financeiro:editar_entrada' entrada.id %}" class="btn btn-primary">Editar</a>
-                                <a href="{% url 'financeiro:excluir_entrada' entrada.id %}" class="btn btn-danger">Excluir</a>
+                                <a href="{% url 'financeiro:editar_entrada' entrada.id %}" class="btn btn-primary btn-sm">Editar</a>
+                                <a href="{% url 'financeiro:excluir_entrada' entrada.id %}" class="btn btn-danger btn-sm">Excluir</a>
                             </td>
                         </tr>
                         {% endfor %}

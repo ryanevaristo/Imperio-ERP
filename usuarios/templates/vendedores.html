@@ -15,8 +15,29 @@
             <h2 class="page-title">Vendedores</h2>
             <p>Aqui você gerencia os vendedores cadastrados na sua empresa</p>
             <hr>
-            <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="btn btn-primary">Adicionar novo Vendedor</a>
-            <a href="" class="btn btn-success float-right">Gerar Excel</a>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="button-container">
+                <div>
+                    <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="btn btn-primary my-2 my-2-sm-0 btn-sm" style="margin-top: 10px;">Adicionar novo Vendedor</a>
+                    <a href="" class="btn btn-secondary  my-2 my-2-sm-0  btn-sm">
+                        <i class="bi bi-file-excel"></i>
+                        Excel
+                    </a>
+                    <a href="" class="btn btn-secondary my-2 my-2-sm-0  btn-sm">
+                        <i class="bi bi-file-pdf"></i>
+                        PDF
+                        </a>
+                        
+                </div>
+                
+                
+            </div>
             {% if vendedores_obj %}
             <div class="row">
                 <div class="col-md-12">
@@ -37,8 +58,8 @@
                                         <td>{{ vendedor.email }}</td>
                                         <td>{{ vendedor.telefone }}</td>
                                         <td>
-                                            <a href="{% url 'usuarios:editar_vendedor' vendedor.id %}" class="btn btn-primary">Editar</a>
-                                            <a href="{% url 'usuarios:excluir_vendedor' vendedor.id %}" class="btn btn-danger">Excluir</a>
+                                            <a href="{% url 'usuarios:editar_vendedor' vendedor.id %}" class="btn btn-primary btn-sm">Editar</a>
+                                            <a href="{% url 'usuarios:excluir_vendedor' vendedor.id %}" class="btn btn-danger btn-sm">Excluir</a>
                                         </td>
                                     </tr>
                                 {% endfor %}

@@ -15,6 +15,16 @@ def listar_clientes(request):
     paginator = Paginator(clientes, 10)
     page = request.GET.get('page')
     clientes = paginator.get_page(page)
+    
+    if request.GET.get("pesquisar"):
+        pesquisar = request.GET.get("pesquisar")
+        clientes = Cliente.objects.filter(nome_completo__icontains=pesquisar)
+        paginator = Paginator(clientes, 10)
+        page = request.GET.get('page')
+        clientes = paginator.get_page(page)
+        
+
+
     return render(request, 'clientes.html', {'clientes_obj': clientes})
 
 @login_required(login_url='/login/')
