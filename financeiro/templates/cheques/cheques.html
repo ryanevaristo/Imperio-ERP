@@ -12,8 +12,35 @@
             ">Cheques</h2>
             <p>Aqui você gerencia os cheques cadastrados na sua empresa</p>
             <hr>
-            <a href="{% url 'financeiro:cadastrar_cheque' %}" class="btn btn-primary">Adicionar novo Cheque</a>
-            <a href="" class="btn btn-success float-right">Gerar Excel</a>
+            <div class="button-container">
+                <div>
+                    <a href="{% url 'financeiro:cadastrar_cheque' %}" class="btn btn-primary my-2 my-2-sm-0 btn-sm" style="margin-top: 10px;">Adicionar novo Cheque</a>
+                    <a href="" class="btn btn-secondary  my-2 my-2-sm-0  btn-sm">
+                        <i class="bi bi-file-excel"></i>
+                        Excel
+                    </a>
+                    <a href="" class="btn btn-secondary my-2 my-2-sm-0  btn-sm">
+                        <i class="bi bi-file-pdf"></i>
+                        PDF
+                        </a>
+                        
+                </div>
+                
+               <div class="alinhar-direita">
+                 <form action="post" class="form-inline my-2 my-lg-0-pull-right">
+                    <label for="dataFiltro">Data inicial:</label>
+                    <input type="date" id="dataFiltro" name="dataFiltro" class="form-control-sm">
+                    <label for="dataFiltro">Data final:</label>
+                    <input type="date" id="dataFiltro" name="dataFiltro" class="form-control-sm">
+                    <button type="submit" class="btn btn-primary my-2 my-2-sm-0 btn-sm">Filtrar</button>
+                 </form>
+               </div>
+                
+            </div>
+            
+           
+
+        </div>
             {% if cheques_obj %}
             <div class="row">
                 <div class="col-md-12">

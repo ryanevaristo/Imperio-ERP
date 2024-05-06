@@ -25,7 +25,7 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="descricao">Descrição</label>
-                <input type="text" class="form-control" id="descricao" name="descricao" value="{{ despesas.descricao }}" required>
+                <input type="text" class="form-control" id="descricao" name="descricao" value="{{ despesas.descricao }}"  >
             </div>
             <div class="form-group">
                 <label for="valor">Valor</label>
@@ -33,7 +33,7 @@
             </div>
             <div class="form-group">
                 <label for="data_vencimento">Data de Vencimento</label>
-                <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" value="{{despesas.edit_data_vencimento}}" required>
+                <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" value="{{despesas.edit_data_vencimento}}"  >
             </div>
             <form class="form-group">
                 <label for="data_pagamento">Data de Pagamento</label>
@@ -41,7 +41,7 @@
                 
             <div class="form-group">
                 <label for="forma_pagamento">Forma de Pagamento</label>
-                <select class="form-control" id="forma_pagamento" name="forma_pagamento"  value="{{despesas.forma_pagamento}}" required>
+                <select class="form-control" id="forma_pagamento" name="forma_pagamento"  value="{{despesas.forma_pagamento}}"  >
                     <option value="D">Dinheiro</option>
                     <option value="C">Cartão de Crédito</option>
                     <option value="B">Cartão de Débito</option>
@@ -52,7 +52,7 @@
             </div>
             <div class="form-group">
                 <label for="pago">Pago ?</label>
-                <select class="form-control" id="pago" name="pago" value="{{despesas.pago}}" required>
+                <select class="form-control" id="pago" name="pago" value="{{despesas.pago}}"  >
                     <option value="S">Sim</option>
                     <option value="N">Não</option>
                 </select>
@@ -60,7 +60,7 @@
             <div class="form-group">
                 <label for ="categoria">Categoria</label>
                 {% if categorias %}
-                    <select class="form-control" id="categoria" name="categoria" value="{{despesas.categoria}}" required>
+                    <select class="form-control" id="categoria" name="categoria" value="{{despesas.categoria}}"  >
                         {% for categoria in categorias %}
                             <option value="{{categoria.id}}">{{categoria.descricao}}</option>
                         {% endfor %}
@@ -77,22 +77,23 @@
             {% csrf_token %}
             <div class="form-group">
                 <label for="descricao">Descrição</label>
-                <input type="text" class="form-control" id="descricao" name="descricao" required>
+                <input type="text" class="form-control" id="descricao" name="descricao"  >
             </div>
             <div class="form-group">
                 <label for="valor">Valor</label>
-                <input type="number" class="form-control" id="valor" name="valor" required>
+                <input type="number" class="form-control" id="valor" name="valor"  >
             </div>
             <div class="form-group">
                 <label for="data_vencimento">Data de Vencimento</label>
-                <input type="date" class="form-control" id="data_vencimento" name="data_vencimento" required>
+                <input type="date" class="form-control" id="data_vencimento" name="data_vencimento"  >
             </div>
             <div class="form-group">
                 <label for="data_pagamento">Data de Pagamento</label>
                 <input type="date" class="form-control" id="data_pagamento" name="data_pagamento">
+            </div>
             <div class="form-group">
                 <label for="forma_pagamento">Forma de Pagamento</label>
-                <select class="form-control" id="forma_pagamento" name="forma_pagamento" required>
+                <select class="form-control" id="forma_pagamento" name="forma_pagamento"  >
                     <option value="D">Dinheiro</option>
                     <option value="C">Cartão de Crédito</option>
                     <option value="B">Cartão de Débito</option>
@@ -102,27 +103,38 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="pago">Pago ?</label>
-                <select class="form-control" id="pago" name="pago" required>
+                <label for="pago">Pago</label>
+                <select class="form-control" id="pago" name="pago"  >
                     <option value="S">Sim</option>
                     <option value="N">Não</option>
                 </select>
             </div>
-
+            
             <div class="form-group">
                 <label for ="categoria">Categoria</label>
                 {% if categorias %}
-                    <select class="form-control" id="categoria" name="categoria" required>
-                        {% for categoria in categorias %}
-                            <option value="{{categoria.id}}">{{categoria.descricao}}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <select class="form-control" id="categoria" name="categoria"  >
+                                {% for categoria in categorias %}
+                                    <option value="{{categoria.id}}">{{categoria.descricao}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            {% include 'cadastrar_categoria.html' %}
+                        </div>
+                    </div>
+                    
                 {% else %}
                     <p>Não há categorias cadastradas</p>
+                    {% include 'cadastrar_categoria.html' %}
                 {% endif %}
+                <button type="submit" name="btn_form" class="btn btn-success">Cadastrar</button>
             </div>
             
-            <button type="submit" class="btn btn-success">Cadastrar</button>
+            
+            
         </form>
     {% endif %}
         

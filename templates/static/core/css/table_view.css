@@ -6,12 +6,24 @@
     border-top: 5px solid rgb(11, 27, 99);
 
 }
-.btn{
 
-    margin-bottom: 10px;
-}
-
-td{
-    font-size: 1rem;
+th,tr{
+    font-size: 0.94rem;
     text-align: center;
+}
+.button-container {
+    display: flex;
+    align-items:baseline;
+}
+.alinhar-direita {
+    margin-left: auto;
+    margin-right: 25px;
+}
+.button-container input[type="date"]{
+    margin-right: 10px; /* Espaçamento entre os elementos */
+    text-align: right;
+}
+.button-container a {
+    margin-top: 10px;
+     /* Espaçamento entre os elementos */
 }

@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from .models import ContaPagar, ContaReceber, Cheque, Fornecedor, DespesasCategoria
 from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
@@ -17,6 +17,7 @@ def despesas(request):
     paginator = Paginator(despesas, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    page_obj = page_obj[::-1]
 
     return render(request, 'despesas.html', {'page_obj': page_obj})
 
@@ -26,7 +27,8 @@ def cadastrar_despesas(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
         return render(request, 'cadastrar_despesas.html', {'categorias': cadastrar_categorias})
-    elif request.method == "POST":
+    elif request.method == "POST" and "descricao_categoria" not in request.POST:
+        print(request.POST)
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
@@ -42,7 +44,13 @@ def cadastrar_despesas(request):
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
         despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_pagamento=data_pagamento, forma_pagamento=forma_pagamento, categoria=DespesasCategoria.objects.get(id=categoria), pago=pago)
         despesas.save()
-        return redirect('/financeiro/despesas/')
+    else:
+        descricao_categoria = request.POST.get('descricao_categoria')
+        categorias = DespesasCategoria(descricao=descricao_categoria)
+        categorias.save()
+        return  HttpResponseRedirect(request.path_info)
+
+    return redirect('/financeiro/despesas/')
     
 
 
@@ -101,24 +109,6 @@ def total_despesas(request):
         total_valor += despesa.valor
         total_despesas[despesa.descricao] = despesa.valor
 
-    # total_valor = 0
-    # total_despesas = {
-    #     'D': 0,
-    #     'C': 0,
-    #     'B': 0,
-    #     'T': 0,
-    #     'P': 0,
-    
-    # }
-    # for despesa in despesas:
-    #     total_valor += despesa.valor
-    #     total_despesas[despesa.forma_pagamento] += despesa.valor
-
-    # total_despesas['Dinheiro'] = total_despesas.pop('D')
-    # total_despesas['Cartão de Crédito'] = total_despesas.pop('C')
-    # total_despesas['Boleto'] = total_despesas.pop('B')
-    # total_despesas['Transferência Bancária'] = total_despesas.pop('T')
-    # total_despesas['PIX'] = total_despesas.pop('P')
 
 
     return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas, 'mes_atual': datetime.now().month})

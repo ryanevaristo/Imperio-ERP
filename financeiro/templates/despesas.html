@@ -18,8 +18,37 @@
             <h1>Despesas</h1>
             <p>Aqui você gerencia o quanto foi gasto dentro da sua empresa</p>
             <hr>
-            <a href="{% url 'financeiro:cadastrar_despesas' %}" class="btn btn-primary">Adicionar nova Conta</a>
-            <a href="" class="btn btn-success float-right">Gerar Excel</a>
+            
+            <div class="button-container">
+                <div>
+                    <a href="{% url 'financeiro:cadastrar_despesas' %}" class="btn btn-primary my-2 my-2-sm-0 btn-sm" style="margin-top: 10px;">Adicionar nova Despesa</a>
+                    <a href="" class="btn btn-secondary  my-2 my-2-sm-0  btn-sm">
+                        <i class="bi bi-file-excel"></i>
+                        Excel
+                    </a>
+                    <a href="" class="btn btn-secondary my-2 my-2-sm-0  btn-sm">
+                        <i class="bi bi-file-pdf"></i>
+                        PDF
+                        </a>
+                        
+                </div>
+                
+               <div class="alinhar-direita">
+                 <form action="post" class="form-inline my-2 my-lg-0-pull-right">
+                    <label for="dataFiltro">Data inicial:</label>
+                    <input type="date" id="dataFiltro" name="dataFiltro" class="form-control-sm">
+                    <label for="dataFiltro">Data final:</label>
+                    <input type="date" id="dataFiltro" name="dataFiltro" class="form-control-sm">
+                    <button type="submit" class="btn btn-primary my-2 my-2-sm-0 btn-sm">Filtrar</button>
+                 </form>
+               </div>
+                
+            </div>
+            
+           
+
+        </div>
+            
             {% if page_obj %}
             <div class="row">
                 <div class="col-md-12">
@@ -65,16 +94,20 @@
                                         <td>{{ despesa.categoria.descricao }}</td>
                                         
                                         <td>
-                                            <a href="{% url 'financeiro:editar_despesas' despesa.id %}" class="btn btn-primary">Editar</a>
-                                            <a href="{% url 'financeiro:excluir_despesas' despesa.id %}" class="btn btn-danger">Excluir</a>
+                                            <a href="{% url 'financeiro:editar_despesas' despesa.id %}" class="btn btn-primary  btn-sm">Editar</a>
+                                            <a href="{% url 'financeiro:excluir_despesas' despesa.id %}" class="btn btn-danger  btn-sm">Excluir</a>
                                         </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                       
                     </div>
+                    <form action="post" method="post">
+                        <input type="text" class="form-control" placeholder="Pesquise aqui e aperte enter">
+                    </form>
+                    
                     {% include 'pagination.html' %}
+                </div>
             </div>
 
         </div>
