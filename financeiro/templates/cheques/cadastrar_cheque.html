@@ -22,10 +22,18 @@
             {% if cheque %}
             <form action="{% url 'financeiro:editar_cheque' cheque.id %}" method="post">
                 {% csrf_token %}
-                <div class="form-group
-                ">
-                    <label for="nome">Nome do Titular</label>
-                    <input type="text" class="form-control" id="nome_titular" name="nome_titular" value="{{ cheque.nome_titular }}" required>
+                <div class="form-group">
+                    <label for="cliente">Cliente</label>
+                    <select class="form-control" id="cliente" name="cliente" required>
+                        <option value="">Selecione um cliente</option>
+                        {% if clientes %}
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">{{ cliente.nome_completo }}</option>
+                        {% endfor %}
+                        {% else %}
+                            <option value="">Nenhum cliente cadastrado</option>
+                        {% endif %}
+                    </select>
                 </div>
                 <div class="form-group
                 ">
@@ -85,10 +93,18 @@
             {% else %}
             <form method="POST">
                 {% csrf_token %}
-                <div class="form-group
-                ">
-                    <label for="nome">Nome do Titular</label>
-                    <input type="text" class="form-control" id="nome_titular" name="nome_titular" placeholder="Insira o nome do titular do Cheque">
+                <div class="form-group">
+                    <label for="cliente">Cliente</label>
+                    <select class="form-control" id="cliente" name="cliente" required>
+                        <option value="">Selecione um cliente</option>
+                        {% if clientes %}
+                        {% for cliente in clientes %}
+                            <option value="{{ cliente.id }}">{{ cliente.nome_completo }}</option>
+                        {% endfor %}
+                        {% else %}
+                            <option value="">Nenhum cliente cadastrado</option>
+                        {% endif %}
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="nome_repassador">Nome do Repassador</label>

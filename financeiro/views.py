@@ -1,5 +1,7 @@
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+
+from cliente.models import Cliente
 from .models import ContaPagar, ContaReceber, Cheque, Fornecedor, DespesasCategoria
 from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
@@ -44,7 +46,7 @@ def cadastrar_despesas(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
         return render(request, 'cadastrar_despesas.html', {'categorias': cadastrar_categorias})
-    elif request.method == "POST" and "descricao_categoria" not in request.POST:
+    elif request.method == "POST" and request.POST.get('descricao_categoria') is '':
         print(request.POST)
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -61,11 +63,18 @@ def cadastrar_despesas(request):
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
         despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_pagamento=data_pagamento, forma_pagamento=forma_pagamento, categoria=DespesasCategoria.objects.get(id=categoria), pago=pago)
         despesas.save()
+        print(request.POST)
     else:
         descricao_categoria = request.POST.get('descricao_categoria')
-        categorias = DespesasCategoria(descricao=descricao_categoria)
+        if DespesasCategoria.objects.filter(nome_categoria=descricao_categoria).exists():
+            messages.error(request,'Categoria já cadastrada', extra_tags='danger')
+            return redirect("financeiro:cadastrar_despesas")
+        
+        categorias = DespesasCategoria(nome_categoria=descricao_categoria)
         categorias.save()
-        return  HttpResponseRedirect(request.path_info)
+        print(request.path_info)
+        
+    print(request.POST)
 
     return redirect('/financeiro/despesas/')
     
@@ -212,7 +221,8 @@ def entrada(request):
 @login_required(login_url='/auth/login/')
 def cadastrar_entrada(request):
     if request.method == "GET":
-        return render(request, 'cadastrar_entrada.html')
+        clientes = Cliente.objects.all()
+        return render(request, 'cadastrar_entrada.html', {'clientes': clientes})
     elif request.method == "POST":
         cliente = request.POST.get('cliente')
         descricao = request.POST.get('descricao')
@@ -227,7 +237,7 @@ def cadastrar_entrada(request):
             recebido = False
         print(descricao, valor, data_vencimento, forma_recebimento, recebido)
         # Aqui você deve salvar os dados da conta a receber no banco de dados
-        conta_receber = ContaReceber(cliente=cliente,descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
+        conta_receber = ContaReceber(cliente=Cliente.objects.get(id=cliente),descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
         conta_receber.save()
         messages.success(request, "Entrada Cadastrada com Sucesso!")
         return redirect('financeiro:entradas')
@@ -236,8 +246,9 @@ def cadastrar_entrada(request):
 @has_role_decorator("vendedor")
 def editar_entrada(request, id):
     entrada = ContaReceber.objects.get(id=id)
+    clientes = Cliente.objects.all()
     if request.method == "GET":
-        return render(request, 'cadastrar_entrada.html', {'entrada': entrada})
+        return render(request, 'cadastrar_entrada.html', {'entrada': entrada, 'clientes': clientes})
     elif request.method == "POST":
         cliente = request.POST.get('cliente')
         descricao = request.POST.get('descricao')
@@ -252,7 +263,7 @@ def editar_entrada(request, id):
             recebido = False
         print(descricao, valor, data_vencimento, forma_recebimento, recebido)
         # Aqui você deve atualizar os dados da conta a receber no banco de dados
-        entrada.cliente = cliente
+        entrada.cliente = Cliente.objects.get(id=cliente)
         entrada.descricao = descricao
         entrada.valor = valor
         entrada.data_vencimento = data_vencimento
@@ -316,7 +327,8 @@ def cheques(request):
 @has_role_decorator("vendedor")
 def cadastrar_cheque(request):
     if request.method == "GET":
-        return render(request, 'cheques/cadastrar_cheque.html')
+        clientes = Cliente.objects.all()
+        return render(request, 'cheques/cadastrar_cheque.html', {'clientes': clientes})
     elif request.method == "POST":
         numero = request.POST.get('numero')
         valor = request.POST.get('valor')
@@ -330,7 +342,7 @@ def cadastrar_cheque(request):
         if cheque_unico.exists():
             messages.error(request,'Cheque já cadastrado', extra_tags='danger')
             return redirect("financeiro:cadastrar_cheque")
-        cheque = Cheque(numero=numero, valor=valor,  data_compensacao=data_compensacao, nome_titular=nome_titular, banco=banco, nome_repassador=nome_repassador)
+        cheque = Cheque(numero=numero, valor=valor,  data_compensacao=data_compensacao, nome_titular=Cliente.objects.get(id=nome_titular), banco=banco, nome_repassador=nome_repassador)
         cheque.save()
         return redirect('financeiro:cheques')
 
@@ -343,16 +355,18 @@ def editar_cheque(request, id):
     elif request.method == "POST":
         numero = request.POST.get('numero')
         valor = request.POST.get('valor')
-        data_vencimento = request.POST.get('data_vencimento')
         data_compensacao = request.POST.get('data_compensacao')
-        emitente = request.POST.get('emitente')
-        print(numero, valor, data_vencimento, data_compensacao, emitente)
+        nome_titular = request.POST.get('nome_titular')
+        nome_repassador = request.POST.get('nome_repassador')
+        banco = request.POST.get('banco')
+
         # Aqui você deve atualizar os dados do cheque no banco de dados
         cheque.numero = numero
         cheque.valor = valor
-        cheque.data_vencimento = data_vencimento
         cheque.data_compensacao = data_compensacao
-        cheque.emitente = emitente
+        cheque.nome_titular = Cliente.objects.get(id=nome_titular)
+        cheque.banco = banco
+        cheque.nome_repassador = nome_repassador
         cheque.save()
         return redirect('financeiro:cheques')
     

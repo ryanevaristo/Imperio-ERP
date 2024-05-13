@@ -22,8 +22,8 @@ class ChequeAdmin(admin.ModelAdmin):
 
 @admin.register(DespesasCategoria)
 class DespesasCategoriaAdmin(admin.ModelAdmin):
-    list_display = ('descricao',)
-    search_fields = ('descricao',)
+    list_display = ('nome_categoria',)
+    search_fields = ('nome_categoria',)
 
 
 

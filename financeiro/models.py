@@ -1,14 +1,14 @@
 from django.db import models
 from datetime import datetime
+from cliente.models import Cliente
 
 
 class ContaPagar(models.Model):
 
     choice_forma_pagamento = (
         ('D', 'Dinheiro'),
-        ('C', 'Cartão de Crédito'),
         ('B', 'Boleto'),
-        ('T', 'Transferência Bancária'),
+        ('T', 'Banco'),
         ('C', 'Cheque'),
         ('P', 'PIX')
     )
@@ -18,7 +18,7 @@ class ContaPagar(models.Model):
     data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     data_pagamento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     forma_pagamento = models.CharField(max_length=1, choices=choice_forma_pagamento,default='D',null=True, blank=True)
-    categoria = models.ForeignKey('DespesasCategoria', on_delete=models.CASCADE, null=True, blank=True)
+    categoria = models.ForeignKey('DespesasCategoria', on_delete=models.SET_NULL , null=True, blank=True)
     pago = models.BooleanField(default=False)
 
     def __str__(self):
@@ -41,10 +41,11 @@ class ContaPagar(models.Model):
     
 
 class DespesasCategoria(models.Model):
-    descricao = models.CharField(max_length=100)
+    nome_categoria = models.CharField(max_length=100)
+    conta_pagar = models.ForeignKey('ContaPagar', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.descricao
+        return self.nome_categoria
 
 class ContaReceber(models.Model):
     choice_forma_recebimento = (
@@ -54,7 +55,7 @@ class ContaReceber(models.Model):
         ('T', 'Transferência Bancária'),
         ('C', 'Cheque')
     )
-    cliente = models.CharField(max_length=100, null=True, blank=True)
+    cliente = models.ForeignKey(Cliente,on_delete=models.SET_NULL, null=True, blank=True)
     descricao = models.TextField(null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
@@ -83,7 +84,8 @@ class Cheque(models.Model):
         ('C', 'Compensado'),
         ('V', 'Vencido'),
         ('S', 'Sem Fundo'),
-        ('D', 'Devolvido')
+        ('D', 'Devolvido'),
+        ('R', 'Repassado')
     )
     choice_banco = (
         ('001', 'Banco do Brasil'),
@@ -103,7 +105,7 @@ class Cheque(models.Model):
         ('756', 'Sicoob')
     )
     numero = models.CharField(max_length=20, unique=True, null=True, blank=True)
-    nome_titular = models.CharField(max_length=100)
+    nome_titular = models.ForeignKey(Cliente, null=True,on_delete=models.SET_NULL , blank=True)
     nome_repassador = models.CharField(max_length=100, null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     banco = models.CharField(max_length=3, choices=choice_banco, default='001',null=True, blank=True)
