@@ -446,4 +446,7 @@ def excluir_fornecedor(request, id):
 
 
 
-    
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def caixa(request):
+    return render(request, 'caixa.html')

@@ -61,7 +61,7 @@
                                         <td>{{ cheque.nome_titular }}</td>
                                         <td>{{cheque.nome_repassador}}</td>
                                         <td>{{ cheque.numero }}</td>
-                                        <td>{{ cheque.valor }}</td>
+                                        <td>R${{cheque.valor|floatformat:"2g"}}</td>
                                         <td>{{ cheque.get_data_compensacao }}</td>
                                         {% if cheque.situacao == 'C' %}
                                             <td>Compensado</td>

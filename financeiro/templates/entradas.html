@@ -55,7 +55,7 @@
                         <tr>
                             <td>{{entrada.cliente}}</td>
                             <td>{{ entrada.descricao }}</td>
-                            <td>{{ entrada.valor }}</td>
+                            <td>R${{entrada.valor|floatformat:"2g"}}</td>
                             <td>{{ entrada.get_data_vencimento}}</td>
                             <td>{{ entrada.get_data_recebimento }}</td>
                             {% if entrada.forma_recebimento == 'D' %}

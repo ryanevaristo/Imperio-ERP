@@ -30,6 +30,8 @@ urlpatterns = [
     path('cadastrar_fornecedor/', views.cadastrar_fornecedor, name='cadastrar_fornecedor'),
     path('editar_fornecedor/<int:id>/', views.editar_fornecedor, name='editar_fornecedor'),
     path('excluir_fornecedor/<int:id>/', views.excluir_fornecedor, name='excluir_fornecedor'),
+    #caixa
+    path('caixa/', views.caixa, name='caixa'),
     
     
 ]

@@ -70,7 +70,7 @@
                                 {% for despesa in page_obj %}
                                     <tr>
                                         <td>{{ despesa.descricao }}</td>
-                                        <td>{{ despesa.get_valor }}</td>
+                                        <td>R${{despesa.valor|floatformat:"2g"}}  </td>
                                         <td>{{ despesa.get_data_vencimento }}</td>
                                         <td>{{ despesa.get_data_pagamento }}</td>
                                         {% if despesa.forma_pagamento == 'D' %}
