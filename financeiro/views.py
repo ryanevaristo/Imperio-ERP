@@ -46,7 +46,7 @@ def cadastrar_despesas(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
         return render(request, 'cadastrar_despesas.html', {'categorias': cadastrar_categorias})
-    elif request.method == "POST" and request.POST.get('descricao_categoria') is '':
+    elif request.method == "POST" and request.POST.get('descricao_categoria') =='':
         print(request.POST)
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
@@ -121,7 +121,7 @@ def excluir_despesas(request, id):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
-def total_despesas(request):
+def total_despesas_m_atual(request):
     despesas = ContaPagar.objects.all()
     #maiores despesas no mês atual
     # despesas = ContaPagar.objects.filter(data_vencimento__month=9)
@@ -138,6 +138,13 @@ def total_despesas(request):
 
 
     return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas, 'mes_atual': datetime.now().month})
+
+def total_despesas(request):
+    despesas = ContaPagar.objects.all()
+    total_valor = 0
+    for despesa in despesas:
+        total_valor += despesa.valor
+    return JsonResponse({'total_valor': total_valor})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -283,6 +290,17 @@ def excluir_entrada(request, id):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
+def total_entradas(request):
+    entradas = ContaReceber.objects.all()
+    total_valor = 0
+    for entrada in entradas:
+        total_valor += entrada.valor
+    return JsonResponse({'total_valor': total_valor})
+
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
 def exportar_entrada_xlsx(request):
     entrada = ContaReceber.objects.all()
     
@@ -378,6 +396,7 @@ def excluir_cheque(request, id):
     return redirect('financeiro:cheques')
 
 
+
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def exportar_cheque_xlsx(request):
@@ -446,7 +465,50 @@ def excluir_fornecedor(request, id):
 
 
 
+
+
+def total_cheques(*args, **kwargs):
+    cheques = Cheque.objects.all()
+    total_valor = 0
+    for cheque in cheques:
+        total_valor += cheque.valor
+    return total_valor
+
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def caixa(request):
-    return render(request, 'caixa.html')
+    cheques = Cheque.objects.all()
+    total_valor = 0
+    for cheque in cheques:
+        total_valor += cheque.valor
+
+    entradas = ContaReceber.objects.all()
+    total_entradas = 0
+    for entrada in entradas:
+        total_entradas += entrada.valor
+    
+    despesas = ContaPagar.objects.all()
+    total_despesas = 0
+    for despesa in despesas:
+        total_despesas += despesa.valor
+
+    if request.GET.get('start_date') and request.GET.get('end_date'):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        despesas = ContaPagar.objects.filter(data_vencimento__range=[start_date, end_date])
+        total_despesas = 0
+        for despesa in despesas:
+            total_despesas += despesa.valor
+        
+        entradas = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+        total_entradas = 0
+        for entrada in entradas:
+            total_entradas += entrada.valor
+        
+        cheque = Cheque.objects.filter(data_compensacao__range=[start_date, end_date])
+        total_valor = 0
+        for cheque in cheques:
+            total_valor += cheque.valor
+        
+
+    return render(request, 'caixa.html', {'saldo': total_entradas - total_despesas - total_valor, 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor})

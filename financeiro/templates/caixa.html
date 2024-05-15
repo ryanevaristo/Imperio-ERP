@@ -3,6 +3,14 @@
 {% load static %}
 {% block 'head' %}
 <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+<style>
+  .card {
+    border-top: 10px solid #292727;
+    border-radius: 5px;
+    background-color: #ffffffde;
+    
+}
+</style>
 {% endblock %}
 
 {% block 'body' %}
@@ -12,7 +20,7 @@
   <section id="minimal-statistics">
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card ">
                 <div class="card-content">
                     <div class="card-body">
                         <div class="row">
@@ -20,16 +28,15 @@
                             
                         </div>
                         <div class="text-end">
-                            <h4 class="card-title">Filtros</h4>
                             
                             <form class="form-inline d-flex justify-content-end">
                                 <div class="form-group mr-2">
-                                    <label for="start-date" class="mr-2">Data Inicial:</label>
-                                    <input type="date" class="form-control" id="start-date">
+                                    <label for="start_date" class="mr-2">Data Inicial:</label>
+                                    <input type="date" class="form-control" name="start_date" id="start_date">
                                 </div>
                                 <div class="form-group mr-2">
-                                    <label for="end-date" class="mr-2">Data Final:</label>
-                                    <input type="date" class="form-control" id="end-date">
+                                    <label for="end_date" class="mr-2">Data Final:</label>
+                                    <input type="date" class="form-control" name="end_date" id="end_date">
                                 </div>
                                 <button type="submit" class="btn btn-primary">Filtrar</button>
                             </form>
@@ -51,7 +58,11 @@
                 </div>
                 <div class="media-body text-right">
                 <span>Entradas Totais</span>
-                    <h3>R$ 1.000,00</h3>
+                    {% if total_entradas %}
+                      <h3 id="total_entradas">R$ {{ total_entradas|floatformat:"2g" }}</h3>
+                    {% else %}
+                      <h3 id="total_entradas">R$ 0,00</h3>
+                    {% endif %}
                   
                 </div>
               </div>
@@ -69,7 +80,12 @@
                 </div>
                 <div class="media-body text-right">
                 <span>Despesas Totais</span>
-                    <h3>R$ 1.000,00</h3>
+                    {% if total_despesas %}
+                      <h3 id="total_despesas">R$ {{ total_despesas|floatformat:"2g" }}</h3>
+                    {% else %}
+                      <h3 id="total_despesas">R$ 0,00</h3>
+                    {% endif %}
+
                   
                 </div>
               </div>
@@ -87,7 +103,12 @@
                 </div>
                 <div class="media-body text-right">
                 <span>Cheque Totais</span>
-                    <h3>R$ 1.000,00</h3>
+                    {% if total_cheque %}
+                      <h3 id="total_cheque">R$ {{ total_cheque|floatformat:"2g" }}</h3>
+                    {% else %}
+                      <h3 id="total_cheque">R$ 0,00</h3>
+                    {% endif %}
+
                   
                 </div>
               </div>
@@ -114,11 +135,18 @@
           <div class="card-body media-body text-center">
             <div class="row">
               <div class="col-12 ">
-                <h5 class="card-title
-                ">Saldo</h5>
+                <h5 class="card-title">Saldo</h5>
                 </div>
                 <div class="col-12">
-                  <h3>R$ 1.000,00</h3>
+                  {% if saldo %}
+                    {% if saldo > 0 %}
+                      <h3 class="card-text text-success">R$ {{ saldo|floatformat:"2g" }}</h3>
+                    {% else %}
+                      <h3 class="card-text text-danger">R$ {{ saldo|floatformat:"2g" }}</h3>
+                    {% endif %}
+                  {% else %}
+                    <h3 class="card-text text-danger">R$ 0,00</h3>
+                  {% endif %}
                 </div>
             </div>
           </div>
@@ -127,4 +155,70 @@
     </div>
 </div>
 
+<!-- adicione um card com o saldo mensal -->
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-content">
+          <div class="card-body media-body text-center">
+            <div class="row">
+              <div class="col-12 ">
+                <h5 class="card-title
+                ">Saldo Mensal (ultimos 6 meses)</h5>
+                </div>
+                <div class="col-12">
+                  <div>
+                    <canvas id="myChart2" style="max-height: 375px;"></canvas>
+
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        var ctx = document.getElementById('myChart2').getContext('2d');
+                        var myChart2 = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                                datasets: [{
+                                    label: 'Teste',
+                                    data: [12, 19, 3, 5, 2, 3],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.8)',
+                                        'rgba(54, 162, 235, 0.8)',
+                                        'rgba(255, 206, 86, 0.8)',
+                                        'rgba(75, 192, 192, 0.8)',
+                                        'rgba(153, 102, 255, 0.8)',
+                                        'rgba(255, 159, 64, 0.8)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)'
+                                    ],
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                </div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block 'scripts' %}
 {% endblock %}
