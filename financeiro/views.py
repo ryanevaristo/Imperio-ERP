@@ -355,7 +355,6 @@ def cadastrar_cheque(request):
         nome_repassador = request.POST.get('nome_repassador')
         banco = request.POST.get('banco')
         print(numero, valor, data_compensacao, nome_titular, banco)
-        # Aqui você deve salvar os dados do cheque no banco de dados
         cheque_unico = Cheque.objects.filter(numero=numero)
         if cheque_unico.exists():
             messages.error(request,'Cheque já cadastrado', extra_tags='danger')
@@ -465,15 +464,6 @@ def excluir_fornecedor(request, id):
 
 
 
-
-
-def total_cheques(*args, **kwargs):
-    cheques = Cheque.objects.all()
-    total_valor = 0
-    for cheque in cheques:
-        total_valor += cheque.valor
-    return total_valor
-
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def caixa(request):
@@ -512,3 +502,27 @@ def caixa(request):
         
 
     return render(request, 'caixa.html', {'saldo': total_entradas - total_despesas - total_valor, 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor})
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def saldo_anual(request):
+    meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
+    saldo = []
+    for mes in meses_anteriores:
+        despesas = ContaPagar.objects.filter(data_vencimento__month=mes)
+        total_despesas = 0
+        for despesa in despesas:
+            total_despesas += despesa.valor
+        
+        entradas = ContaReceber.objects.filter(data_vencimento__month=mes)
+        total_entradas = 0
+        for entrada in entradas:
+            total_entradas += entrada.valor
+        
+        cheques = Cheque.objects.filter(data_compensacao__month=mes)
+        total_valor = 0
+        for cheque in cheques:
+            total_valor += cheque.valor
+        saldo.append(total_entradas - total_despesas - total_valor)
+    return JsonResponse({'saldo': saldo, 'meses': meses_anteriores})
