@@ -20,7 +20,7 @@ class ContaPagar(models.Model):
     forma_pagamento = models.CharField(max_length=1, choices=choice_forma_pagamento,default='D',null=True, blank=True)
     categoria = models.ForeignKey('DespesasCategoria', on_delete=models.SET_NULL , null=True, blank=True)
     pago = models.BooleanField(default=False)
-
+    
     def __str__(self):
         return self.descricao
     
