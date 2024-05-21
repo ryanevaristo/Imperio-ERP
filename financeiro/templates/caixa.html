@@ -103,8 +103,8 @@
                 </div>
                 <div class="media-body text-right">
                 <span>Cheque Totais</span>
-                    {% if total_cheque %}
-                      <h3 id="total_cheque">R$ {{ total_cheque|floatformat:"2g" }}</h3>
+                    {% if total_cheques %}
+                      <h3 id="total_cheque">R$ {{ total_cheques|floatformat:"2g" }}</h3>
                     {% else %}
                       <h3 id="total_cheque">R$ 0,00</h3>
                     {% endif %}

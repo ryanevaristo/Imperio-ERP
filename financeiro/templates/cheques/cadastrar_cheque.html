@@ -25,9 +25,10 @@
                 <div class="form-group">
                     <label for="cliente">Cliente</label>
                     <select class="form-control" id="cliente" name="cliente" required>
-                        <option value="">Selecione um cliente</option>
+                        
                         {% if clientes %}
                         {% for cliente in clientes %}
+                        <!-- search -->
                             <option value="{{ cliente.id }}">{{ cliente.nome_completo }}</option>
                         {% endfor %}
                         {% else %}
@@ -53,7 +54,7 @@
                 <div class="form-group
                 ">
                     <label for="data_emissao">Data de Compensação</label>
-                    <input type="date" class="form-control" id="data_compensacao" name="data_compensacao" value="{{ cheque.get_data_compensacao }}" required>
+                    <input type="date" class="form-control" id="data_compensacao" name="data_compensacao" value="{{ cheque.edit_data_compensacao }}" required>
                 </div>
                 <div class="form-group
                 ">
@@ -85,6 +86,7 @@
                         <option value="V">Vencido</option>
                         <option value="S">Sem Fundo</option>
                         <option value="D">Devolvido</option>
+                        <option value="R">Repassado</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Salvar</button>
@@ -124,7 +126,7 @@
                 <div class="form-group
                 ">
                     <label for="data_emissao">Data de Compensação</label>
-                    <input type="date" class="form-control" id="data_compensacao" name="data_compensacao">
+                    <input type="date" class="form-control" id="data_compensacao" name="data_compensacao" required>
                 </div>
                 <div class="form-group">
                     <label for="banco">Banco</label>
@@ -155,6 +157,7 @@
                         <option value="V">Vencido</option>
                         <option value="S">Sem Fundo</option>
                         <option value="D">Devolvido</option>
+                        <option value="R">Repassado</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-primary">Cadastrar</button>

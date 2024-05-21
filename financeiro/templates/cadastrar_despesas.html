@@ -3,6 +3,13 @@
 {% load static %}
 {% block 'head' %}
 <link rel="stylesheet" href="{% static 'core/css/forms.css' %}">
+<style>
+    .del-msg {
+        float: right;
+        color: black;
+        text-decoration: none;
+    }
+</style>
 {% endblock %}
 {% block 'body' %}
 <div class="container-fluid" id="container">
@@ -16,6 +23,7 @@
         {% for message in messages %}
             <div class="alert alert-{{ message.tags }}">
                 {{ message }}
+                <a href="#" class="del-msg">&times;</a>
             </div>
         {% endfor %}
     {% endif %}
@@ -154,3 +162,13 @@
 
 {% endblock %}
 ```
+
+{% block 'scripts' %}
+<script>
+    document.querySelectorAll('.del-msg').forEach(item => {
+        item.addEventListener('click', event => {
+            item.parentElement.style.display = 'none';
+        })
+    })
+</script>
+{% endblock %}

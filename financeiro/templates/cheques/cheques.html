@@ -50,8 +50,8 @@
                                     <th>Numero</th>
                                     <th>Valor</th>
                                     <th>Data de Compensação</th>
-                                    <th>Banco</th>
                                     <th>Situação</th>
+                                    <th>Banco</th>                              
                                     <th>Opções</th>
                                 </tr>
                             </thead>
@@ -71,6 +71,8 @@
                                             <td>Vencido</td>
                                         {% elif cheque.situacao == 'S' %}
                                             <td>Sem Fundos</td>
+                                        {% elif cheque.situacao == 'R' %}
+                                            <td>Repassado</td>
                                         {% else %}
                                             <td>Devolvido</td>
                                         {% endif %}

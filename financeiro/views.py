@@ -73,6 +73,7 @@ def cadastrar_despesas(request):
         categorias = DespesasCategoria(nome_categoria=descricao_categoria)
         categorias.save()
         print(request.path_info)
+        return HttpResponseRedirect(request.path_info)
         
     print(request.POST)
 
@@ -92,6 +93,7 @@ def editar_despesas(request, id):
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
         data_vencimento = request.POST.get('data_vencimento')
+        data_pagamento = request.POST.get('data_pagamento')
         forma_pagamento = request.POST.get('forma_pagamento')
         pago = request.POST.get('pago')
         categoria = request.POST.get('categoria')
@@ -105,6 +107,7 @@ def editar_despesas(request, id):
         despesas.descricao = descricao
         despesas.valor = valor
         despesas.data_vencimento = data_vencimento
+        despesas.data_pagamento = data_pagamento
         despesas.forma_pagamento = forma_pagamento
         despesas.pago = pago
         despesas.categoria = DespesasCategoria.objects.get(id=categoria)
@@ -243,6 +246,7 @@ def cadastrar_entrada(request):
         else:
             recebido = False
         print(descricao, valor, data_vencimento, forma_recebimento, recebido)
+        cliente = int(cliente)
         # Aqui você deve salvar os dados da conta a receber no banco de dados
         conta_receber = ContaReceber(cliente=Cliente.objects.get(id=cliente),descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
         conta_receber.save()
@@ -351,7 +355,7 @@ def cadastrar_cheque(request):
         numero = request.POST.get('numero')
         valor = request.POST.get('valor')
         data_compensacao = request.POST.get('data_compensacao')
-        nome_titular = request.POST.get('nome_titular')
+        nome_titular = request.POST.get('cliente')
         nome_repassador = request.POST.get('nome_repassador')
         banco = request.POST.get('banco')
         print(numero, valor, data_compensacao, nome_titular, banco)
@@ -368,13 +372,15 @@ def cadastrar_cheque(request):
 def editar_cheque(request, id):
     cheque = Cheque.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'cheques/cadastrar_cheque.html', {'cheque': cheque})
+        clientes = Cliente.objects.all()
+        return render(request, 'cheques/cadastrar_cheque.html', {'cheque': cheque, 'clientes': clientes})
     elif request.method == "POST":
         numero = request.POST.get('numero')
         valor = request.POST.get('valor')
         data_compensacao = request.POST.get('data_compensacao')
-        nome_titular = request.POST.get('nome_titular')
+        nome_titular = request.POST.get('cliente')
         nome_repassador = request.POST.get('nome_repassador')
+        status = request.POST.get('status')
         banco = request.POST.get('banco')
 
         # Aqui você deve atualizar os dados do cheque no banco de dados
@@ -384,6 +390,7 @@ def editar_cheque(request, id):
         cheque.nome_titular = Cliente.objects.get(id=nome_titular)
         cheque.banco = banco
         cheque.nome_repassador = nome_repassador
+        cheque.situacao = status
         cheque.save()
         return redirect('financeiro:cheques')
     
@@ -496,9 +503,25 @@ def caixa(request):
             total_entradas += entrada.valor
         
         cheque = Cheque.objects.filter(data_compensacao__range=[start_date, end_date])
-        total_valor = 0
+        total_valor_emitido = 0
+        total_valor_compensado = 0
+        total_valor_devolvido = 0
+        total_valor_sem_fundo = 0
+        total_valor_vencido = 0
+
         for cheque in cheques:
-            total_valor += cheque.valor
+            if cheque.situacao == 'C':
+                total_valor_compensado += cheque.valor
+            elif cheque.situacao == 'E':
+                total_valor_emitido += cheque.valor
+            elif cheque.situacao == 'D':
+                total_valor_devolvido += cheque.valor
+            elif cheque.situacao == 'S':
+                total_valor_sem_fundo += cheque.valor
+            elif cheque.situacao == 'V':
+                total_valor_vencido += cheque.valor
+        
+        total_valor = total_valor_emitido + total_valor_compensado + total_valor_devolvido + total_valor_sem_fundo + total_valor_vencido
         
 
     return render(request, 'caixa.html', {'saldo': total_entradas - total_despesas - total_valor, 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor})

@@ -121,6 +121,9 @@ class Cheque(models.Model):
     def get_data_compensacao(self):
         return self.data_compensacao.strftime('%d/%m/%Y')
     
+    def edit_data_compensacao(self):
+        return self.data_compensacao.strftime('%Y-%m-%d')
+    
     
 
 class Fornecedor(models.Model):

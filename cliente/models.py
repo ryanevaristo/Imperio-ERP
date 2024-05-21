@@ -17,7 +17,4 @@ class Cliente(models.Model):
         return self.nome_completo
         
     
-    class Meta:
-        verbose_name = 'Cliente'
-        verbose_name_plural = 'Clientes'
-        
+    
