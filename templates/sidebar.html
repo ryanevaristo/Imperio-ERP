@@ -44,20 +44,21 @@
                 </ul>
             </li>
             <!-- pdv -->
+
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#PDV" aria-expanded="false" aria-controls="PDV">
+                <a href="#" class="sidebar-link">
                     <i class="bi bi-bag-fill"></i>
                     <span>PDV (em breve)</span>
                 </a>
-                <ul id="PDV" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar PDV</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Cadastrar PDV</a>
-                    </li>
-                </ul>
+            </li>
+
+            <!-- adicionar caixa -->
+            <li class="sidebar-item">
+                <a href="{% url 'financeiro:caixa' %}" class="sidebar-link">
+                    <i class="bi bi-box-fill"></i>
+                    <span>Caixa</span>
+                </a>
+            </li>
             
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
