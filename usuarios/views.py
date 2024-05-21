@@ -109,7 +109,7 @@ def login(request):
         # Aqui você deve fazer a validação do login
         user = auth.authenticate(username=email, password=senha)
         if user is None:
-            messages.error(request, 'Usuário ou senha inválidos')
+            messages.error(request, 'Usuário ou senha inválidos', extra_tags='danger')
             return redirect(reverse('usuarios:login'))
         
         auth.login(request, user)

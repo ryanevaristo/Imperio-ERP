@@ -44,6 +44,9 @@ def cadastrar_clientes(request):
         estado = request.POST['estado']
         cep = request.POST['cep']
         cliente = Cliente(nome_completo=nome_completo, email=email, telefone=telefone, cpf_cnpj=cpf_cnpj, endereco=endereco, cidade=cidade, estado=estado, cep=cep)
+        if Cliente.objects.filter(cpf_cnpj=cpf_cnpj).exists():
+            messages.error(request, 'CPF/CNPJ já cadastrado!', extra_tags='warning')
+            return redirect('/clientes/cadastrar/')
         cliente.save()
         messages.success(request, 'Cliente cadastrado com sucesso!')
         return redirect('/clientes/')

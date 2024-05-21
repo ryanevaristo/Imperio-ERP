@@ -4,7 +4,7 @@ from django.db import models
 
 class Cliente(models.Model):
     nome_completo = models.CharField(max_length=100)
-    cpf_cnpj = models.CharField(max_length=20)
+    cpf_cnpj = models.CharField(max_length=20, unique=True)
     email = models.EmailField()
     telefone = models.CharField(max_length=20)
     endereco = models.CharField(max_length=200)

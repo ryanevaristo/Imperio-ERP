@@ -15,12 +15,20 @@
 <div class="sidenav" >
     <div class="login-main-text">
        <h2>IMPERIO<br> Bem Vindo ao soft de Gestão</h2>
-       <p>Para acessar o sitema basta colocar seu email e senha.</p>
+       <p>Para acessar o sitema basta colocar seu usuário e senha.</p>
     </div>
  </div>
  <div class="main">
     <div class="col-md-6 col-sm-12">
        <div class="login-form">
+         {% if messages %}
+            {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">
+                     {{ message }}
+                     <a href="#" class="del-msg">&times;</a>
+                  </div>
+            {% endfor %}
+         {% endif %}
          <form action="{% url 'usuarios:login' %}" method="post"> {% csrf_token %}
              <div class="form-group">
                 <label>User Name</label>

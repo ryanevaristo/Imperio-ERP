@@ -9,7 +9,7 @@ class Users(AbstractUser):
         ('U', 'Usuario'),
         ('V','vendedor')
     )
-    cargo = models.CharField(max_length=1, choices=choice_cargo, default='user')
+    cargo = models.CharField(max_length=1, choices=choice_cargo, default='A')
     telefone = models.CharField(max_length=15, blank=True, null=True)
     
 

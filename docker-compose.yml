@@ -1,15 +1,15 @@
 services:
-  # db:
-  #     image: postgres:15
-  #     volumes:
-  #       - postgres_data:/var/lib/postgresql/data
-  #     environment:
-  #       - POSTGRES_DB=postgres
-  #       - POSTGRES_USER=postgres
-  #       - POSTGRES_PASSWORD=postgres
-  #       - POSTGRES_HOST_AUTH_METHOD=trust
-  #     ports:
-  #       - "5432:5432"
+  db:
+      image: postgres:15
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      environment:
+        - POSTGRES_DB=postgres
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_HOST_AUTH_METHOD=trust
+      ports:
+        - "5432:5432"
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -21,9 +21,9 @@ services:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-#     depends_on:
-#       - db
+    depends_on:
+      - db
   
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:
   
