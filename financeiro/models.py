@@ -50,8 +50,8 @@ class DespesasCategoria(models.Model):
 class ContaReceber(models.Model):
     choice_forma_recebimento = (
         ('D', 'Dinheiro'),
-        ('E', 'Cartão'),
         ('B', 'Boleto'),
+        ('E', 'Cartão'),
         ('T', 'Banco'),
         ('C', 'Cheque'),
         ('P', 'PIX')
