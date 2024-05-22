@@ -50,10 +50,11 @@ class DespesasCategoria(models.Model):
 class ContaReceber(models.Model):
     choice_forma_recebimento = (
         ('D', 'Dinheiro'),
-        ('E', 'Cartão de Crédito'),
+        ('E', 'Cartão'),
         ('B', 'Boleto'),
-        ('T', 'Transferência Bancária'),
-        ('C', 'Cheque')
+        ('T', 'Banco'),
+        ('C', 'Cheque'),
+        ('P', 'PIX')
     )
     cliente = models.ForeignKey(Cliente,on_delete=models.SET_NULL, null=True, blank=True)
     descricao = models.TextField(null=True, blank=True)

@@ -64,14 +64,14 @@
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#Despesas" aria-expanded="false" aria-controls="Despesas">
                     <i class="bi bi-cash-stack" id="icone"></i>
-                    <span>Despesas</span>
+                    <span>Contas a Pagar</span>
                 </a>
                 <ul id="Despesas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="{% url 'financeiro:despesas' %}" class="sidebar-link">Listar Despesas</a>
+                        <a href="{% url 'financeiro:despesas' %}" class="sidebar-link">Listar Contas a Pagar</a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="{% url 'financeiro:cadastrar_despesas' %}" class="sidebar-link">Cadastrar Despesas</a>
+                        <a href="{% url 'financeiro:cadastrar_despesas' %}" class="sidebar-link">Cadastrar Contas a Pagar</a>
                     </li>
                 </ul>
             </li>
@@ -90,6 +90,21 @@
                     </li>
                 </ul>
             </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#Conta_a_receber" aria-expanded="false" aria-controls="Conta_a_receber">
+                    <i class="bi bi-currency-dollar" id="icone"></i>
+                    <span>Contas a Receber</span>
+                </a>
+                <ul id="Conta_a_receber" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:contas_a_receber' %}" class="sidebar-link">Listar Contas a Receber</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'financeiro:cadastrar_entrada' %}" class="sidebar-link">Cadastrar Contas a Receber</a>
+                    </li>
+                </ul>
+            </li>
 
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
@@ -100,9 +115,6 @@
                 <ul id="Entradas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
                         <a href="{% url 'financeiro:entradas' %}" class="sidebar-link">Listar Entradas</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:cadastrar_entrada' %}" class="sidebar-link">Cadastrar Entradas</a>
                     </li>
                 </ul>
             </li>

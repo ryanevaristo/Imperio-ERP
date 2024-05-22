@@ -15,6 +15,7 @@ urlpatterns = [
     path('cadastrar_categoria/', views.cadastrar_categorias, name='cadastrar_categoria'),
     #contas a receber
     path('entrada/', views.entrada, name='entradas'),
+    path('contas_a_receber/', views.contas_a_receber, name='contas_a_receber'),
     path('cadastrar_entrada/', views.cadastrar_entrada, name='cadastrar_entrada'),
     path('editar_entrada/<int:id>/', views.editar_entrada, name='editar_entrada'),
     path('excluir_entrada/<int:id>/', views.excluir_entrada, name='excluir_entrada'),

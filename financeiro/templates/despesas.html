@@ -87,11 +87,15 @@
                                             <td>Pix</td>
                                         {% endif %}
                                         {% if despesa.pago == True %}
-                                            <td>Pago</td>
+                                            <td >
+                                                <span class="badge bg-success" style="color: black;">Pago</span>
+                                            </td>
                                         {% else %}
-                                            <td>Pendente</td>
+                                            <td >
+                                                <span class="badge bg-danger" style="color: black;">Pendente</span>
+                                            </td>
                                         {% endif %}
-                                        <td>{{ despesa.categoria.descricao }}</td>
+                                        <td>{{ despesa.categoria.nome_categoria }}</td>
                                         
                                         <td>
                                             <a href="{% url 'financeiro:editar_despesas' despesa.id %}" class="btn btn-primary  btn-sm">Editar</a>

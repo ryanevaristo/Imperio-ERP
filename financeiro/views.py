@@ -206,7 +206,7 @@ def cadastrar_categorias(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
 def entrada(request):
-    entrada = ContaReceber.objects.all()
+    entrada = ContaReceber.objects.filter(recebido=True)
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
     entrada_obj = paginator.get_page(page_number)
@@ -227,6 +227,31 @@ def entrada(request):
         entrada_obj = paginator.get_page(page_number)
 
     return render(request, 'entradas.html', {'entrada_obj': entrada_obj})
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator("vendedor")
+def contas_a_receber(request):
+    entrada = ContaReceber.objects.filter(recebido=False)
+    paginator = Paginator(entrada, 10)
+    page_number = request.GET.get('page')
+    entrada_obj = paginator.get_page(page_number)
+
+    if request.GET.get('start_date') and request.GET.get('end_date'):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        entrada_obj = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+        paginator = Paginator(entrada_obj, 10)
+        page_number = request.GET.get('page')
+        entrada_obj = paginator.get_page(page_number)
+    
+    if request.GET.get('pesquisar'):
+        pesquisar = request.GET.get('pesquisar')
+        entrada_obj = ContaReceber.objects.filter(descricao__icontains=pesquisar)
+        paginator = Paginator(entrada_obj, 10)
+        page_number = request.GET.get('page')
+        entrada_obj = paginator.get_page(page_number)
+
+    return render(request, 'contas_receber.html', {'entrada_obj': entrada_obj})
 
 @login_required(login_url='/auth/login/')
 def cadastrar_entrada(request):
@@ -358,12 +383,12 @@ def cadastrar_cheque(request):
         nome_titular = request.POST.get('cliente')
         nome_repassador = request.POST.get('nome_repassador')
         banco = request.POST.get('banco')
-        print(numero, valor, data_compensacao, nome_titular, banco)
+        status = request.POST.get('status')
         cheque_unico = Cheque.objects.filter(numero=numero)
         if cheque_unico.exists():
             messages.error(request,'Cheque já cadastrado', extra_tags='danger')
             return redirect("financeiro:cadastrar_cheque")
-        cheque = Cheque(numero=numero, valor=valor,  data_compensacao=data_compensacao, nome_titular=Cliente.objects.get(id=nome_titular), banco=banco, nome_repassador=nome_repassador)
+        cheque = Cheque(numero=numero, valor=valor,  data_compensacao=data_compensacao, nome_titular=Cliente.objects.get(id=nome_titular), banco=banco, nome_repassador=nome_repassador, situacao=status)
         cheque.save()
         return redirect('financeiro:cheques')
 
@@ -476,10 +501,16 @@ def excluir_fornecedor(request, id):
 def caixa(request):
     cheques = Cheque.objects.all()
     total_valor = 0
+    total_valor_compensado = 0
+    total_valor_repassado = 0
     for cheque in cheques:
         total_valor += cheque.valor
+        if cheque.situacao == 'C':
+                total_valor_compensado += cheque.valor
+        elif cheque.situacao == 'R':
+            total_valor_repassado += cheque.valor
 
-    entradas = ContaReceber.objects.all()
+    entradas = ContaReceber.objects.filter(recebido=True)
     total_entradas = 0
     for entrada in entradas:
         total_entradas += entrada.valor
@@ -497,35 +528,23 @@ def caixa(request):
         for despesa in despesas:
             total_despesas += despesa.valor
         
-        entradas = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+        entradas = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date], recebido=True)
         total_entradas = 0
         for entrada in entradas:
             total_entradas += entrada.valor
         
         cheque = Cheque.objects.filter(data_compensacao__range=[start_date, end_date])
-        total_valor_emitido = 0
+        total_valor_repassado = 0
         total_valor_compensado = 0
-        total_valor_devolvido = 0
-        total_valor_sem_fundo = 0
-        total_valor_vencido = 0
 
         for cheque in cheques:
             if cheque.situacao == 'C':
                 total_valor_compensado += cheque.valor
-            elif cheque.situacao == 'E':
-                total_valor_emitido += cheque.valor
-            elif cheque.situacao == 'D':
-                total_valor_devolvido += cheque.valor
-            elif cheque.situacao == 'S':
-                total_valor_sem_fundo += cheque.valor
-            elif cheque.situacao == 'V':
-                total_valor_vencido += cheque.valor
+            elif cheque.situacao == 'R':
+                total_valor_repassado += cheque.valor
         
-        total_valor = total_valor_emitido + total_valor_compensado + total_valor_devolvido + total_valor_sem_fundo + total_valor_vencido
-        
-
-    return render(request, 'caixa.html', {'saldo': total_entradas - total_despesas - total_valor, 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor})
-
+        return render(request, 'caixa.html', {'saldo': (total_entradas) - total_despesas, 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado, 'total_valor_compensado': total_valor_compensado})
+    return render(request, 'caixa.html', {'saldo': (total_entradas) - total_despesas , 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado, 'total_valor_compensado': total_valor_compensado})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("vendedor")
@@ -543,9 +562,5 @@ def saldo_anual(request):
         for entrada in entradas:
             total_entradas += entrada.valor
         
-        cheques = Cheque.objects.filter(data_compensacao__month=mes)
-        total_valor = 0
-        for cheque in cheques:
-            total_valor += cheque.valor
-        saldo.append(total_entradas - total_despesas - total_valor)
+        saldo.append(total_entradas - total_despesas)
     return JsonResponse({'saldo': saldo, 'meses': meses_anteriores})

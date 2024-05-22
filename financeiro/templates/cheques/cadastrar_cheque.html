@@ -17,6 +17,14 @@
             <p>Adicione um novo cheque</p>
 
             {% endif %}
+            {% if messages %}
+            {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">
+                     {{ message }}
+                     <a href="#" class="del-msg">&times;</a>
+                  </div>
+            {% endfor %}
+         {% endif %}
             
             <hr>
             {% if cheque %}
@@ -81,11 +89,7 @@
                 ">
                     <label for="status">Status</label>
                     <select class="form-control" id="status" name="status" value="{{ cheque.situacao }}" required>
-                        <option value="E">Emitido</option>
                         <option value="C">Compensado</option>
-                        <option value="V">Vencido</option>
-                        <option value="S">Sem Fundo</option>
-                        <option value="D">Devolvido</option>
                         <option value="R">Repassado</option>
                     </select>
                 </div>
@@ -151,12 +155,8 @@
                 <div class="form-group
                 ">
                     <label for="status">Status</label>
-                    <select class="form-control" id="status" name="status">
-                        <option value="E">Emitido</option>
+                    <select class="form-control" id="status" name="status"  required>
                         <option value="C">Compensado</option>
-                        <option value="V">Vencido</option>
-                        <option value="S">Sem Fundo</option>
-                        <option value="D">Devolvido</option>
                         <option value="R">Repassado</option>
                     </select>
                 </div>

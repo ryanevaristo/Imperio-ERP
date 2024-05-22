@@ -64,17 +64,13 @@
                                         <td>R${{cheque.valor|floatformat:"2g"}}</td>
                                         <td>{{ cheque.get_data_compensacao }}</td>
                                         {% if cheque.situacao == 'C' %}
-                                            <td>Compensado</td>
-                                        {% elif cheque.situacao == 'E' %}
-                                            <td>Emitido</td>
-                                        {% elif cheque.situacao == 'V' %}
-                                            <td>Vencido</td>
-                                        {% elif cheque.situacao == 'S' %}
-                                            <td>Sem Fundos</td>
+                                            <td>
+                                                <span class="badge bg-success">Compensado</span>
+                                            </td>
                                         {% elif cheque.situacao == 'R' %}
-                                            <td>Repassado</td>
-                                        {% else %}
-                                            <td>Devolvido</td>
+                                            <td>
+                                                <span class="badge bg-danger">Repassado</span>
+                                            </td>
                                         {% endif %}
                                         {%if cheque.banco == '001'%}
                                             <td>Banco do Brasil</td>

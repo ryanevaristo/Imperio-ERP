@@ -10,7 +10,7 @@
     <hr>
     <div class="button-container">
         <div>
-            <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-primary my-2 my-2-sm-0 " style="margin-top: 10px;">Adicionar nova Entrada</a>
+            <!-- <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-primary my-2 my-2-sm-0 " style="margin-top: 10px;">Adicionar nova Entrada</a> -->
             <a href="{% url 'financeiro:exportar_entradas_xlsx' %}" class="btn btn-secondary  my-2 my-2-sm-0  ">
                 <i class="bi bi-file-excel"></i>
                 Excel
@@ -59,21 +59,34 @@
                             <td>{{ entrada.get_data_vencimento}}</td>
                             <td>{{ entrada.get_data_recebimento }}</td>
                             {% if entrada.forma_recebimento == 'D' %}
-                            <td>Dinheiro</td>
+                            <td>
+                                <span class="badge bg-success">Dinheiro</span>
+                            </td>
                             {% elif entrada.forma_recebimento == 'E' %}
-                            <td>Cartão de Crédito</td>
+                            <td>
+                                <span class="badge bg-primary">Cartão</span>
+                            </td>
+                            {% elif entrada.forma_recebimento == 'B' %}
+                            <td>
+                                <span class="badge bg-secondary">Boleto</span>
+                            </td>
                             {% elif entrada.forma_recebimento == 'T' %}
-                            <td>Transferência Bancária</td>
+                            <td>
+                                <span class="badge bg-danger">Banco</span>
+                            </td>
                             {% elif entrada.forma_recebimento == 'C' %}
-                            <td>Cheque</td>
+                            <td>
+                                <span class="badge bg-warning">Cheque</span>
+                            </td>
                             {% elif entrada.forma_recebimento == 'P' %}
-                            <td>Pix</td>
+                            <td>
+                                <span class="badge bg-info">PIX</span>
+                            </td>
                             {% endif %}
-                            {% if entrada.recebido == True %}
-                            <td>Recebido</td>
-                            {% else %}
-                            <td>Pendente</td>
-                            {% endif %}
+                            <td>
+                            
+                                <i class="bi bi-check-circle-fill" style="color: green;">Recebido</i>
+                            </td>
                             <td>
                                 <a href="{% url 'financeiro:editar_entrada' entrada.id %}" class="btn btn-primary btn-sm">Editar</a>
                                 <a href="{% url 'financeiro:excluir_entrada' entrada.id %}" class="btn btn-danger btn-sm">Excluir</a>

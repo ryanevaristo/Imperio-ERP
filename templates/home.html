@@ -36,15 +36,20 @@
 
             <div id="linha">
                 <a class="btn btn-app" href="{% url 'financeiro:despesas' %}" id="button">
-                    <i class="bi bi-cash-stack" id="icone"></i>Despesas
+                    <i class="bi bi-cash-stack" id="icone"></i>Contas a Pagar
                 </a>
-                <a class="btn btn-app" href="{% url 'financeiro:cheques' %}" id="button">
-                    <i class="bi bi-cassette" id="icone"></i>Cheques
+                <a class="btn btn-app" href="{% url 'financeiro:contas_a_receber' %}" id="button">
+                    <i class="
+                    bi bi-currency-dollar" id="icone"></i>Contas a receber
+                    
                 </a>
                 <a class="btn btn-app" href="{% url 'financeiro:entradas' %}" id="button">
                     <i class="
                     bi bi-currency-dollar" id="icone"></i>Entradas
                     
+                </a>
+                <a class="btn btn-app" href="{% url 'financeiro:cheques' %}" id="button">
+                    <i class="bi bi-cassette" id="icone"></i>Cheques
                 </a>
                 <a class="btn btn-app" href="{% url 'financeiro:caixa' %}" id="button">
                     <i class="

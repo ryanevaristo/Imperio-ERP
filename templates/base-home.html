@@ -68,10 +68,14 @@
   
     {% endblock %}
     <script>
-        document.querySelectorAll('.del-msg').forEach(item => {
-            item.addEventListener('click', event => {
-                item.parentElement.style.display = 'none';
-            })
-        })
+        // adicione um timer para remover a mensagem de erro e um botão para remover a mensagem
+        $(document).ready(function(){
+            setTimeout(function(){
+                $('.alert').remove();
+            }, 3000);
+            $('.del-msg').click(function(){
+                $(this).parent().remove();
+            });
+        });
     </script>
 </html>
