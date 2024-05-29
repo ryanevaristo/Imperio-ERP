@@ -6,14 +6,20 @@ from django.contrib.auth.models import AbstractUser
 class Users(AbstractUser):
     choice_cargo = (
         ('A', 'Administrador'),
-        ('U', 'Usuario'),
-        ('V','vendedor')
+        ('V', 'Vendedor'),
+        ('G','Gerente')
     )
-    cargo = models.CharField(max_length=1, choices=choice_cargo, default='A')
+    cargo = models.CharField(max_length=1, choices=choice_cargo, default='V')
     telefone = models.CharField(max_length=15, blank=True, null=True)
     
 
     def __str__(self):
         return self.username
+    
+    def get_cargo_display(self):
+        for cargo in self.choice_cargo:
+            if cargo[0] == self.cargo:
+                return cargo[1]
+        return None
     
 

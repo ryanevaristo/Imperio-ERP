@@ -138,16 +138,16 @@
 
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                data-bs-target="#Vendedores" aria-expanded="false" aria-controls="Vendedores">
+                data-bs-target="#Usuarios" aria-expanded="false" aria-controls="Usuarios">
                     <i class="bi bi-person-fill"></i>
-                    <span>Vendedores</span>
+                    <span>Usuarios</span>
                 </a>
-                <ul id="Vendedores" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                <ul id="Usuarios" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="{% url 'usuarios:vendedores' %}" class="sidebar-link">Listar Vendedores</a>
+                        <a href="{% url 'usuarios:Usuarios' %}" class="sidebar-link">Listar Usuarios</a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="sidebar-link">Cadastrar Vendedores</a>
+                        <a href="{% url 'usuarios:cadastrar_usuario' %}" class="sidebar-link">Cadastrar Usuarios</a>
                     </li>
                 </ul>
             </li>

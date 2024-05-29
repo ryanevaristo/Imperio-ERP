@@ -1,10 +1,11 @@
 {% extends 'base-home.html' %}
 {% block 'title' %}Cadastrar Vendedor{% endblock %}
 {% load static %}
+{% load permission_tags %}
 {% block 'head' %}
-    <link rel="stylesheet" href="{% static 'usuarios/css/cadastrar_vendedor.css' %}">
+    <link rel="stylesheet" href="{% static 'core/css/forms.css' %}">
 {% endblock %}
-<!-- Path: imperio/usuarios/templates/cadastrar_vendedor.html -->
+<!-- Path: imperio/usuarios/templates/cadastrar_usuario.html -->
 {% block 'body' %}
     
 
@@ -18,32 +19,42 @@
                   </div>
             {% endfor %}
          {% endif %}
-        <h2 class="page-title">Cadastro de vendedor</h2>
+        
+        {% if usuario %}
+        <h2 class="page-title">Editar de Usuário</h2>
         <br>
-        {% if vendedor %}
-            <form action="{% url 'usuarios:editar_vendedor' vendedor.id %}" method="post"> {% csrf_token %}
+            <form action="{% url 'usuarios:editar_usuario' usuario.id %}" method="post"> {% csrf_token %}
                 <div class="form-group">
                 <label for="nome">Nome:</label>
-                <input type="text" name="nome" id="nome" class="form-control"  placeholder="Digite seu nome" value="{{vendedor.first_name}}" required>
+                <input type="text" name="nome" id="nome" class="form-control"  placeholder="Digite seu nome" value="{{usuario.first_name}}" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email:</label>
-                    <input type="email" name="email" id="email" class="form-control"  placeholder="Digite seu email" value="{{vendedor.email}}" required>
+                    <input type="email" name="email" id="email" class="form-control"  placeholder="Digite seu email" value="{{usuario.email}}" required>
                 </div>
                 <div class="form-group">
                     <label for="text">Telefone:</label>
-                    <input type="phone" name="telefone" id="telefone" class="form-control"  placeholder="Digite seu telefone" value="{{vendedor.telefone}}" >
+                    <input type="phone" name="telefone" id="telefone" class="form-control"  placeholder="Digite seu telefone" value="{{usuario.telefone}}" >
                 </div>
                 <div class="form-group">
                     <label for="senha">Senha:</label>
                     <input type="password" name="senha" id="senha" class="form-control"  placeholder="Digite sua senha" required>
                 </div>
+                <div class="form-group">
+                    <label for="cargo">Cargo:</label>
+                    <select name="cargo" id="cargo" class="form-control" required>
+                        <option value="">Selecione um cargo</option>
+                        <option value="V">Vendedor</option>
+                        <option value="G">Gerente</option>
+                    </select>
+                </div>
                 <button type="submit" class="btn btn-success">Salvar</button>
 
             </form>
         {% else %}
-
-            <form action="{% url 'usuarios:cadastrar_vendedor' %}" method="post"> {% csrf_token %}
+            <h2 class="page-title">Cadastro de Usuário</h2>
+            <br>
+            <form action="{% url 'usuarios:cadastrar_usuario' %}" method="post"> {% csrf_token %}
                 <div class="form-group">
                     <label for="nome">Nome:</label>
                     <input type="text" name="nome" id="nome" class="form-control"  placeholder="Digite seu nome" required> 
@@ -60,6 +71,15 @@
                     <label for="senha">Senha:</label>
                     <input type="password" name="senha" id="senha" class="form-control"  placeholder="Digite sua senha" required>
                 </div>
+                <div class="form-group">
+                    <label for="cargo">Cargo:</label>
+                    <select name="cargo" id="cargo" class="form-control" required>
+                        <option value="">Selecione um cargo</option>
+                        <option value="V">Vendedor</option>
+                        <option value="G">Gerente</option>
+                    </select>
+                </div>
+
                 <button type="submit" class="btn btn-success">Cadastrar</button>
             </form>
         {% endif %}

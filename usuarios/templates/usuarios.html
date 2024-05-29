@@ -1,19 +1,19 @@
 {% extends 'base-home.html' %}
 
-{% block 'title' %}Vendedores{% endblock %}
+{% block 'title' %}Usuarios{% endblock %}
 
 {% load static %}
 
 {% block 'head' %}
-<link rel="stylesheet" href="{% static 'usuarios/css/vendedores.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/table_view.css' %}">
 {% endblock %}
 
 {% block 'body' %}
 <div class="container-fluid" id="container">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-title">Vendedores</h2>
-            <p>Aqui você gerencia os vendedores cadastrados na sua empresa</p>
+            <h2 class="page-title">Usuarios</h2>
+            <p>Aqui você gerencia os Usuarios cadastrados na sua empresa</p>
             <hr>
             {% if messages %}
                 {% for message in messages %}
@@ -24,8 +24,8 @@
             {% endif %}
             <div class="button-container">
                 <div>
-                    <a href="{% url 'usuarios:cadastrar_vendedor' %}" class="btn btn-primary my-2 my-2-sm-0 " style="margin-top: 10px;">Adicionar novo Vendedor</a>
-                    <a href="{% url 'usuarios:exportar_vendedores_xlsx' %}" class="btn btn-secondary  my-2 my-2-sm-0  ">
+                    <a href="{% url 'usuarios:cadastrar_usuario' %}" class="btn btn-primary my-2 my-2-sm-0 " style="margin-top: 10px;">Adicionar novo Vendedor</a>
+                    <a href="{% url 'usuarios:exportar_Usuarios_xlsx' %}" class="btn btn-secondary  my-2 my-2-sm-0  ">
                         <i class="bi bi-file-excel"></i>
                         Excel
                     </a>
@@ -38,7 +38,7 @@
                 
                 
             </div>
-            {% if vendedores_obj %}
+            {% if Usuarios_obj %}
             <div class="row">
                 <div class="col-md-12">
                     <div class="table-responsive">
@@ -48,18 +48,20 @@
                                     <th>Nome</th>
                                     <th>Email</th>
                                     <th>Telefone</th>
+                                    <th>Cargo</th>
                                     <th>Opções</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for vendedor in vendedores_obj %}
+                                {% for vendedor in Usuarios_obj %}
                                     <tr>
                                         <td>{{ vendedor.first_name }}</td>
                                         <td>{{ vendedor.email }}</td>
                                         <td>{{ vendedor.telefone }}</td>
+                                        <td>{{ vendedor.get_cargo_display }}</td>
                                         <td>
-                                            <a href="{% url 'usuarios:editar_vendedor' vendedor.id %}" class="btn btn-primary btn-sm">Editar</a>
-                                            <a href="{% url 'usuarios:excluir_vendedor' vendedor.id %}" class="btn btn-danger btn-sm">Excluir</a>
+                                            <a href="{% url 'usuarios:editar_usuario' vendedor.id %}" class="btn btn-primary btn-sm">Editar</a>
+                                            <a href="{% url 'usuarios:excluir_usuario' vendedor.id %}" class="btn btn-danger btn-sm">Excluir</a>
                                         </td>
                                     </tr>
                                 {% endfor %}

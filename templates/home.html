@@ -1,5 +1,6 @@
 {% extends 'base-home.html' %}
 {% block 'title' %}Home{% endblock %}
+{% load permission_tags %}
 {% load static %}
 {% block 'head' %}
 <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
@@ -10,31 +11,13 @@
 
 
 <h2 class="page-title">Dashboard</h2>
+{% if user|has_role:'administrador' %}
 <div class="container-fluid" id="container" >
     <h2>links de acesso</h2>
     <p>acesso rapido para cada categoria.</p>
-    <div id="linha">
-        <div class="group">
-            <h2 class="box-title">Comercial</h2>
-            <div id="linha">
-                <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-box-seam" id="icone"></i>Produtos(em breve)
-                </a>  
-                <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-cart fill" id="icone"></i>Vendas(em breve)
-                </a>
-                <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-bag-fill" id="icone"></i>PDV(em breve)
-                </a>
-            </div>
-        </div>
-
-        
-
-        <div class="group">
-            <h2 class="box-title">Financeiro</h2>
-
-            <div id="linha">
+    <br>
+    <div class="group" style="margin-bottom: 2rem;">
+            <div id="linha" style="justify-content: space-around;">
                 <a class="btn btn-app" href="{% url 'financeiro:despesas' %}" id="button">
                     <i class="bi bi-cash-stack" id="icone"></i>Contas a Pagar
                 </a>
@@ -54,32 +37,28 @@
                 <a class="btn btn-app" href="{% url 'financeiro:caixa' %}" id="button">
                     <i class="
                     bi  bi bi-box-fill" id="icone"></i>Caixa
-                    
                 </a>
-                
-            </div>
-        </div>
-
-        <div class="group">
-            <h2 class="box-title">Pessoas</h2>
-            <div id="linha">
-                
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-box-seam" id="icone"></i>Produtos
+                </a>  
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-cart fill" id="icone"></i>Vendas
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-bag-fill" id="icone"></i>PDV
+                </a>
                 <a class="btn btn-app" href="{% url 'cliente:listar_clientes' %}" id="button">
                     <i class="bi bi-people-fill" id="icone"></i>Clientes
                 </a>
-                <a class="btn btn-app" href="{% url 'usuarios:vendedores' %}" id="button">
-                    <i class="bi bi-person-fill" id="icone"></i>Vendedores
+                <a class="btn btn-app" href="{% url 'usuarios:Usuarios' %}" id="button">
+                    <i class="bi bi-person-fill" id="icone"></i>Usuarios
                 </a>
                 <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores(em breve)
+                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores
                 </a>
-                
             </div>
         </div>
-        
-    </div>
 </div>
-
 <div class="row">
     <div class="col-md-8" >
         <div class="box box-primary" id="container-charts">
@@ -87,14 +66,15 @@
                 <h3 class="box-title">Gráfico de Vendas Mensal (Em construção)</h3>
             </div>
             <div class="box-body">
-                <div>
-                    <canvas id="myChart2" style="max-height: 400px; height: 100%;"></canvas>
-                    <p style="color: white;">margem</p>
+                <div style="display: grid;">
+                    <canvas id="myChart2" style="max-height: 400px; height: 100%;min-width: max-content; "></canvas>
+                    <p style="color: transparent;">.</p>
                 </div>
+                
             </div>
         </div>
     </div>
-
+    
     <div class="col-md-4">
         <div class="box box-primary"  id="container-charts">
             <div class="box-header">
@@ -110,9 +90,78 @@
         </div>
     </div>
 
-
-
+{% elif user|has_role:'gerente'  %}
+<div class="container-fluid" id="container" >
+    <h2>links de acesso</h2>
+    <p>acesso rapido para cada categoria.</p>
+    <div id="linha">
+        <div class="group" style="margin-bottom: 2rem;">
+            <div id="linha" style="justify-content: space-around;">
+                <a class="btn btn-app" href="{% url 'financeiro:despesas' %}" id="button">
+                    <i class="bi bi-cash-stack" id="icone"></i>Contas a Pagar
+                </a>
+                <a class="btn btn-app" href="{% url 'financeiro:contas_a_receber' %}" id="button">
+                    <i class="
+                    bi bi-currency-dollar" id="icone"></i>Contas a receber
+                    
+                </a>
+                <a class="btn btn-app" href="{% url 'financeiro:entradas' %}" id="button">
+                    <i class="
+                    bi bi-currency-dollar" id="icone"></i>Entradas
+                    
+                </a>
+                <a class="btn btn-app" href="{% url 'financeiro:cheques' %}" id="button">
+                    <i class="bi bi-cassette" id="icone"></i>Cheques
+                </a>
+                <a class="btn btn-app" href="{% url 'financeiro:caixa' %}" id="button">
+                    <i class="
+                    bi  bi bi-box-fill" id="icone"></i>Caixa
+                </a>
+                <a class="btn btn-app" href="{% url 'cliente:listar_clientes' %}" id="button">
+                    <i class="bi bi-people-fill" id="icone"></i>Clientes
+                </a>
+                <a class="btn btn-app" href="{% url 'usuarios:Usuarios' %}" id="button">
+                    <i class="bi bi-person-fill" id="icone"></i>Usuarios
+                </a>
+                <a class="btn btn-app" href="" id="button">
+                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores
+                </a>
+            </div>
+        </div>
+        
+    </div>
 </div>
+<div class="row">
+    <div class="col-md-8" >
+        <div class="box box-primary" id="container-charts">
+            <div class="box-header">
+                <h3 class="box-title">Despesa Anual</h3>
+            </div>
+            <div class="box-body">
+                <div style="display: grid;">
+                    <canvas id="myChart2" style="max-height: 400px; height: 100%;min-width: max-content; "></canvas>
+                    <p style="color: transparent;">.</p>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="box box-primary"  id="container-charts">
+            <div class="box-header">
+                <h3 id="titulo_chart2" class="box-title">Principais despesas</h3>
+            </div>
+            <div class="box-body" style="text-align: center;">
+                <div style="display:grid">
+                    <canvas id="myChart" style="max-height: 375px; height: 100%;" ></canvas>
+                    <p style="color: white;">margem</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+{% endif %}
 
 {% endblock %}
 
@@ -147,7 +196,17 @@
             }]
         },
         options: {
-            
+            scales: {
+                y: {
+                    beginAtZero: true
+
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
         }
     });
 </script>
@@ -183,6 +242,7 @@
             scales: {
                 y: {
                     beginAtZero: true
+
                 }
             },
             plugins: {
@@ -223,8 +283,8 @@
         scales: {
           xAxes: [{ticks: {min: 40, max:160}}],
           yAxes: [{ticks: {min: 6, max:16}}],
+            }
         }
-      }
     });
     </script>
 <script>

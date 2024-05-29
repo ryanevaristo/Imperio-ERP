@@ -14,7 +14,7 @@ import pdfkit
 # Create your views here.
 
 @login_required(login_url='/login/')
-@has_role_decorator('vendedor')
+@has_role_decorator('Gerente')
 def listar_clientes(request):
     clientes = Cliente.objects.all()
     paginator = Paginator(clientes, 10)

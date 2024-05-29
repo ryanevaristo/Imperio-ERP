@@ -6,8 +6,9 @@
     background-color: #ffffffde;
     border-radius: 5px;
     border-top: 5px solid #0f0f0f;
-    max-width: 1000px;
-    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);    
+    
+
 
    
 }

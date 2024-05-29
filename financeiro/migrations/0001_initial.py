@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('valor', models.DecimalField(decimal_places=2, max_digits=10)),
                 ('banco', models.CharField(blank=True, choices=[('001', 'Banco do Brasil'), ('104', 'Caixa Econômica Federal'), ('237', 'Bradesco'), ('341', 'Itaú'), ('356', 'Santander'), ('033', 'Banco Santander (Brasil)'), ('745', 'Citibank'), ('399', 'HSBC'), ('422', 'Safra'), ('389', 'Mercantil do Brasil'), ('633', 'Rendimento'), ('652', 'Itaú Unibanco Holding'), ('745', 'Banco Citibank'), ('748', 'Sicredi'), ('756', 'Sicoob')], default='001', max_length=3, null=True)),
                 ('data_compensacao', models.DateField(blank=True, default=datetime.datetime(1900, 1, 1, 0, 0), null=True)),
-                ('situacao', models.CharField(blank=True, choices=[('E', 'Emitido'), ('C', 'Compensado'), ('V', 'Vencido'), ('S', 'Sem Fundo'), ('D', 'Devolvido'), ('R', 'Repassado')], default='E', max_length=1, null=True)),
+                ('situacao', models.CharField(blank=True, choices=[('E', 'Emitido'), ('C', 'Compensado'), ("G", 'Vencido'), ('S', 'Sem Fundo'), ('D', 'Devolvido'), ('R', 'Repassado')], default='E', max_length=1, null=True)),
                 ('nome_titular', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='cliente.cliente')),
             ],
         ),

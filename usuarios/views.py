@@ -1,5 +1,6 @@
 from django.shortcuts import render, HttpResponse
 from rolepermissions.decorators import has_role_decorator
+from django.core.exceptions import PermissionDenied
 from .models import Users
 from django.contrib import auth ,messages
 from django.contrib.auth.decorators import login_required
@@ -12,14 +13,17 @@ import io
 from django.core.paginator import Paginator
 # Create your views here.
 @login_required(login_url='/auth/login/')
-@has_role_decorator("vendedor")
-def cadastrar_vendedor(request):
+@has_role_decorator("Administrador")
+def cadastrar_usuario(request):
     if request.method == "GET":
-        return render(request, 'cadastrar_vendedor.html')
+        return render(request, 'cadastrar_usuario.html')
     elif request.method == "POST":
         nome = request.POST.get('nome')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
+        telefone = request.POST.get('telefone')
+        cargo = request.POST.get('cargo')
+
         print(nome, email, senha)
         #validação de email
         users = Users.objects.filter(email=email)
@@ -27,73 +31,77 @@ def cadastrar_vendedor(request):
         if users.exists():
             #TODO: utilizar mensagens do django
             messages.error(request,'Email já cadastrado', extra_tags='danger')
-            return redirect(reverse('usuarios:cadastrar_vendedor'))
-        # Aqui você deve salvar os dados do vendedor no banco de dados
+            return redirect(reverse('usuarios:cadastrar_usuario'))
 
-        users = Users.objects.create_user(username=email, password=senha, email=email, first_name=nome, cargo='V')
+        users = Users.objects.create_user(username=email, password=senha, email=email, first_name=nome, cargo=cargo, telefone=telefone )
         users.save()
-        return redirect(reverse('usuarios:vendedores'))
+        return redirect(reverse('usuarios:Usuarios'))
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("vendedor")
-def vendedores(request):
-    vendedores = Users.objects.filter(cargo='V')
-    paginator = Paginator(vendedores, 10)
+@has_role_decorator("Administrador")
+def Usuarios(request):
+    usuarios = Users.objects.exclude(cargo="A")
+    paginator = Paginator(usuarios, 10)
     page_number = request.GET.get('page')
-    vendedores_obj = paginator.get_page(page_number)
+    usuarios_obj = paginator.get_page(page_number)
 
     if request.GET.get("pesquisar"):
         pesquisar = request.GET.get("pesquisar")
-        vendedores_obj = Users.objects.filter(first_name__icontains=pesquisar, cargo='V')
-        paginator = Paginator(vendedores_obj, 10)
+        usuarios_obj = Users.objects.filter(first_name__icontains=pesquisar)
+        paginator = Paginator(usuarios_obj, 10)
         page_number = request.GET.get('page')
-        vendedores_obj = paginator.get_page(page_number)
+        usuarios_obj = paginator.get_page(page_number)
         
 
-    return render(request, 'vendedores.html', {'vendedores_obj': vendedores_obj})
+    return render(request, 'Usuarios.html', {'usuarios_obj': usuarios_obj})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("vendedor")
-def editar_vendedor(request, id):
-    vendedor = Users.objects.get(id=id)
+@has_role_decorator("Administrador")
+def editar_usuario(request, id):
+    usuario = Users.objects.get(id=id)
     if request.method == "GET":
-        return render(request, 'cadastrar_vendedor.html', {'vendedor': vendedor})
+        return render(request, 'cadastrar_usuario.html', {'usuario': usuario})
     elif request.method == "POST":
         nome = request.POST.get('nome')
         email = request.POST.get('email')
         senha = request.POST.get('senha')
         telefone = request.POST.get('telefone')
+        cargo = request.POST.get('cargo')
         print(nome, email, senha)
-        # Aqui você deve atualizar os dados do vendedor no banco de dados
-        vendedor.first_name = nome
-        vendedor.email = email
-        vendedor.telefone = telefone
-        vendedor.set_password(senha)
-        vendedor.save()
-        messages.success(request, 'Vendedor atualizado com sucesso!')
-        return redirect(reverse('usuarios:vendedores'))
+        # Aqui você deve atualizar os dados do usuario no banco de dados
+        usuario.first_name = nome
+        usuario.email = email
+        usuario.telefone = telefone
+        usuario.cargo = cargo
+        usuario.set_password(senha)
+        usuario.save()
+        messages.success(request, 'usuario atualizado com sucesso!')
+        return redirect(reverse('usuarios:Usuarios'))
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("vendedor")
-def excluir_vendedor(request, id):
+@has_role_decorator("Administrador")
+def excluir_usuario(request, id):
     vendedor = Users.objects.get(id=id)
     vendedor.delete()
-    return redirect(reverse('usuarios:vendedores'))
+    return redirect(reverse('usuarios:Usuarios'))
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("vendedor")
-def exportar_vendedores_xlsx(request):
-    vendedores = Users.objects.filter(cargo='V')
-    df = pd.DataFrame(list(vendedores.values()))
+@has_role_decorator("Administrador")
+def exportar_Usuarios_xlsx(request):
+    Usuarios = Users.objects.filter(cargo="G")
+    if Usuarios.count() == 0:
+        messages.error(request, 'Não existem vendedores cadastrados', extra_tags='danger')
+        return redirect(reverse('usuarios:Usuarios'))
+    df = pd.DataFrame(list(Usuarios.values()))
     df = df.drop(columns=['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'cargo', 'id'])
     output = io.BytesIO()
     writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Vendedores')
+    df.to_excel(writer, sheet_name='Usuarios')
     writer.close()
     output.seek(0)
 
     response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=vendedores.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=Usuarios.xlsx'
     return response
      
 
@@ -120,3 +128,5 @@ def login(request):
 def logout(request):
     auth.logout(request)
     return redirect(reverse('usuarios:login'))
+
+

@@ -8,16 +8,16 @@ from rolepermissions.checkers import has_role
 @receiver(post_save, sender=Users)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        if instance.cargo == 'V':
-            assign_role(instance, 'vendedor')
+        if instance.cargo == "G":
+            assign_role(instance, 'gerente')
         elif instance.cargo == 'A':
             assign_role(instance, 'administrador')
-        elif instance.cargo == 'U':
-            assign_role(instance, 'usuario')
-    else:
-        if instance.cargo == 'V' and not has_role(instance, 'vendedor'):
+        elif instance.cargo == 'V':
             assign_role(instance, 'vendedor')
+    else:
+        if instance.cargo == "G" and not has_role(instance, 'gerente'):
+            assign_role(instance, 'gerente')
         elif instance.cargo == 'A' and not has_role(instance, 'administrador'):
             assign_role(instance, 'administrador')
-        elif instance.cargo == 'U' and not has_role(instance, 'usuario'):
-            assign_role(instance, 'usuario')
+        elif instance.cargo == 'V' and not has_role(instance, 'vendedor'):
+            assign_role(instance, 'vendedor')

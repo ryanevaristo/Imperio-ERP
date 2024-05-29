@@ -83,7 +83,7 @@ class Cheque(models.Model):
     choice_situacao = (
         ('E', 'Emitido'),
         ('C', 'Compensado'),
-        ('V', 'Vencido'),
+        ("G", 'Vencido'),
         ('S', 'Sem Fundo'),
         ('D', 'Devolvido'),
         ('R', 'Repassado')

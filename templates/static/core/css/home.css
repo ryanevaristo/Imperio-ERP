@@ -18,7 +18,7 @@
 }
 
 #icone{
-    font-size: 20px;
+    font-size: 14px;
 }
 #container{
    
@@ -31,7 +31,6 @@
     white-space: normal;
     display: flex;
     flex-direction: column;
-    justify-content: center;
    
 }
 
@@ -75,7 +74,7 @@
 .group{
     text-align: center;
     margin: auto;
-    padding: 20px;
+    padding: 10px;
     background-color: #e4e4e4de;
     border-radius: 5px;
     border-top: 20px solid #0f0f0f;
