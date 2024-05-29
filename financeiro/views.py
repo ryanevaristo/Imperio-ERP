@@ -15,7 +15,7 @@ import io
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def despesas(request):
     despesas = ContaPagar.objects.all()
     paginator = Paginator(despesas, 10)
@@ -41,7 +41,7 @@ def despesas(request):
     return render(request, 'despesas.html', {'page_obj': page_obj})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def cadastrar_despesas(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
@@ -59,6 +59,11 @@ def cadastrar_despesas(request):
             pago = True
         else:
             pago = False
+
+        if data_pagamento == '': 
+            data_pagamento = '1900-01-01'
+        elif data_vencimento == '':
+            data_vencimento = '1900-01-01'
         
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
         despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_pagamento=data_pagamento, forma_pagamento=forma_pagamento, categoria=DespesasCategoria.objects.get(id=categoria), pago=pago)
@@ -83,7 +88,7 @@ def cadastrar_despesas(request):
 
     
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def editar_despesas(request, id):
     despesas = ContaPagar.objects.get(id=id)
     categorias = DespesasCategoria.objects.all()
@@ -115,7 +120,7 @@ def editar_despesas(request, id):
         return redirect('/financeiro/despesas/')
     
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def excluir_despesas(request, id):
     despesas = ContaPagar.objects.get(id=id)
     despesas.delete()
@@ -123,7 +128,7 @@ def excluir_despesas(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def total_despesas_m_atual(request):
     despesas = ContaPagar.objects.all()
     #maiores despesas no mês atual
@@ -150,7 +155,7 @@ def total_despesas(request):
     return JsonResponse({'total_valor': total_valor})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def exportar_despesas_xlsx(request):
     despesas = ContaPagar.objects.all()
     
@@ -169,7 +174,7 @@ def exportar_despesas_xlsx(request):
     return response
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def exportar_despesas_pdf(request):
     despesas = ContaPagar.objects.all()
     df = pd.DataFrame(list(despesas.values()))
@@ -189,7 +194,7 @@ def exportar_despesas_pdf(request):
 #categoria
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def cadastrar_categorias(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
@@ -204,7 +209,7 @@ def cadastrar_categorias(request):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def entrada(request):
     entrada = ContaReceber.objects.filter(recebido=True)
     paginator = Paginator(entrada, 10)
@@ -229,7 +234,7 @@ def entrada(request):
     return render(request, 'entradas.html', {'entrada_obj': entrada_obj})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def contas_a_receber(request):
     entrada = ContaReceber.objects.filter(recebido=False)
     paginator = Paginator(entrada, 10)
@@ -279,7 +284,7 @@ def cadastrar_entrada(request):
         return redirect('financeiro:entradas')
     
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def editar_entrada(request, id):
     entrada = ContaReceber.objects.get(id=id)
     clientes = Cliente.objects.all()
@@ -311,14 +316,14 @@ def editar_entrada(request, id):
     
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def excluir_entrada(request, id):
     conta_receber = ContaReceber.objects.get(id=id)
     conta_receber.delete()
     return redirect('financeiro:entradas')
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def total_entradas(request):
     entradas = ContaReceber.objects.all()
     total_valor = 0
@@ -329,7 +334,7 @@ def total_entradas(request):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def exportar_entrada_xlsx(request):
     entrada = ContaReceber.objects.all()
     
@@ -345,7 +350,7 @@ def exportar_entrada_xlsx(request):
     return response
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def cheques(request):
     cheques = Cheque.objects.all()
     paginator = Paginator(cheques, 10)
@@ -371,7 +376,7 @@ def cheques(request):
     return render(request, 'cheques/cheques.html', {'cheques_obj': cheques_obj})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def cadastrar_cheque(request):
     if request.method == "GET":
         clientes = Cliente.objects.all()
@@ -429,7 +434,7 @@ def excluir_cheque(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def exportar_cheque_xlsx(request):
     cheques = Cheque.objects.all()
     
@@ -450,13 +455,13 @@ def exportar_cheque_xlsx(request):
 
 # Path: imperio/financeiro/models.py
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def fornecedores(request):
     fornecedores = Fornecedor.objects.all()
     return render(request, 'fornecedores.html', {'fornecedores': fornecedores})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def cadastrar_fornecedor(request):
     if request.method == "GET":
         return render(request, 'cadastrar_fornecedor.html')
@@ -471,7 +476,7 @@ def cadastrar_fornecedor(request):
     
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def editar_fornecedor(request, id):
     fornecedor = Fornecedor.objects.get(id=id)
     if request.method == "GET":
@@ -488,7 +493,7 @@ def editar_fornecedor(request, id):
     
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def excluir_fornecedor(request, id):
     fornecedor = Fornecedor.objects.get(id=id)
     fornecedor.delete()
@@ -497,7 +502,7 @@ def excluir_fornecedor(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def caixa(request):
     cheques = Cheque.objects.all()
     total_valor = 0
@@ -547,7 +552,7 @@ def caixa(request):
     return render(request, 'caixa.html', {'saldo': (total_entradas) - total_despesas , 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado, 'total_valor_compensado': total_valor_compensado})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator("Administrador,gerente")
+@has_role_decorator("gerente")
 def saldo_anual(request):
     meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
     saldo = []

@@ -14,7 +14,7 @@ import pdfkit
 # Create your views here.
 
 @login_required(login_url='/login/')
-@has_role_decorator('Gerente')
+@has_role_decorator('gerente')
 def listar_clientes(request):
     clientes = Cliente.objects.all()
     paginator = Paginator(clientes, 10)
@@ -33,6 +33,7 @@ def listar_clientes(request):
     return render(request, 'clientes.html', {'clientes_obj': clientes})
 
 @login_required(login_url='/login/')
+@has_role_decorator('gerente')
 def cadastrar_clientes(request):
     if request.method == 'POST':
         nome_completo = request.POST['nome_completo']
