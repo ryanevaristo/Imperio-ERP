@@ -79,6 +79,7 @@ class ContaReceber(models.Model):
     def edit_data_recebimento(self):
         return self.data_recebimento.strftime('%Y-%m-%d')
     
+    
 class Cheque(models.Model):
     choice_situacao = (
         ('E', 'Emitido'),
