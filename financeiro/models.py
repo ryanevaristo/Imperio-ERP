@@ -13,7 +13,7 @@ class ContaPagar(models.Model):
         ('P', 'PIX')
     )
 
-    descricao = models.CharField(max_length=100)
+    descricao = models.CharField(max_length=1000)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     data_pagamento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
@@ -57,7 +57,7 @@ class ContaReceber(models.Model):
         ('P', 'PIX')
     )
     cliente = models.ForeignKey(Cliente,on_delete=models.SET_NULL, null=True, blank=True)
-    descricao = models.TextField(null=True, blank=True)
+    descricao = models.TextField(max_length=1000,null=True, blank=True)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     data_vencimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     data_recebimento = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))

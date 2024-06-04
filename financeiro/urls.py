@@ -36,6 +36,9 @@ urlpatterns = [
 
     #api
     path('api/saldo_anual/', views.saldo_anual, name='saldo_anual'),
+    path('api/total_despesa_categoria/', views.total_despesa_categoria, name='total_despesa_categoria'),
+    path('api/total_despesas/',views.total_despesas, name='total_despesas'),
+    path('api/total_despesas_ano_atual/', views.total_despesa_ano_atual, name='total_despesas_ano_atual'),
     
     
 ]

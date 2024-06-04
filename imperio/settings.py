@@ -153,3 +153,5 @@ AUTH_USER_MODEL = 'usuarios.Users'
 
 # Role Permissions
 ROLEPERMISSIONS_MODULE = 'imperio.roles'
+# settings.py
+DEFAULT_CHARSET = 'utf-8'

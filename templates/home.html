@@ -139,7 +139,7 @@
             </div>
             <div class="box-body">
                 <div style="display: grid;">
-                    <canvas id="myChart2" style="max-height: 400px; height: 100%;min-width: max-content; "></canvas>
+                    <canvas id="DespesaGerente" style="max-height: 400px; height: 100%;min-width: max-content; "></canvas>
                     <p style="color: transparent;">.</p>
                 </div>
                 
@@ -150,11 +150,11 @@
     <div class="col-md-4">
         <div class="box box-primary"  id="container-charts">
             <div class="box-header">
-                <h3 id="titulo_chart2" class="box-title">Principais despesas</h3>
+                <h3 id="titulo_chartGerente" class="box-title">Principais despesas (categorias)</h3>
             </div>
             <div class="box-body" style="text-align: center;">
                 <div style="display:grid">
-                    <canvas id="myChart" style="max-height: 375px; height: 100%;" ></canvas>
+                    <canvas id="CategoriaGerente" style="max-height: 375px; height: 100%;" ></canvas>
                     <p style="color: white;">margem</p>
                 </div>
             </div>
@@ -254,39 +254,85 @@
         }
     });
 </script>
+
+<!-- GERENTE -->
 <script>
-    var xyValues = [
-      {x:50, y:7},
-      {x:60, y:8},
-      {x:70, y:8},
-      {x:80, y:9},
-      {x:90, y:9},
-      {x:100, y:9},
-      {x:110, y:10},
-      {x:120, y:11},
-      {x:130, y:14},
-      {x:140, y:14},
-      {x:150, y:15}
-    ];
-    
-    new Chart("myChart3", {
-      type: "scatter",
-      data: {
-        datasets: [{
-          pointRadius: 4,
-          pointBackgroundColor: "rgb(0,0,255)",
-          data: xyValues
-        }]
-      },
-      options: {
-        legend: {display: false},
-        scales: {
-          xAxes: [{ticks: {min: 40, max:160}}],
-          yAxes: [{ticks: {min: 6, max:16}}],
+    var ctx = document.getElementById('DespesaGerente').getContext('2d');
+    var DespesaGerente = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Despesas',
+                data: [],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
             }
         }
     });
-    </script>
+</script>
+<script>
+    var ctx = document.getElementById('CategoriaGerente').getContext('2d');
+    var CategoriaGerente = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            datasets: [{
+                
+                data: [],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)',
+                    'rgba(75, 192, 192, 0.8)',
+                    'rgba(153, 102, 255, 0.8)',
+                    'rgba(255, 159, 64, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+            
+        }
+    });
+</script>
 <script>
     $.ajax({
         url: "{% url 'financeiro:total_despesas_mes_atual' %}",
@@ -295,7 +341,6 @@
             // transformar objeto em map 
             var despesas = Object.entries(response['total_despesas']);
             var mes_atual = response['mes_atual'];
-            console.log(mes_atual);
             valores = [];
             labels = [];
             despesas.forEach(element => {
@@ -333,6 +378,64 @@
             }
             document.getElementById('titulo_chart2').innerHTML = 'Principais despesas em ' + mes_atual;
             // myChart.data.datasets[0].data = response['total_despesas'][];
+        },
+        error: function(error) {
+            // Handle the error here
+        }
+    });
+
+    $.ajax({
+        url: "{% url 'financeiro:total_despesas_ano_atual' %}",
+        method: 'GET',
+        success: function(response) {
+            // transformar objeto em map 
+            var despesas = Object.entries(response['total_despesas']);
+            var ano_atual = response['ano_atual'];
+
+            valores = [];
+            labels = response['meses'];
+            labels2 = [];
+            valores2 = []
+            despesas.forEach(element => {
+                valores.push(element[1]);
+            });
+            mes_labels = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            // console.log(DespesaGerente);
+            // mostrar os meses que tem dados
+            for(let i = 0; i < valores.length; i++) {
+                if (valores[i] != 0) {
+                    labels2.push(mes_labels[i]);
+                    valores2.push(valores[i]);
+                }
+
+            }
+            // console.log(valores);
+            DespesaGerente.data.datasets[0].data = valores2;
+            DespesaGerente.data.labels = labels2;
+            // console.log(labels2);
+            DespesaGerente.update();
+        },
+        error: function(error) {
+            // Handle the error here
+        }
+    });
+
+    $.ajax({
+        url: "{% url 'financeiro:total_despesa_categoria' %}",
+        method: 'GET',
+        success: function(response) {
+            // transformar objeto em map 
+            var despesas = Object.entries(response['total_d_categoria']);
+            valores = [];
+            labels = [];
+            despesas.forEach(element => {
+                valores.push(element[1]);
+                labels.push(element[0]);
+            });
+            CategoriaGerente.data.datasets[0].data = valores;
+            CategoriaGerente.data.labels = labels;
+            CategoriaGerente.update();
         },
         error: function(error) {
             // Handle the error here
