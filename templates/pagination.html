@@ -10,9 +10,15 @@
                 <span>{{ page_number }} <span class="sr-only">(Atual)</span></span>
             </button>
         {% else %}
-            <a href="?page={{ page_number }}" class="btn btn-outline-primary">
-                {{ page_number }}
-            </a>
+            {% if page_number > page_obj.number|add:'-3' and page_number < page_obj.number|add:'3' %}
+                {% if start_date and end_date %}
+                    <a href="?page={{ page_number }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-outline-primary">{{ page_number }}</a>
+                {% else %}
+                    <a href="?page={{ page_number }}" class="btn btn-outline-primary">{{ page_number }}</a>
+                {% endif %}
+            {% elif page_number == page_obj.number|add:'-3' or page_number == page_obj.number|add:'3' %}
+                <span class="btn btn-outline-primary">...</span>
+            {% endif %}
         {% endif %}
     {% endfor %}
 

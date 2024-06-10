@@ -17,28 +17,30 @@ import io
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def despesas(request):
+   # Obtém todas as despesas
     despesas = ContaPagar.objects.all()
+
+    # Filtra por data, se os parâmetros estiverem presentes
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        despesas = despesas.filter(data_vencimento__range=[start_date, end_date])
+
+    # Filtra por pesquisa, se o parâmetro estiver presente
+    pesquisar = request.GET.get('pesquisar')
+    if pesquisar:
+        despesas = despesas.filter(descricao__icontains=pesquisar)
+
+    # Cria o paginador
     paginator = Paginator(despesas, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    page_obj = page_obj[::-1]
-
-    if request.GET.get('start_date') and request.GET.get('end_date'):
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        despesas = ContaPagar.objects.filter(data_vencimento__range=[start_date, end_date])
-        paginator = Paginator(despesas, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+    if start_date and end_date is None:
+        return render(request, 'despesas.html', {'page_obj': page_obj, 'pesquisar': pesquisar})
+        
     
-    if request.GET.get('pesquisar'):
-        pesquisar = request.GET.get('pesquisar')
-        despesas = ContaPagar.objects.filter(descricao__icontains=pesquisar)
-        paginator = Paginator(despesas, 10)
-        page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
 
-    return render(request, 'despesas.html', {'page_obj': page_obj})
+    return render(request, 'despesas.html', {'page_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
@@ -160,7 +162,7 @@ def exportar_despesas_xlsx(request):
     despesas = ContaPagar.objects.all()
     
     df = pd.DataFrame(list(despesas.values()))
-    df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).descricao)
+    df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).nome_categoria)
     df.drop('categoria_id', axis=1, inplace=True)
 
     df['forma_pagamento'] = df['forma_pagamento'].apply(lambda x: dict(ContaPagar.choice_forma_pagamento)[x])
@@ -212,52 +214,48 @@ def cadastrar_categorias(request):
 @has_role_decorator(["gerente", "administrador"])
 def entrada(request):
     entrada = ContaReceber.objects.filter(recebido=True)
+    
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        entrada = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+    
+    pesquisar = request.GET.get('pesquisar')
+    if pesquisar:
+        entrada = ContaReceber.objects.filter(descricao__icontains=pesquisar)
+
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
     entrada_obj = paginator.get_page(page_number)
 
-    if request.GET.get('start_date') and request.GET.get('end_date'):
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        entrada_obj = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
-        paginator = Paginator(entrada_obj, 10)
-        page_number = request.GET.get('page')
-        entrada_obj = paginator.get_page(page_number)
-    
-    if request.GET.get('pesquisar'):
-        pesquisar = request.GET.get('pesquisar')
-        entrada_obj = ContaReceber.objects.filter(descricao__icontains=pesquisar)
-        paginator = Paginator(entrada_obj, 10)
-        page_number = request.GET.get('page')
-        entrada_obj = paginator.get_page(page_number)
+    if start_date and end_date is None:
+        return render(request, 'entradas.html', {'entrada_obj': entrada_obj, 'pesquisar': pesquisar})
 
-    return render(request, 'entradas.html', {'entrada_obj': entrada_obj})
+
+    return render(request, 'entradas.html', {'entrada_obj': entrada_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def contas_a_receber(request):
     entrada = ContaReceber.objects.filter(recebido=False)
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        entrada = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+    
+    pesquisar = request.GET.get('pesquisar')
+    if pesquisar:
+        entrada = ContaReceber.objects.filter(descricao__icontains=pesquisar)
+    
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
     entrada_obj = paginator.get_page(page_number)
 
-    if request.GET.get('start_date') and request.GET.get('end_date'):
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        entrada_obj = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
-        paginator = Paginator(entrada_obj, 10)
-        page_number = request.GET.get('page')
-        entrada_obj = paginator.get_page(page_number)
+    if start_date and end_date is None:
+        return render(request, 'contas_receber.html', {'entrada_obj': entrada_obj, 'pesquisar': pesquisar})
     
-    if request.GET.get('pesquisar'):
-        pesquisar = request.GET.get('pesquisar')
-        entrada_obj = ContaReceber.objects.filter(descricao__icontains=pesquisar)
-        paginator = Paginator(entrada_obj, 10)
-        page_number = request.GET.get('page')
-        entrada_obj = paginator.get_page(page_number)
-
-    return render(request, 'contas_receber.html', {'entrada_obj': entrada_obj})
-
+    return render(request, 'contas_receber.html', {'entrada_obj': entrada_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 @login_required(login_url='/auth/login/')
 def cadastrar_entrada(request):
     if request.method == "GET":
@@ -353,27 +351,24 @@ def exportar_entrada_xlsx(request):
 @has_role_decorator(["gerente", "administrador"])
 def cheques(request):
     cheques = Cheque.objects.all()
+
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    if start_date and end_date:
+        cheques = cheques.filter(data_compensacao__range=[start_date, end_date])
+
+    pesquisar = request.GET.get('pesquisar')
+    if pesquisar:
+        cheques = cheques.filter(descricao__icontains=pesquisar)
+
     paginator = Paginator(cheques, 10)
     page_number = request.GET.get('page')
     cheques_obj = paginator.get_page(page_number)
-
-    if request.GET.get('start_date') and request.GET.get('end_date'):
-        start_date = request.GET.get('start_date')
-        end_date = request.GET.get('end_date')
-        cheques_obj = Cheque.objects.filter(data_compensacao__range=[start_date, end_date])
-        paginator = Paginator(cheques_obj, 10)
-        page_number = request.GET.get('page')
-        cheques_obj = paginator.get_page(page_number)
-
-
-    if request.GET.get('pesquisar'):
-        pesquisar = request.GET.get('pesquisar')
-        cheques_obj = Cheque.objects.filter(nome_titular__icontains=pesquisar)
-        paginator = Paginator(cheques_obj, 10)
-        page_number = request.GET.get('page')
+    if start_date and end_date is None:
+        return render(request, 'cheques.html', {'cheques_obj': cheques_obj, 'pesquisar': pesquisar})
         
+    return render(request, 'cheques.html', {'cheques_obj': cheques_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
         
-    return render(request, 'cheques/cheques.html', {'cheques_obj': cheques_obj})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
