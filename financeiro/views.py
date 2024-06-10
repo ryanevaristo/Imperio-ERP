@@ -24,7 +24,7 @@ def despesas(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-        despesas = despesas.filter(data_vencimento__range=[start_date, end_date])
+        despesas = despesas.filter(data_vencimento__range=[start_date, end_date], data_pagamento__range=[start_date, end_date])
 
     # Filtra por pesquisa, se o parâmetro estiver presente
     pesquisar = request.GET.get('pesquisar')
