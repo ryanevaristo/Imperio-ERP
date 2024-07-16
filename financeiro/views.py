@@ -365,9 +365,9 @@ def cheques(request):
     page_number = request.GET.get('page')
     cheques_obj = paginator.get_page(page_number)
     if start_date and end_date is None:
-        return render(request, 'cheques.html', {'cheques_obj': cheques_obj, 'pesquisar': pesquisar})
+        return render(request, 'cheques/cheques.html', {'cheques_obj': cheques_obj, 'pesquisar': pesquisar})
         
-    return render(request, 'cheques.html', {'cheques_obj': cheques_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
+    return render(request, 'cheques/cheques.html', {'cheques_obj': cheques_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
         
 
 @login_required(login_url='/auth/login/')
@@ -515,7 +515,7 @@ def caixa(request):
     for entrada in entradas:
         total_entradas += entrada.valor
     
-    despesas = ContaPagar.objects.all()
+    despesas = ContaPagar.objects.filter(pago=True)
     total_despesas = 0
     for despesa in despesas:
         total_despesas += despesa.valor
@@ -581,7 +581,7 @@ def saldo_anual(request):
     meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
     saldo = []
     for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_vencimento__month=mes)
+        despesas = ContaPagar.objects.filter(data_vencimento__month=mes, pago=True)
         total_despesas = 0
         for despesa in despesas:
             total_despesas += despesa.valor
