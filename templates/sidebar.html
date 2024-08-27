@@ -17,14 +17,14 @@
                 <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#Produtos" aria-expanded="false" aria-controls="Produtos">
                     <i class="bi bi-box-seam"></i>
-                    <span>Produtos (em breve)</span>
+                    <span>Produtos (em dev)</span>
                 </a>
                 <ul id="Produtos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar Produtos</a>
+                        <a href="{% url 'produto:home_produto' %}" class="sidebar-link">Empreendimentos</a>
                     </li>
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Cadastrar Produtos</a>
+                        <a href="{% url 'produto:cadastrar_empreendimento' %}" class="sidebar-link">Cadastrar Empreendimento</a>
                     </li>
                 </ul>
             </li>

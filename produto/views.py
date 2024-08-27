@@ -18,12 +18,18 @@ def cadastrar_empreendimento(request):
         nome = request.POST.get('nome')
         localizacao = request.POST.get('localizacao')
         foto = request.FILES.get('foto')
-        empreendimento = Empreendimento(nome=nome, localizacao=localizacao, foto=foto)
+        descricao = request.POST.get('descricao')
+        empreendimento = Empreendimento(nome=nome, localizacao=localizacao, descricao=descricao, foto=foto)
         empreendimento.save()
         messages.success(request, 'Empreendimento cadastrado com sucesso!')
         return redirect(reverse('produto:home_produto'))
     return render(request, 'produto/empreendimento/cadastrar_empreendimento.html')
 
+@login_required(login_url='/login/')
+@has_role_decorator("Administrador")
+def detalhes_empreendimento(request, id):
+    empreendimento = Empreendimento.objects.get(id=id)
+    return render(request, 'produto/empreendimento/detalhes_empreendimento.html', {'empreendimento': empreendimento})
 
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
@@ -33,7 +39,32 @@ def quadras(request, id):
 
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
+def cadastrar_quadra(request, id):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        metragem = request.POST.get('metragem')
+        qtd_lotes = request.POST.get('qtd_lotes')
+        quadra = Quadra(nome=nome, empreendimento_id=id, metragem=metragem, lotes=qtd_lotes)
+        quadra.save()
+        messages.success(request, 'Quadra cadastrada com sucesso!')
+        return redirect(reverse('produto:detalhes_empreendimento', args=[id]))
+    return render(request, 'produto/quadra/cadastrar_quadra.html', {'id': id})
+
+@login_required(login_url='/login/')
+@has_role_decorator("Administrador")
 def lotes(request, id):
     lotes = Lote.objects.filter(quadra=id)
     return render(request, 'produto/lotes.html', {'lotes': lotes})
+
+@login_required(login_url='/login/')
+@has_role_decorator("Administrador")
+def cadastrar_lote(request, id):
+    if request.method == 'POST':
+        numero = request.POST.get('numero')
+        valor = request.POST.get('valor')
+        lote = Lote(numero=numero, valor=valor, quadra_id=id)
+        lote.save()
+        messages.success(request, 'Lote cadastrado com sucesso!')
+        return redirect(reverse('produto:lotes', args=[id]))
+    return render(request, 'produto/cadastrar_lote.html', {'id': id})
 

@@ -9,6 +9,7 @@ urlpatterns = [
     path('editar_despesas/<int:id>/', views.editar_despesas, name='editar_despesas'),
     path('excluir_despesas/<int:id>/', views.excluir_despesas, name='excluir_despesas'),
     path('total_despesas_mes_atual/', views.total_despesas_m_atual, name='total_despesas_mes_atual'),
+    path('importar_despesa_xlsx', views.importar_despesa_xlsx, name='importar_despesa_xlsx'),
     path('exportar_despesas_xlsx', views.exportar_despesas_xlsx, name='exportar_despesas_xlsx'),
     path('exportar_despesas_pdf', views.exportar_despesas_pdf, name='exportar_despesas_pdf'),
     #categorias
@@ -19,6 +20,7 @@ urlpatterns = [
     path('cadastrar_entrada/', views.cadastrar_entrada, name='cadastrar_entrada'),
     path('editar_entrada/<int:id>/', views.editar_entrada, name='editar_entrada'),
     path('excluir_entrada/<int:id>/', views.excluir_entrada, name='excluir_entrada'),
+    path('importar_entrada_xlsx', views.importar_entrada_xlsx, name='importar_entrada_xlsx'),
     path('exportar_entradas_xlsx', views.exportar_entrada_xlsx, name='exportar_entradas_xlsx'),
     #cheques
     path('cheques/', views.cheques, name='cheques'),

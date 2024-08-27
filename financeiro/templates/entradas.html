@@ -21,6 +21,7 @@
                 </a>
                 
         </div>
+        
        <div class="alinhar-direita">
          <form class="form-inline my-2 my-lg-0-pull-right">
             <label for="start_date">Data inicial:</label>
@@ -32,8 +33,11 @@
        </div>
         
     </div>
+    <form>
+        <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise pela descrição e aperte enter">
+    </form>
 
-    {% if entrada_obj %}
+    {% if page_obj %}
     <div class="row">
         <div class="col-md-12">
             <div class="table-responsive">
@@ -43,7 +47,6 @@
                             <th scope="col">Cliente</th>
                             <th scope="col">Descrição</th>
                             <th scope="col">Valor</th>
-                            <th scope="col">Data de Vencimento</th>
                             <th scope="col">Data de Recebimento</th>
                             <th scope="col">Forma de Recebimento</th>
                             <th scope="col">Recebido</th>
@@ -51,12 +54,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for entrada in entrada_obj %}
+                        {% for entrada in page_obj %}
                         <tr>
                             <td>{{entrada.cliente}}</td>
                             <td>{{ entrada.descricao }}</td>
                             <td>R${{entrada.valor|floatformat:"2g"}}</td>
-                            <td>{{ entrada.get_data_vencimento}}</td>
                             <td>{{ entrada.get_data_recebimento }}</td>
                             {% if entrada.forma_recebimento == 'D' %}
                             <td>
@@ -97,11 +99,10 @@
                 </table>
             </div>
         </div>
-        {% include 'pagination.html' %}
-        <form>
-            <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
-        </form>
+        
+        
     </div>
+    {% include 'pagination.html' %}
     {% else %}
     <div class="alert alert-info" role="alert">
         Não há entradas cadastradas.

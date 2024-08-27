@@ -23,6 +23,7 @@ class Quadra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     empreendimento = models.ForeignKey(Empreendimento, on_delete=models.CASCADE)
     nome = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True, null=True)
     metragem = models.DecimalField(max_digits=10, decimal_places=2)
     lotes = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now)

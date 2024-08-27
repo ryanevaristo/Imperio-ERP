@@ -1,0 +1,49 @@
+{% extends 'base-home.html' %}
+{% block 'title' %}Detalhes do Empreendimento{% endblock %}
+{% load static %}
+{% block 'head' %}
+{% endblock %}
+{% block 'body' %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>{{ empreendimento.nome }}</h1>
+            <hr>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <img class="img-fluid" src="{{ empreendimento.imagem.url }}" alt="{{ empreendimento.nome }}">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <p>{{ empreendimento.descricao }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Quadras</h2>
+            <hr>
+        </div>
+        <div>
+            <a href="{% url 'produto:cadastrar_quadra' empreendimento.id %}" class="btn btn-primary">Cadastrar Quadra</a>
+        </div>
+    </div>
+    <div class="row">
+        {% for quadra in empreendimento.quadras.all %}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ quadra.nome }}</h5>
+                    <p class="card-text">{{ quadra.metragem }}</p>
+                    <p class="card-text">{{ quadra.qtd_lotes }}</p>
+                    <a href="{% url 'produto:quadra:details' quadra.id %}" class="btn btn-primary">Ver detalhes</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+```

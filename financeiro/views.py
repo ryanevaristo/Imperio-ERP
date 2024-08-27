@@ -24,7 +24,7 @@ def despesas(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-        despesas = despesas.filter(data_vencimento__range=[start_date, end_date], data_pagamento__range=[start_date, end_date])
+        despesas = despesas.filter(data_pagamento__range=[start_date, end_date])
 
     # Filtra por pesquisa, se o parâmetro estiver presente
     pesquisar = request.GET.get('pesquisar')
@@ -175,6 +175,27 @@ def exportar_despesas_xlsx(request):
     response['Content-Disposition'] = 'attachment; filename=despesas.xlsx'
     return response
 
+def importar_despesa_xlsx(request):
+    if request.method == "POST":
+        file = request.FILES['file']
+        df = pd.read_excel(file, header=1,sheet_name='sheet2')
+        df.columns = ['Data','Valor','Descrição','Forma']
+        df = df.dropna(subset=["Data","Forma"])
+        df['Valor'] = df["Valor"].fillna(0)
+        categoria = DespesasCategoria.objects.get(id=1)
+        choice_forma_recebimento = (
+            ('DINHEIRO ', 'D'),
+            ('DINHEIRO', 'D'),
+            ('BANCO', 'T'),
+        )
+        df['Forma'] = df['Forma'].apply(lambda x: dict(choice_forma_recebimento)[x])
+    
+        for index, row in df.iterrows():
+            conta_receber = ContaPagar(descricao=row['Descrição'], valor=row["Valor"], forma_pagamento=row["Forma"], data_pagamento=row["Data"],categoria=categoria,pago=True)
+            conta_receber.save()
+
+        return redirect('financeiro:despesas')
+
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def exportar_despesas_pdf(request):
@@ -218,7 +239,7 @@ def entrada(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-        entrada = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+        entrada = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date])
     
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
@@ -226,13 +247,13 @@ def entrada(request):
 
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
-    entrada_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(page_number)
 
     if start_date and end_date is None:
-        return render(request, 'entradas.html', {'entrada_obj': entrada_obj, 'pesquisar': pesquisar})
+        return render(request, 'entradas.html', {'page_obj': page_obj, 'pesquisar': pesquisar})
 
 
-    return render(request, 'entradas.html', {'entrada_obj': entrada_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
+    return render(request, 'entradas.html', {'page_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
@@ -242,7 +263,7 @@ def contas_a_receber(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-        entrada = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date])
+        entrada = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date])
     
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
@@ -250,12 +271,12 @@ def contas_a_receber(request):
     
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
-    entrada_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(page_number)
 
     if start_date and end_date is None:
-        return render(request, 'contas_receber.html', {'entrada_obj': entrada_obj, 'pesquisar': pesquisar})
+        return render(request, 'contas_receber.html', {'page_obj': page_obj, 'pesquisar': pesquisar})
     
-    return render(request, 'contas_receber.html', {'entrada_obj': entrada_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
+    return render(request, 'contas_receber.html', {'page_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 @login_required(login_url='/auth/login/')
 def cadastrar_entrada(request):
     if request.method == "GET":
@@ -265,7 +286,6 @@ def cadastrar_entrada(request):
         cliente = request.POST.get('cliente')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
-        data_vencimento = request.POST.get('data_vencimento')
         data_recebimento = request.POST.get('data_recebimento')
         forma_recebimento = request.POST.get('forma_recebimento')
         recebido = request.POST.get('recebido')
@@ -273,13 +293,35 @@ def cadastrar_entrada(request):
             recebido = True
         else:
             recebido = False
-        print(descricao, valor, data_vencimento, forma_recebimento, recebido)
         cliente = int(cliente)
+        if data_recebimento == '': 
+            messages.error(request,'Data de recebimento não pode ser vazia', extra_tags='danger')
+            return redirect("financeiro:cadastrar_entrada")
         # Aqui você deve salvar os dados da conta a receber no banco de dados
-        conta_receber = ContaReceber(cliente=Cliente.objects.get(id=cliente),descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
+        conta_receber = ContaReceber(cliente=Cliente.objects.get(id=cliente),descricao=descricao, valor=valor, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
         conta_receber.save()
         messages.success(request, "Entrada Cadastrada com Sucesso!")
         return redirect('financeiro:entradas')
+    
+
+def importar_entrada_xlsx(request):
+    if request.method == "POST":
+        file = request.FILES['file']
+        df = pd.read_excel(file, header=2,sheet_name='sheet1')
+        df.columns = ['Data','Forma','Descrição','Valor']
+        df = df.dropna(subset=["Data","Forma"])
+        choice_forma_recebimento = (
+            ('DINHEIRO', 'D'),
+            ('BANCO', 'T'),
+        )
+        df['Forma'] = df['Forma'].apply(lambda x: dict(choice_forma_recebimento)[x])
+    
+        for index, row in df.iterrows():
+            conta_receber = ContaReceber(cliente=Cliente.objects.get(id=2),descricao=row['Descrição'], valor=row["Valor"], data_recebimento=row["Data"],forma_recebimento=row["Forma"],recebido=True)
+            conta_receber.save()
+
+        return redirect('financeiro:entradas')
+    
     
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
@@ -292,7 +334,6 @@ def editar_entrada(request, id):
         cliente = request.POST.get('cliente')
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
-        data_vencimento = request.POST.get('data_vencimento')
         data_recebimento = request.POST.get('data_recebimento')
         forma_recebimento = request.POST.get('forma_recebimento')
         recebido = request.POST.get('recebido')
@@ -300,12 +341,10 @@ def editar_entrada(request, id):
             recebido = True
         else:
             recebido = False
-        print(descricao, valor, data_vencimento, forma_recebimento, recebido)
         # Aqui você deve atualizar os dados da conta a receber no banco de dados
         entrada.cliente = Cliente.objects.get(id=cliente)
         entrada.descricao = descricao
         entrada.valor = valor
-        entrada.data_vencimento = data_vencimento
         entrada.data_recebimento = data_recebimento
         entrada.forma_recebimento = forma_recebimento
         entrada.recebido = recebido
@@ -581,12 +620,12 @@ def saldo_anual(request):
     meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
     saldo = []
     for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_vencimento__month=mes, pago=True)
+        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, pago=True)
         total_despesas = 0
         for despesa in despesas:
             total_despesas += despesa.valor
         
-        entradas = ContaReceber.objects.filter(data_vencimento__month=mes, recebido=True)
+        entradas = ContaReceber.objects.filter(data_recebimento__month=mes, recebido=True)
         total_entradas = 0
         for entrada in entradas:
             total_entradas += entrada.valor

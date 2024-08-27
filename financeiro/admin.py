@@ -2,17 +2,15 @@ from django.contrib import admin
 from .models import ContaPagar, ContaReceber, Cheque, DespesasCategoria
 @admin.register(ContaPagar)
 class ContaPagarAdmin(admin.ModelAdmin):
-    list_display = ('descricao', 'valor', 'data_vencimento', 'forma_pagamento', 'pago')
+    list_display = ('descricao', 'valor','forma_pagamento', 'pago')
     list_filter = ('pago', 'forma_pagamento')
     search_fields = ('descricao', 'forma_pagamento')
-    date_hierarchy = 'data_vencimento'
 
 @admin.register(ContaReceber)
 class ContaReceberAdmin(admin.ModelAdmin):
-    list_display = ('descricao', 'valor', 'data_vencimento', 'forma_recebimento', 'recebido')
+    list_display = ('descricao', 'valor', 'forma_recebimento', 'recebido')
     list_filter = ('recebido', 'forma_recebimento')
     search_fields = ('descricao', 'forma_recebimento')
-    date_hierarchy = 'data_vencimento'
 
 @admin.register(Cheque)
 class ChequeAdmin(admin.ModelAdmin):
