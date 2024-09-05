@@ -305,9 +305,16 @@ def cadastrar_entrada(request):
     
 
 def importar_entrada_xlsx(request):
+    m = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
     if request.method == "POST":
         file = request.FILES['file']
-        df = pd.read_excel(file, header=2,sheet_name='sheet1')
+        try:
+            df = pd.read_excel(file, header=2,sheet_name=f'ENTRADA {m[datetime.now().month].upper()} {datetime.now().year}')
+        except:
+            messages.error(request,'Planilha não encontrada', extra_tags='danger')
+            return redirect("financeiro:contas_a_receber")
+        
+
         df.columns = ['Data','Forma','Descrição','Valor']
         df = df.dropna(subset=["Data","Forma"])
         choice_forma_recebimento = (
@@ -319,6 +326,8 @@ def importar_entrada_xlsx(request):
         for index, row in df.iterrows():
             conta_receber = ContaReceber(cliente=Cliente.objects.get(id=2),descricao=row['Descrição'], valor=row["Valor"], data_recebimento=row["Data"],forma_recebimento=row["Forma"],recebido=True)
             conta_receber.save()
+
+        
 
         return redirect('financeiro:entradas')
     
