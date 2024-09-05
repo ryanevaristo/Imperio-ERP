@@ -19,6 +19,18 @@ th,tr{
     margin-left: auto;
     margin-right: 25px;
 }
+@media (max-width: 1475px) {
+     .button-container {flex-wrap: wrap; }
+    .alinhar-direita {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    }
+
+
+
+
 .button-container input[type="date"]{
     margin-right: 10px; /* Espaçamento entre os elementos */
     text-align: right;

@@ -10,15 +10,15 @@
     <hr>
     {% if messages %}
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {% for message in messages %}
-            {{ message }}
+            {% for messages_conta_receber in messages %}
+            {{ messages_conta_receber }}
             {% endfor %}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
     <div class="button-container">
         <div>
-            <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-primary my-2 my-2-sm-0 " style="margin-top: 10px;">Adicionar Conta a Receber</a>
+            <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-outline-primary w-100 waves-effect" style="margin-top: 10px;">Adicionar Conta a Receber</a>
             <!-- importar Excel -->
             <button class="btn btn-secondary my-2 my-2-sm-0" data-bs-toggle="modal" data-bs-target="#importModal">
                 Importar Excel

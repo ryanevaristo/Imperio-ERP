@@ -169,12 +169,14 @@
       success: function(response) {
           // transformar objeto em map 
           var labels = response['meses'];
-          var valores = response['saldo'];
           var meses_label = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
           
-          for (let i = 0; i < labels.length; i++) {
-            labels[i] = meses_label[labels[i] - 1];
-          }
+          labels = labels.map((label, index) => response['entradas'][index] > 0 ? meses_label[label - 1] : '').filter(el => el !== '');
+
+            ['entradas', 'despesas', 'saldo'].forEach(key => {
+                response[key] = response[key].filter(el => el !== 0);
+            });
+
 
 
           var ctx = document.getElementById('myChart2').getContext('2d');
@@ -182,9 +184,32 @@
               type: 'bar',
               data: {
                   labels: labels,
-                  datasets: [{
-                      label: 'Saldo Mensal',
-                      data: valores,
+                  datasets: [
+                  {
+                      label: 'Entradas',
+                      data: response['entradas'],
+                      backgroundColor: [
+                          'rgba(75, 192, 192, 0.8)'
+                      ],
+                      borderColor: [
+                          'rgba(75, 192, 192, 1)'
+                      ],
+                      borderWidth: 2
+                  },
+                  {
+                      label: 'Despesas',
+                      data: response['despesas'],
+                      backgroundColor: [
+                          'rgba(255, 99, 132, 0.8)'
+                      ],
+                      borderColor: [
+                          'rgba(255, 99, 132, 1)'
+                      ],
+                      borderWidth: 2
+                  },
+                  {
+                      label: 'Saldo',
+                      data: response['saldo'],
                       backgroundColor: [
                           'rgba(3, 35, 111, 0.8)'
                       ],
@@ -192,7 +217,8 @@
                           'rgba(3, 35, 111, 1)'
                       ],
                       borderWidth: 2
-                  }]
+                  }
+                ]
               },
               options: {
                   scales: {
@@ -202,7 +228,7 @@
                   },
                   plugins: {
                       legend: {
-                          display: false
+                          display: true
                       }
                   }
               }

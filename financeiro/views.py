@@ -52,7 +52,6 @@ def cadastrar_despesas(request):
         print(request.POST)
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
-        data_vencimento = request.POST.get('data_vencimento')
         data_pagamento = request.POST.get('data_pagamento')
         forma_pagamento = request.POST.get('forma_pagamento')
         categoria = request.POST.get('categoria')
@@ -64,11 +63,12 @@ def cadastrar_despesas(request):
 
         if data_pagamento == '': 
             data_pagamento = '1900-01-01'
-        elif data_vencimento == '':
-            data_vencimento = '1900-01-01'
-        
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
-        despesas = ContaPagar(descricao=descricao, valor=valor, data_vencimento=data_vencimento, data_pagamento=data_pagamento, forma_pagamento=forma_pagamento, categoria=DespesasCategoria.objects.get(id=categoria), pago=pago)
+        despesas = ContaPagar(descricao=descricao, valor=valor,
+                               data_pagamento=data_pagamento, 
+                               forma_pagamento=forma_pagamento, 
+                               categoria=DespesasCategoria.objects.get(id=categoria), 
+                               pago=pago)
         despesas.save()
         print(request.POST)
     else:
@@ -99,7 +99,6 @@ def editar_despesas(request, id):
     elif request.method == "POST":
         descricao = request.POST.get('descricao')
         valor = request.POST.get('valor')
-        data_vencimento = request.POST.get('data_vencimento')
         data_pagamento = request.POST.get('data_pagamento')
         forma_pagamento = request.POST.get('forma_pagamento')
         pago = request.POST.get('pago')
@@ -113,7 +112,6 @@ def editar_despesas(request, id):
         # Aqui você deve atualizar os dados da conta a pagar no banco de dados
         despesas.descricao = descricao
         despesas.valor = valor
-        despesas.data_vencimento = data_vencimento
         despesas.data_pagamento = data_pagamento
         despesas.forma_pagamento = forma_pagamento
         despesas.pago = pago
@@ -134,8 +132,7 @@ def excluir_despesas(request, id):
 def total_despesas_m_atual(request):
     despesas = ContaPagar.objects.all()
     #maiores despesas no mês atual
-    # despesas = ContaPagar.objects.filter(data_vencimento__month=9)
-    despesas = ContaPagar.objects.filter(data_vencimento__month=datetime.now().month).order_by('-valor')[:5]
+    despesas = ContaPagar.objects.filter(data_pagamento_month=datetime.now().month).order_by('-valor')[:5]
     total_valor = 0
     total_despesas = {
 
@@ -571,12 +568,12 @@ def caixa(request):
     if request.GET.get('start_date') and request.GET.get('end_date'):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
-        despesas = ContaPagar.objects.filter(data_vencimento__range=[start_date, end_date])
+        despesas = ContaPagar.objects.filter(data_pagamento__range=[start_date, end_date])
         total_despesas = 0
         for despesa in despesas:
             total_despesas += despesa.valor
         
-        entradas = ContaReceber.objects.filter(data_vencimento__range=[start_date, end_date], recebido=True)
+        entradas = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date], recebido=True)
         total_entradas = 0
         for entrada in entradas:
             total_entradas += entrada.valor
@@ -614,7 +611,7 @@ def total_despesa_ano_atual(request):
     total_despesas = []
     ano_atual = datetime.now().year
     for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_vencimento__month=mes, data_vencimento__year=ano_atual)
+        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, data_pagamento__year=ano_atual)
         total = 0
         for despesa in despesas:
             total += despesa.valor
@@ -627,19 +624,23 @@ def total_despesa_ano_atual(request):
 @has_role_decorator(["gerente", "administrador"])
 def saldo_anual(request):
     meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
+    total_entradas = []
+    total_despesas = []
     saldo = []
     for mes in meses_anteriores:
         despesas = ContaPagar.objects.filter(data_pagamento__month=mes, pago=True)
-        total_despesas = 0
+        total_despesa = 0
         for despesa in despesas:
-            total_despesas += despesa.valor
+            total_despesa += despesa.valor
         
         entradas = ContaReceber.objects.filter(data_recebimento__month=mes, recebido=True)
-        total_entradas = 0
+        total_entrada = 0
         for entrada in entradas:
-            total_entradas += entrada.valor
+            total_entrada += entrada.valor
         
-        saldo.append(total_entradas - total_despesas)
-    return JsonResponse({'saldo': saldo, 'meses': meses_anteriores})
+        total_despesas.append(total_despesa)
+        total_entradas.append(total_entrada)
+        saldo.append(total_entrada - total_despesa)
+    return JsonResponse({'saldo': saldo,'entradas':total_entradas,'despesas':total_despesas, 'meses': meses_anteriores})
 
 
