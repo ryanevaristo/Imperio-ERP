@@ -14,6 +14,10 @@ import pdfkit
 
 # Create your views here.
 
+def clear_messages(request):
+    storage = messages.get_messages(request)
+    storage.used = True
+
 @login_required(login_url='/login/')
 @has_role_decorator('gerente')
 def listar_clientes(request):
@@ -42,6 +46,8 @@ def cadastrar_clientes(request):
             form.save()  # Salve o cliente no banco de dados
             messages.success(request, 'Cliente cadastrado com sucesso!')
             return redirect('/clientes/')  # Redirecione para a lista de clientes
+        else:
+            messages.error(request, f'{form.errors['telefone']}',extra_tags='warning')
     else:
         form = ClienteForm()  # Crie um novo formulário em caso de GET
 
@@ -50,6 +56,7 @@ def cadastrar_clientes(request):
 @login_required(login_url='/login/')
 def editar_clientes(request, id):
     cliente = Cliente.objects.get(id=id)
+    clear_messages(request)
     if request.method == 'POST':
         form = ClienteForm(request.POST, instance=cliente)
         if form.is_valid():

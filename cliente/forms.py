@@ -28,21 +28,12 @@ class ClienteForm(forms.ModelForm):
             'estado': 'Estado',
             'cep': 'CEP',
         }
-
-    def save(self, commit: bool = True) -> Any:
-        instance = super().save(commit=False)
-        if commit:
-            instance.save()
-        return instance
     
-    def clean_cpf_cnpj(self):
-        cpf_cnpj = self.cleaned_data['cpf_cnpj']
-        if len(cpf_cnpj) == 14:
-            if not cpf_cnpj.isdigit():
-                raise forms.ValidationError('CPF inválido')
-        elif len(cpf_cnpj) == 18:
-            if not cpf_cnpj.isdigit():
-                raise forms.ValidationError('CNPJ inválido')
-        else:
-            raise forms.ValidationError('CPF/CNPJ inválido')
-        return cpf_cnpj
+    
+    
+    def clean_telefone(self):
+        telefone = self.cleaned_data['telefone']
+        invalid_patterns = ["(", "-",')']
+        if not all(pattern in telefone for pattern in invalid_patterns):
+            raise forms.ValidationError('Telefone inválido')
+        return telefone

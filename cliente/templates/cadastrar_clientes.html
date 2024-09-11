@@ -19,6 +19,7 @@
             </div>
         {% endfor %}
     {% endif %}
+    
     {% if cliente  %}
         <form action="{% url 'cliente:editar_clientes' cliente.instance.id %}" method="post">
             {% csrf_token %}
