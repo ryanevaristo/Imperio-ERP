@@ -18,48 +18,50 @@
         {% endif %}
     <div class="button-container">
         <div>
-            <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-outline-primary w-100 waves-effect" style="margin-top: 10px;">Adicionar Conta a Receber</a>
+            <a href="{% url 'financeiro:cadastrar_entrada' %}" class="btn btn-outline-primary w-100 waves-effect" style="margin-top: 10px; margin-right: 10px;">Adicionar Conta a Receber</a>
             <!-- importar Excel -->
-            <button class="btn btn-secondary my-2 my-2-sm-0" data-bs-toggle="modal" data-bs-target="#importModal">
-                Importar Excel
-            </button>
-
-            <!-- Import Modal -->
-            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="importModalLabel">Importar Arquivo Excel</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div>
+                <button class="btn-sm btn-secondary my-2 my-2-sm-0" data-bs-toggle="modal" data-bs-target="#importModal">
+                    Importar Excel
+                </button>
+    
+                <!-- Import Modal -->
+                <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="importModalLabel">Importar Arquivo Excel</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Add your file input field here -->
+                                <form method="post" action="{% url 'financeiro:importar_entrada_xlsx' %}" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="file" name="file" class="form-control">
+                            
+    
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                <button type="submit" class="btn btn-primary">Importar</button>
+                            </div>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                            <!-- Add your file input field here -->
-                            <form method="post" action="{% url 'financeiro:importar_entrada_xlsx' %}" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <input type="file" name="file" class="form-control">
-                        
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                            <button type="submit" class="btn btn-primary">Importar</button>
-                        </div>
-                        </form>
                     </div>
                 </div>
-            </div>
-        
-
-            <a href="{% url 'financeiro:exportar_entradas_xlsx' %}" class="btn btn-secondary  my-2 my-2-sm-0  ">
-                
-                <i class="bi bi-file-excel"></i>
-                Exportar Excel
-            </a>
             
-            <a href="" class="btn btn-secondary my-2 my-2-sm-0  ">
-                <i class="bi bi-file-pdf"></i>
-                PDF
+    
+                <a href="{% url 'financeiro:exportar_entradas_xlsx' %}" class="btn-sm btn-secondary  my-2 my-2-sm-0  ">
+                    
+                    <i class="bi bi-file-excel"></i>
+                    Exportar Excel
                 </a>
+                
+                <a href="" class="btn-sm btn-secondary my-2 my-2-sm-0  " style="margin-left: 5px;">
+                    <i class="bi bi-file-pdf"></i>
+                    PDF
+                </a>
+            </div>
                 
         </div>
        <div class="alinhar-direita">
