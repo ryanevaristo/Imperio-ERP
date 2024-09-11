@@ -3,6 +3,16 @@
 {% load permission_tags %}
 {% load static %}
 {% block 'head' %}
+<style>
+    .card {
+        margin-bottom: 20px;
+    }
+
+    .card img {
+        height: 300px;
+        object-fit: cover;
+    }
+</style>
 {% endblock %}
 
 {% block 'body' %}
@@ -14,10 +24,12 @@
         </div>
     </div>
     <div class="row">
+        <!-- add imagem do empreendimento -->
+         
         {% for empreendimento in empreendimentos %}
         <div class="col-md-4">
             <div class="card">
-                <img class="card-img-top" src="{{ empreendimento.imagem.url }}" alt="{{ empreendimento.nome }}">
+                <img class="card-img-top "  src="{% static 'pictures/novo_horizonte.png' %}" alt="{{ empreendimento.nome }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ empreendimento.nome }}</h5>
                     <p class="card-text">{{ empreendimento.descricao }}</p>

@@ -271,9 +271,9 @@ def contas_a_receber(request):
     page_obj = paginator.get_page(page_number)
 
     if start_date and end_date is None:
-        return render(request, 'contas_receber.html', {'page_obj': page_obj, 'pesquisar': pesquisar})
+        return render(request, 'contas_receber.html', {'entrada_obj': page_obj, 'pesquisar': pesquisar})
     
-    return render(request, 'contas_receber.html', {'page_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
+    return render(request, 'contas_receber.html', {'entrada_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 @login_required(login_url='/auth/login/')
 def cadastrar_entrada(request):
     if request.method == "GET":
@@ -429,6 +429,7 @@ def cadastrar_cheque(request):
         nome_repassador = request.POST.get('nome_repassador')
         banco = request.POST.get('banco')
         status = request.POST.get('status')
+        print(status)
         cheque_unico = Cheque.objects.filter(numero=numero)
         if cheque_unico.exists():
             messages.error(request,'Cheque já cadastrado', extra_tags='danger')

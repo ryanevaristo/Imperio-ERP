@@ -104,7 +104,7 @@ class Cheque(models.Model):
     situacao = models.CharField(max_length=1, choices=choice_situacao,default='E',null=True, blank=True)
 
     def __str__(self):
-        return self.nome_titular
+        return self.numero
     
     def get_valor(self):
         return "R$ " + str(self.valor).replace('.', ',')

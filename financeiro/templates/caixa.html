@@ -144,7 +144,8 @@
                     <canvas id="myChart2" style="max-height: 375px;height: 100%;"></canvas>
                     <br>
                     <p>meses</p>
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+                
                 
                 </div>
             </div>
@@ -162,6 +163,7 @@
 {% endblock %}
 
 {% block 'scripts' %}
+
 <script>
   $.ajax({
       url: "{% url 'financeiro:saldo_anual' %}",
@@ -180,6 +182,7 @@
 
 
           var ctx = document.getElementById('myChart2').getContext('2d');
+          
           var myChart2 = new Chart(ctx, {
               type: 'bar',
               data: {
@@ -189,10 +192,10 @@
                       label: 'Entradas',
                       data: response['entradas'],
                       backgroundColor: [
-                          'rgba(75, 192, 192, 0.8)'
+                          'rgba(128,171,0, 0.8)'
                       ],
                       borderColor: [
-                          'rgba(75, 192, 192, 1)'
+                          'rgba(128,171,0, 1)'
                       ],
                       borderWidth: 2
                   },
@@ -220,23 +223,32 @@
                   }
                 ]
               },
+              plugins: [ChartDataLabels],
               options: {
-                  scales: {
-                      y: {
-                          beginAtZero: true
-                      }
+                plugins: {
+                  datalabels: {
+                    color: 'white',
+                    display: function(context) {
+                      return context.dataset.data[context.dataIndex] > 0;
+                    },
+                    font: {
+                      weight: 'bold'
+                    },
+                    formatter: function(value, context) {
+                      return 'R$ ' + value.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                    }
                   },
-                  plugins: {
-                      legend: {
-                          display: true
-                      }
-                  }
-              }
+                },
+                
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                
+            },
           });
-          // myChart.data.labels = response['labels'];
-          // myChart.data.datasets[0].data = response['total_entradas'];
 
-          // myChart.data.datasets[0].data = response['total_despesas'][];
       },
       error: function(error) {
           // Handle the error here

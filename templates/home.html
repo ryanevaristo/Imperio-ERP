@@ -38,7 +38,7 @@
                     <i class="
                     bi  bi bi-box-fill" id="icone"></i>Caixa
                 </a>
-                <a class="btn btn-app" href="" id="button">
+                <a class="btn btn-app" href="{% url 'produto:home_produto' %}" id="button">
                     <i class="bi bi-box-seam" id="icone"></i>Produtos
                 </a>  
                 <a class="btn btn-app" href="" id="button">
@@ -166,7 +166,7 @@
 {% endblock %}
 
 {% block 'scripts' %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     var ctx = document.getElementById('myChart2').getContext('2d');
     var myChart2 = new Chart(ctx, {

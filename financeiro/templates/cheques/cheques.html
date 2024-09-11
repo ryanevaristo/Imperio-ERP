@@ -71,6 +71,10 @@
                                             <td>
                                                 <span class="badge bg-danger">Repassado</span>
                                             </td>
+                                        {% else %}
+                                            <td>
+                                                <span class="badge bg-warning">Emitido</span>
+                                            </td>
                                         {% endif %}
                                         {%if cheque.banco == '001'%}
                                             <td>Banco do Brasil</td>
