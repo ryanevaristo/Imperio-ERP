@@ -1,3 +1,4 @@
+from typing import Any
 from .models import Cliente
 
 from django import forms
@@ -28,17 +29,20 @@ class ClienteForm(forms.ModelForm):
             'cep': 'CEP',
         }
 
-        def cpf_cnpj_validator(value):
-            if len(value) == 11 and value.contains('.') and value.contains('-'):
-                if not value.isdigit():
-                    raise forms.ValidationError('CPF inválido')
-            elif len(value) == 14 and value.contains('.') and value.contains('-') and value.contains('/'):
-                if not value.isdigit():
-                    raise forms.ValidationError('CNPJ inválido')
-            else:
-                raise forms.ValidationError('CPF/CNPJ inválido')
-            return value
-        
-        def clean_cpf_cnpj(self):
-            cpf_cnpj = self.cleaned_data['cpf_cnpj']
-            return self.cpf_cnpj_validator(cpf_cnpj)
+    def save(self, commit: bool = True) -> Any:
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+        return instance
+    
+    def clean_cpf_cnpj(self):
+        cpf_cnpj = self.cleaned_data['cpf_cnpj']
+        if len(cpf_cnpj) == 14:
+            if not cpf_cnpj.isdigit():
+                raise forms.ValidationError('CPF inválido')
+        elif len(cpf_cnpj) == 18:
+            if not cpf_cnpj.isdigit():
+                raise forms.ValidationError('CNPJ inválido')
+        else:
+            raise forms.ValidationError('CPF/CNPJ inválido')
+        return cpf_cnpj
