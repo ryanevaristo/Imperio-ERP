@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.contrib import messages
 from rolepermissions.decorators import has_role_decorator
+from .forms import ClienteForm
 import pandas as pd
 import io
 import pdfkit
@@ -36,39 +37,28 @@ def listar_clientes(request):
 @has_role_decorator('gerente')
 def cadastrar_clientes(request):
     if request.method == 'POST':
-        nome_completo = request.POST['nome_completo']
-        email = request.POST['email']
-        telefone = request.POST['telefone']
-        cpf_cnpj = request.POST['cpf_cnpj']
-        endereco = request.POST['endereco']
-        cidade = request.POST['cidade']
-        estado = request.POST['estado']
-        cep = request.POST['cep']
-        cliente = Cliente(nome_completo=nome_completo, email=email, telefone=telefone, cpf_cnpj=cpf_cnpj, endereco=endereco, cidade=cidade, estado=estado, cep=cep)
-        if Cliente.objects.filter(cpf_cnpj=cpf_cnpj).exists():
-            messages.error(request, 'CPF/CNPJ já cadastrado!', extra_tags='warning')
-            return redirect('/clientes/cadastrar/')
-        cliente.save()
-        messages.success(request, 'Cliente cadastrado com sucesso!')
-        return redirect('/clientes/')
-    return render(request, 'cadastrar_clientes.html')
+        form = ClienteForm(request.POST)  # Use o formulário de Cliente (se você tiver um)
+        if form.is_valid():
+            form.save()  # Salve o cliente no banco de dados
+            messages.success(request, 'Cliente cadastrado com sucesso!')
+            return redirect('/clientes/')  # Redirecione para a lista de clientes
+    else:
+        form = ClienteForm()  # Crie um novo formulário em caso de GET
+
+    return render(request, 'cadastrar_clientes.html', {'form': form})
 
 @login_required(login_url='/login/')
 def editar_clientes(request, id):
     cliente = Cliente.objects.get(id=id)
     if request.method == 'POST':
-        cliente.nome_completo = request.POST['nome_completo']
-        cliente.email = request.POST['email']
-        cliente.telefone = request.POST['telefone']
-        cliente.cpf_cnpj = request.POST['cpf_cnpj']
-        cliente.endereco = request.POST['endereco']
-        cliente.cidade = request.POST['cidade']
-        cliente.estado = request.POST['estado']
-        cliente.cep = request.POST['cep']
-        cliente.save()
-        messages.success(request, 'Cliente editado com sucesso!')
-        return redirect('/clientes/')
-    return render(request, 'cadastrar_clientes.html', {'cliente': cliente})
+        form = ClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente editado com sucesso!')
+            return redirect('/clientes/')
+    else:
+        form = ClienteForm(instance=cliente)
+    return render(request, 'cadastrar_clientes.html', {'cliente': form})
 
 @login_required(login_url='/login/')
 def deletar_clientes(request, id):

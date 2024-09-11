@@ -404,7 +404,7 @@ def cheques(request):
 
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
-        cheques = cheques.filter(descricao__icontains=pesquisar)
+        cheques = cheques.filter(numero__icontains=pesquisar)
 
     paginator = Paginator(cheques, 10)
     page_number = request.GET.get('page')

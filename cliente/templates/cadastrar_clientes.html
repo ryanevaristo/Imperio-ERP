@@ -20,36 +20,36 @@
         {% endfor %}
     {% endif %}
     {% if cliente  %}
-        <form action="{% url 'cliente:editar_clientes' cliente.id %}" method="post">
+        <form action="{% url 'cliente:editar_clientes' cliente.instance.id %}" method="post">
             {% csrf_token %}
             <div class="form-group">
                 <label for="nome_completo">Nome</label>
-                <input type="text" class="form-control" id="nome_completo" name="nome_completo" value="{{ cliente.nome_completo }}" required>
+                <input type="text" class="form-control" id="nome_completo" name="nome_completo" value="{{ cliente.instance.nome_completo }}" required>
             </div>
             <div class="form-group">
                 <label for="cpf_cnpj">Cnpj/Cpf</label>
-                <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj"  value="{{ cliente.cpf_cnpj}}" equired>
+                <input type="text" class="form-control" id="cpf_cnpj" name="cpf_cnpj"  value="{{ cliente.instance.cpf_cnpj}}" equired>
             </div>
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" class="form-control" id="email" name="email"  value="{{ cliente.email}}" equired>
+                <input type="email" class="form-control" id="email" name="email"  value="{{ cliente.instance.email}}" equired>
             </div>
             <div class="form-group">
                 <label for="telefone">Telefone</label>
-                <input type="text" class="form-control" id="telefone" name="telefone" value="{{cliente.telefone}}" required>
+                <input type="text" class="form-control" id="telefone" name="telefone" value="{{cliente.instance.telefone}}" required>
             </div>
             <div class="form-group">
                 <label for="endereco">Endereço</label>
-                <input type="text" class="form-control" id="endereco" name="endereco" value="{{cliente.endereco}}" required>
+                <input type="text" class="form-control" id="endereco" name="endereco" value="{{cliente.instance.endereco}}" required>
             </div>
             <div class="form-group">
                 <label for="cidade">Cidade</label>
-                <input type="text" class="form-control" id="cidade" name="cidade" value="{{cliente.cidade}}" required>
+                <input type="text" class="form-control" id="cidade" name="cidade" value="{{cliente.instance.cidade}}" required>
             </div>
             <div class="form-group">
                 <label for="estado">Estado</label>
                 <select name="estado" id="estado" class="form-control">
-                    <option value="{{cliente.estado}}">{{cliente.estado}}</option>
+                    <option value="{{cliente.instance.estado}}">{{cliente.instance.estado}}</option>
                     <option value="AC">Acre</option>
                     <option value="AL">Alagoas</option>
                     <option value="AP">Amapá</option>
@@ -82,7 +82,7 @@
             </div>
             <div class="form-group">
                 <label for="cep">Cep</label>
-                <input type="text" class="form-control" id="cep" name="cep" value="{{cliente.cep}}" required>
+                <input type="text" class="form-control" id="cep" name="cep" value="{{cliente.instance.cep}}" required>
             </div>
             <button type="submit" class="btn btn-primary">Salvar</button>
         </form>
@@ -155,3 +155,7 @@
 {% endblock %}
 
 </div>
+
+{% block 'scripts' %}
+<script src="{% static 'core/js/forms.js' %}"></script>
+{% endblock %}

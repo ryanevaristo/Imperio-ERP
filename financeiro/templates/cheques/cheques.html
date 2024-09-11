@@ -14,12 +14,15 @@
             <hr>
             <div class="button-container">
                 <div>
-                    <a href="{% url 'financeiro:cadastrar_cheque' %}" class="btn btn-primary my-2 my-2-sm-0 " style="margin-top: 10px;">Adicionar novo Cheque</a>
-                    <a href="{% url 'financeiro:exportar_cheques_xlsx' %}" class="btn btn-secondary  my-2 my-2-sm-0  ">
+                    <div>
+                        <a href="{% url 'financeiro:cadastrar_cheque' %}" class="btn btn-outline-primary w-100 waves-effect " style="margin-top: 10px;">Adicionar novo Cheque</a>
+                    </div>
+                    <br>
+                    <a href="{% url 'financeiro:exportar_cheques_xlsx' %}" class="btn-sm btn-secondary  my-2 my-2-sm-0 ">
                         <i class="bi bi-file-excel"></i>
-                        Excel
+                        Exportar Excel
                     </a>
-                    <a href="" class="btn btn-secondary my-2 my-2-sm-0  ">
+                    <a href="" class="btn-sm btn-secondary my-2 mx-1 my-2-sm-0   ">
                         <i class="bi bi-file-pdf"></i>
                         PDF
                         </a>
@@ -37,6 +40,10 @@
                </div>
                 
             </div>
+            <br>
+            <form>
+                <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
+            </form>
 
             {% if cheques_obj %}
             <div class="row">
@@ -89,7 +96,7 @@
                                         {% elif cheque.banco == '033' %}
                                             <td>Banco Santander (Brasil)</td>
                                         {% else %}
-                                            <td>Citibank</td>
+                                            <td>Banco Desconhecido</td>
                                         {% endif %}
 
                                         <td>
@@ -104,16 +111,12 @@
                 </div>
             </div>
             {% include 'pagination.html' %}
-            <form>
-                <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
-            </form>
             {% else %}
+            <br>
                 <div class="alert alert-info" role="alert">
                     Nenhum cheque cadastrado.
                 </div>
-                <form>
-                    <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
-                </form>
+                
             {% endif %}
         </div>
     </div>

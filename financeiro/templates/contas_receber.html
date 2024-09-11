@@ -76,6 +76,10 @@
         
     </div>
 
+    <form>
+        <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
+    </form>
+
     {% if entrada_obj %}
     <div class="row">
         <div class="col-md-12">
@@ -137,9 +141,6 @@
             </div>
         </div>
         {% include 'pagination.html' %}
-        <form>
-            <input type="text" name="pesquisar" class="form-control" placeholder="Pesquise aqui e aperte enter">
-        </form>
     </div>
     {% else %}
     <div class="alert alert-info" role="alert">
