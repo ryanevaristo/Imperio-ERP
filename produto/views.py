@@ -29,22 +29,24 @@ def cadastrar_empreendimento(request):
 @has_role_decorator("Administrador")
 def detalhes_empreendimento(request, id):
     empreendimento = Empreendimento.objects.get(id=id)
-    return render(request, 'produto/empreendimento/detalhes_empreendimento.html', {'empreendimento': empreendimento})
+    quadras = Quadra.objects.filter(empreendimento=id)
+    return render(request, 'produto/empreendimento/detalhes_empreendimento.html', {'empreendimento': empreendimento, 'quadras': quadras})
 
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
 def quadras(request, id):
-    quadras = Quadra.objects.filter(empreendimento=id)
-    return render(request, 'produto/quadras.html', {'quadras': quadras})
+    quadra = Quadra.objects.get(id=id)
+    return render(request, 'produto/quadra/home.html', {'quadra': quadra})
 
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
 def cadastrar_quadra(request, id):
     if request.method == 'POST':
         nome = request.POST.get('nome')
+        imagem = request.FILES.get('imagem')
+        descricao = request.POST.get('descricao')
         metragem = request.POST.get('metragem')
-        qtd_lotes = request.POST.get('qtd_lotes')
-        quadra = Quadra(nome=nome, empreendimento_id=id, metragem=metragem, lotes=qtd_lotes)
+        quadra = Quadra(nome=nome, empreendimento_id=id, metragem=metragem, descricao=descricao, imagem=imagem)
         quadra.save()
         messages.success(request, 'Quadra cadastrada com sucesso!')
         return redirect(reverse('produto:detalhes_empreendimento', args=[id]))

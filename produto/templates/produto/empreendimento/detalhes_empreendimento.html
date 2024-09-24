@@ -1,49 +1,114 @@
 {% extends 'base-home.html' %}
+
 {% block 'title' %}Detalhes do Empreendimento{% endblock %}
+
 {% load static %}
+
 {% block 'head' %}
+  <!-- Add any specific CSS or JavaScript files required for this page -->
+  <style>
+    .card {
+      margin-top: 20px;
+    }
+    .card-body {
+      padding: 20px;
+    }
+    .condominium-photo {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .lot-table {
+      margin-top: 20px;
+    }
+  </style>
 {% endblock %}
+
 {% block 'body' %}
-<div class="container">
+  <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <h1>{{ empreendimento.nome }}</h1>
-            <hr>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <img class="img-fluid" src="{{ empreendimento.imagem.url }}" alt="{{ empreendimento.nome }}">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <p>{{ empreendimento.descricao }}</p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Quadras</h2>
-            <hr>
-        </div>
-        <div>
-            <a href="{% url 'produto:cadastrar_quadra' empreendimento.id %}" class="btn btn-primary">Cadastrar Quadra</a>
-        </div>
-    </div>
-    <div class="row">
-        {% for quadra in empreendimento.quadras.all %}
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">{{ quadra.nome }}</h5>
-                    <p class="card-text">{{ quadra.metragem }}</p>
-                    <p class="card-text">{{ quadra.qtd_lotes }}</p>
-                    <a href="{% url 'produto:quadra:details' quadra.id %}" class="btn btn-primary">Ver detalhes</a>
-                </div>
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Detalhes do Empreendimento</h5>
+            
+            <div class="row">
+              <div class="col-md-4">
+                <img src="{% static 'pictures/fachada.jpg' %}" alt="{{ empreendimento.nome }}" class="condominium-photo">
+              </div>
+              <div class="col-md-8">
+                <h6>Nome do Empreendimento:</h6>
+                <p>{{ empreendimento.nome }}</p>
+                <h6>Descrição:</h6>
+                <p>{{ empreendimento.descricao }}</p>
+              </div>
             </div>
+            <hr>
+            <h6>Quadras Associadas a este Empreendimento:</h6>
+            <div class="lot-table">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Quadra ID</th>
+                    <th>Nome de Quadra</th>
+                    <th>Tamanho da Quadra</th>
+                    <th>QTD de Lotes Disponiveis</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for quadra in quadras %}
+                  <tr>
+                    <td>{{ quadra.id }}</td>
+                    <td>{{ quadra.nome }}</td>
+                    <td>{{ quadra.metragem }}</td>
+                    <td>{{ quadra.lote }}</td>
+                    <td>
+                      <a href="{% url 'produto:quadras' quadra.id %}" class="btn btn-secondary btn-sm">Detalhes Quadra</a>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5">Nenhuma quadra cadastrada.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <a href="{% url 'produto:cadastrar_quadra' empreendimento.id %}" class="btn btn-primary btn-block">Cadastrar Quadra</a>
+            </div>
+          </div>
         </div>
-        {% endfor %}
+      </div>
     </div>
-</div>
+  </div>
+
+  <!-- Modal for duplicating lot -->
+  <div class="modal fade" id="duplicateLotModal" tabindex="-1" role="dialog" aria-labelledby="duplicateLotModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="duplicateLotModalLabel">Duplicar Quadra</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="newLotId">Novo ID da Quadra:</label>
+              <input type="text" class="form-control" id="newLotId" required>
+            </div>
+            <div class="form-group">
+              <label for="newLotName">Novo Nome da Quadra:</label>
+              <input type="text" class="form-control" id="newLotName" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <!-- Add modal footer content here -->
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
-```

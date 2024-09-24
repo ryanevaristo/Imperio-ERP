@@ -1,48 +1,44 @@
 {% extends 'base-home.html' %}
-{% block 'title' %}Quadras{% endblock %}
 {% load static %}
+
+{% block 'title' %}Detalhes da Quadra {{ quadra.nome }}{% endblock %}
+
 {% block 'head' %}
+  <link rel="stylesheet" href="{% static 'produto/css/styles.css' %}">
 {% endblock %}
+
 {% block 'body' %}
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h1>Quadras</h1>
-            <hr>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <a href="{% url 'produto:cadastrar_quadra' %}" class="btn btn-primary">Cadastrar Quadra</a>
-            <hr>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Metragem</th>
-                        <th>Quantidade de Lotes</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for quadra in quadras %}
-                    <tr>
-                        <td>{{ quadra.nome }}</td>
-                        <td>{{ quadra.metragem }}</td>
-                        <td>{{ quadra.qtd_lotes }}</td>
-                        <td>
-                            <a href="{% url 'produto:editar_quadra' quadra.id %}" class="btn btn-warning">Editar</a>
-                            <a href="{% url 'produto:excluir_quadra' quadra.id %}" class="btn btn-danger">Excluir</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+  <section class="container">
+    <article class="card">
+      <h5 class="card-title">Detalhes da Quadra {{ quadra.nome }}</h5>
+      <p class="lead">Tamanho da Quadra: {{ quadra.metragem }}</p>
+      <p class="lead">Descrição: {{ quadra.descricao }}</p>
+      <hr>
+      <h6>Lotes:</h6>
+      <div class="row">
+        <ul>
+          {% for x in "aaaaaaaaaaaaaaaa" %}
+            <li class="cell {% cycle 'cell-left' 'cell-right' %} {% if x.sold %}sold{% endif %}">{{ forloop.counter }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      <h6>Lotes Disponíveis:</h6>
+      <ul>
+        {% for lote in quadra.lotes_disponiveis %}
+          <li>{{ lote.nome }} ({{ lote.tamanho }}m²) - R$ {{ lote.preco }}</li>
+        {% empty %}
+          <li>Nenhum lote disponível.</li>
+        {% endfor %}
+      </ul>
+      <h6>Lotes Vendidos:</h6>
+      <ul>
+        {% for lote in quadra.lotes_vendidos %}
+          <li>{{ lote.nome }} ({{ lote.tamanho }}m²) - R$ {{ lote.preco }}</li>
+        {% empty %}
+          <li>Nenhum lote vendido.</li>
+        {% endfor %}
+      </ul>
+      <p>Lotes disponíveis: {{ quadra.lotes_disponiveis|length }} | Lotes vendidos: {{ quadra.lotes_vendidos|length }}</p>
+    </article>
+  </section>
 {% endblock %}

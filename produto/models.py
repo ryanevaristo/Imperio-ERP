@@ -22,19 +22,19 @@ class Empreendimento(models.Model):
 
 class Quadra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    imagem = models.ImageField(upload_to='quadras', blank=True, null=True)
     empreendimento = models.ForeignKey(Empreendimento, on_delete=models.CASCADE)
     nome = models.CharField(max_length=255)
     descricao = models.TextField(blank=True, null=True)
     metragem = models.DecimalField(max_digits=10, decimal_places=2)
-    lotes = models.IntegerField()
     created_at = models.DateTimeField(default=timezone.now)
-
     class Meta:
         verbose_name = 'Quadra'
         verbose_name_plural = 'Quadras'
 
     def __str__(self):
         return self.nome
+    
     
 
 class Lote(models.Model):
@@ -46,6 +46,8 @@ class Lote(models.Model):
     status = models.BooleanField(default=True)
     proprietario = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE)
+
 
     class Meta:
         verbose_name = 'Lote'

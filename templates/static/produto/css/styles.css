@@ -1,0 +1,31 @@
+.cell {
+    /* common styles for all cells */
+    width: 50%; /* adjust the width as needed */
+    float: left;
+    padding: 10px; /* adjust the padding as needed */
+    border: 1px solid #ccc; /* add a border to all cells */
+  }
+  
+  .cell-left {
+    /* styles specific to left cells */
+    background-color: #f0f0f0; /* adjust the background color as needed */
+  }
+  
+  .cell-right {
+    /* styles specific to right cells */
+    background-color: #fff; /* adjust the background color as needed */
+  }
+  
+  .sold {
+    /* styles for sold items */
+    background-color: #ADD8E6; /* light blue background */
+    color: #000; /* black text */
+  }
+  
+  /* Media query for mobile devices */
+  @media only screen and (max-width: 768px) {
+    .cell {
+      width: 80%; /* make cells full-width on mobile devices */
+
+    }
+  }
