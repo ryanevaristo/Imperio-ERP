@@ -10,7 +10,9 @@ class ContaPagar(models.Model):
         ('B', 'Boleto'),
         ('T', 'Banco'),
         ('C', 'Cheque'),
-        ('P', 'PIX')
+        ('P', 'PIX'),
+        ('M',"Dinheiro/Banco"),
+        ("N","Cheque/Dinheiro")
     )
 
     descricao = models.CharField(max_length=1000)
@@ -49,7 +51,9 @@ class ContaReceber(models.Model):
         ('E', 'Cartão'),
         ('T', 'Banco'),
         ('C', 'Cheque'),
-        ('P', 'PIX')
+        ('P', 'PIX'),
+        ('M',"Dinheiro/Banco"),
+        ("N","Cheque/Dinheiro")
     )
     cliente = models.ForeignKey(Cliente,on_delete=models.SET_NULL, null=True, blank=True)
     descricao = models.TextField(max_length=1000,null=True, blank=True)
