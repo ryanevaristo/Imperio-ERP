@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class Empreendimento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    foto = models.ImageField(upload_to='empreendimentos', blank=True, null=True)
+    imagem = models.ImageField(upload_to='empreendimentos/', blank=True, null=True)
     nome = models.CharField(max_length=255)
     descricao = models.TextField(blank=True, null=True)
     localizacao = models.CharField(max_length=255)
@@ -22,7 +22,7 @@ class Empreendimento(models.Model):
 
 class Quadra(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    imagem = models.ImageField(upload_to='quadras', blank=True, null=True)
+    imagem = models.ImageField(upload_to='quadras/', blank=True, null=True)
     empreendimento = models.ForeignKey(Empreendimento, on_delete=models.CASCADE)
     nome = models.CharField(max_length=255)
     descricao = models.TextField(blank=True, null=True)

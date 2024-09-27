@@ -17,9 +17,9 @@ def cadastrar_empreendimento(request):
     if request.method == 'POST':
         nome = request.POST.get('nome')
         localizacao = request.POST.get('localizacao')
-        foto = request.FILES.get('foto')
+        imagem = request.FILES.get('imagem')
         descricao = request.POST.get('descricao')
-        empreendimento = Empreendimento(nome=nome, localizacao=localizacao, descricao=descricao, foto=foto)
+        empreendimento = Empreendimento(nome=nome, localizacao=localizacao, descricao=descricao, imagem=imagem)
         empreendimento.save()
         messages.success(request, 'Empreendimento cadastrado com sucesso!')
         return redirect(reverse('produto:home_produto'))
