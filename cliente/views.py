@@ -45,11 +45,12 @@ def cadastrar_clientes(request):
         if form.is_valid():
             form.save()  # Salve o cliente no banco de dados
             messages.success(request, 'Cliente cadastrado com sucesso!')
+            
             return redirect('/clientes/')  # Redirecione para a lista de clientes
         else:
-            messages.error(request, f'{form.errors['telefone']}',extra_tags='warning')
+            messages.error(request, f"Este Cpf ou Cnpj já existe", extra_tags='warning')
     else:
-        form = ClienteForm()  # Crie um novo formulário em caso de GET
+        form = ClienteForm()
 
     return render(request, 'cadastrar_clientes.html', {'form': form})
 

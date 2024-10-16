@@ -595,8 +595,8 @@ def caixa(request):
             if cheque.situacao == 'E':
                 total_cheque_emitido += cheque.valor
         
-        return render(request, 'caixa.html', {'saldo': (total_entradas) - total_despesas, 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
-    return render(request, 'caixa.html', {'saldo': (total_entradas) - total_despesas , 'total_entradas': total_entradas, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
+        return render(request, 'caixa.html', {'saldo': (total_entradas + total_valor_compensado) - total_despesas, 'total_entradas': total_entradas + total_valor_compensado , 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
+    return render(request, 'caixa.html', {'saldo': (total_entradas + total_valor_compensado) - total_despesas , 'total_entradas': total_entradas + total_valor_compensado, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])

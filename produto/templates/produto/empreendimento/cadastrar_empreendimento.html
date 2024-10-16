@@ -2,9 +2,10 @@
 {% block 'title' %}Cadastrar Empreendimento{% endblock %}
 {% load static %}
 {% block 'head' %}
+ <link rel="stylesheet" href="{% static 'core/css/forms.css' %}">
 {% endblock %}
 {% block 'body' %}
-<div class="container">
+<div class="container" id="container">
     <div class="row">
         <div class="col-md-12">
             <h1>Cadastrar Empreendimento</h1>
@@ -12,7 +13,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12" >
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group">

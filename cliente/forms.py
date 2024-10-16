@@ -28,12 +28,6 @@ class ClienteForm(forms.ModelForm):
             'estado': 'Estado',
             'cep': 'CEP',
         }
+
+
     
-    
-    
-    def clean_telefone(self):
-        telefone = self.cleaned_data['telefone']
-        invalid_patterns = ["(", "-",')']
-        if not all(pattern in telefone for pattern in invalid_patterns):
-            raise forms.ValidationError('Telefone inválido')
-        return telefone
