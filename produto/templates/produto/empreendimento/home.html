@@ -4,13 +4,16 @@
 {% load static %}
 {% block 'head' %}
 <link rel="stylesheet" href="{% static 'produto/css/empreendimentos.css' %}">
+<link rel="stylesheet" href="{% static 'core/css/table_view.css' %}">
 {% endblock %}
 
 {% block 'body' %}
-    <div class="row">
-            <h1>Empreendimentos</h1>
-            <hr>
-    </div>
+<div class="row" style="padding-left: 10px;">
+    <h1>Empreendimentos</h1>
+    <hr>
+</div>
+    <div  id="container">
+        
     <div class="row">
         <!-- add imagem do empreendimento -->
          
@@ -26,6 +29,7 @@
             </div>
         </div>
         {% endfor %}
+    </div>
     </div>
 
 {% endblock %}

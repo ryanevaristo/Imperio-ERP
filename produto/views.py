@@ -4,6 +4,7 @@ from rolepermissions.decorators import has_role_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
+from cliente.models import Cliente
 
 
 # Create your views here.
@@ -36,7 +37,9 @@ def detalhes_empreendimento(request, id):
 @has_role_decorator("Administrador")
 def quadras(request, id):
     quadra = Quadra.objects.get(id=id)
-    return render(request, 'produto/quadra/home.html', {'quadra': quadra})
+    lotes = Lote.objects.filter(quadra_id=quadra.id)
+    return render(request, 'produto/quadra/home.html', {'quadra': quadra,  'lotes': lotes})
+
 
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
@@ -61,12 +64,18 @@ def lotes(request, id):
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
 def cadastrar_lote(request, id):
+    cliente = Cliente.objects.all()
     if request.method == 'POST':
         numero = request.POST.get('numero')
-        valor = request.POST.get('valor')
-        lote = Lote(numero=numero, valor=valor, quadra_id=id)
+        metragem  = request.POST.get('metragem')
+        preco = request.POST.get('preco')
+        status = request.POST.get('status')
+        data_aquisicao = request.POST.get('data_aquisicao')
+        cliente_id = request.POST.get('cliente_id')
+        lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, data_aquisicao=data_aquisicao, proprietario=Cliente.objects.get(id=cliente_id), quadra_id=id)
         lote.save()
         messages.success(request, 'Lote cadastrado com sucesso!')
-        return redirect(reverse('produto:lotes', args=[id]))
-    return render(request, 'produto/cadastrar_lote.html', {'id': id})
+        return redirect(reverse('produto:quadras', args=[id]))
+    return render(request, 'produto/lote/cadastrar_lote.html', {'id': id, 'clientes'  : cliente})
+
 

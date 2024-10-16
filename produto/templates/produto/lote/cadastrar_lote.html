@@ -2,9 +2,12 @@
 {% block 'title' %}Cadastrar Lote{% endblock %}
 {% load static %}
 {% block 'head' %}
+<link rel="stylesheet" href="{% static 'core/css/table_view.css' %}">
 {% endblock %}
+
+
 {% block 'body' %}
-<div class="container">
+<div   class="fluid-container" id="container">
     <div class="row">
         <div class="col-md-12">
             <h1>Cadastrar Lote</h1>
@@ -23,6 +26,34 @@
                 ">
                     <label for="metragem">Metragem</label>
                     <input type="text" class="form-control" id="metragem" name="metragem" placeholder="exemplo: 130m²">
+                </div>
+                <div class="form-group">
+                    <label for="preco">Valor</label>
+                    <input type="number" class="form-control" id="preco" name="preco" placeholder="exemplo: 130.000,00 sem os pontos">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status" class="form-control">
+                        <option value="D">Disponível</option>
+                        <option value="V">Vendido</option>
+                        <option value="R">Reservado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="data_aquisicao">Data de Aquisição do Imovel</label>
+                    <input type="date" class="form-control" name="data_aquisicao" id="data_aquisicao">
+                </div>
+                <div class="form-group">
+                    <label for="proprietario">Prorietário</label>
+                    <input type="search" class="form-control" id="search-status" placeholder="digite o cpf ou o nome">
+                    <select name="cliente_id" id="cliente_id" class="form-control">
+                        <option value=""> Selecione  um cliente</option>
+                        {% for cliente in clientes %}
+                    
+                        <option value='{{cliente.id}}'> {{cliente.nome_completo}}</option>
+                        {% endfor %}
+                    </select>
+                    
                 </div>
                 <button type="submit" class="btn btn-primary">Cadastrar</button>
             </form>

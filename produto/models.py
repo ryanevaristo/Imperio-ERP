@@ -1,6 +1,9 @@
+from datetime import datetime
 from django.db import models
 from uuid import uuid4
 from django.utils import timezone
+from cliente.models import  Cliente
+
 
 # Create your models here.
 
@@ -34,19 +37,28 @@ class Quadra(models.Model):
 
     def __str__(self):
         return self.nome
+    def get_total_lotes_disponiveis(self):
+        return self.lote_set.filter(status='D').count()
     
+    def get_total_lotes_vendidos(self):
+        return self.lote_set.filter(status='V').count()
     
 
 class Lote(models.Model):
+    CHOICE_STATUS ={
+        ('D', 'Disponível'),
+        ('V', 'Vendido'),
+        ('R', 'Reservado'),
+    }
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE)
-    numero = models.IntegerField()
+    numero = models.IntegerField(auto_created=True)
     metragem = models.DecimalField(max_digits=10, decimal_places=2)
     preco = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.BooleanField(default=True)
-    proprietario = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(default=timezone.now)
+    data_aquisicao = models.DateTimeField(null=True, blank=True, default=datetime(1900, 1, 1))
+    status = models.CharField(max_length=1, default=True, choices=CHOICE_STATUS)
+    proprietario = models.ForeignKey(Cliente, blank=False, null=False, related_name="Lotes", on_delete=models.CASCADE)
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
     class Meta:

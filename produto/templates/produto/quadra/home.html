@@ -5,20 +5,75 @@
 
 {% block 'head' %}
   <link rel="stylesheet" href="{% static 'produto/css/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'core/css/table_view.css' %}">
 {% endblock %}
 
 {% block 'body' %}
-  <section class="container">
-    <article class="card">
+  <section id="container">
+    <article class="">
       <h5 class="card-title">Detalhes da Quadra {{ quadra.nome }}</h5>
-      <p class="lead">Tamanho da Quadra: {{ quadra.metragem }}</p>
-      <p class="lead">Descrição: {{ quadra.descricao }}</p>
+      <p>{{ quadra.descricao }}</p>
+      <div class="button-container">
+        <div>
+            <div>
+                <a href="{% url 'produto:cadastrar_lote' quadra.id %}" class="btn btn-outline-primary w-100 waves-effect " style=" margin-right: 10px;">Adicionar novo Lote</a>
+            
+            </div>
+            <button class="btn-sm btn-secondary my-2 my-2-sm-0" data-bs-toggle="modal" data-bs-target="#importModal">
+                Importar Excel
+            </button>
+            <a href=" " class="btn-sm btn-secondary  my-2 my-2-sm-0  ">
+                <i class="bi bi-file-excel"></i>
+                Exportar Excel
+            </a>
+            <!-- Import Modal -->
+            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="importModalLabel">Importar Arquivo Excel</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            
+                            <form method="post" action="{% url 'financeiro:importar_despesa_xlsx' %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="file" name="file" class="form-control">
+                        
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Importar</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <a href=" " class="btn-sm btn-secondary my-2 my-2-sm-0  " style="margin-left: 5px;">
+                <i class="bi bi-file-pdf"></i>
+                PDF
+            </a>
+                
+        </div>
+        
+       <div class="alinhar-direita">
+         <form class="form-inline my-2 my-lg-0-pull-right">
+            <label for="start_date">Data inicial:</label>
+            <input type="date" id="start_date" name="start_date" class="form-control-sm">
+            <label for="end_date">Data final:</label>
+            <input type="date" id="end_date" name="end_date" class="form-control-sm">
+            <button type="submit" class="btn btn-primary my-2 my-2-sm-0 btn-sm">Filtrar</button>
+         </form>
+       </div>
+        
+    </div>
       <hr>
-      <h6>Lotes:</h6>
+      <p>Lotes disponíveis: {{ quadra.get_total_lotes_disponiveis }} | Lotes vendidos: {{ quadra.get_total_lotes_vendidos }}</p>
       <div class="row">
         <ul>
-          {% for x in "aaaaaaaaaaaaaaaa" %}
-            <li class="cell {% cycle 'cell-left' 'cell-right' %} {% if x.sold %}sold{% endif %}">{{ forloop.counter }}</li>
+          {% for x in lotes %}
+            <li class="cell {% cycle 'cell-left' 'cell-right' %} {% if x.status == 'V' %}sold{% endif %}">{{ forloop.counter }}</li>
           {% endfor %}
         </ul>
       </div>
@@ -38,7 +93,6 @@
           <li>Nenhum lote vendido.</li>
         {% endfor %}
       </ul>
-      <p>Lotes disponíveis: {{ quadra.lotes_disponiveis|length }} | Lotes vendidos: {{ quadra.lotes_vendidos|length }}</p>
     </article>
   </section>
 {% endblock %}

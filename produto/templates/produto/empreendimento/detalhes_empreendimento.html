@@ -47,7 +47,7 @@
                     <td>{{ quadra.id }}</td>
                     <td>{{ quadra.nome }}</td>
                     <td>{{ quadra.metragem }}</td>
-                    <td>{{ quadra.lote }}</td>
+                    <td>{{ quadra.get_total_lotes_disponiveis }}</td>
                     <td>
                       <a href="{% url 'produto:quadras' quadra.id %}" class="btn btn-secondary btn-sm">Detalhes Quadra</a>
                     </td>
