@@ -43,18 +43,7 @@
                     <label for="data_aquisicao">Data de Aquisição do Imovel</label>
                     <input type="date" class="form-control" name="data_aquisicao" id="data_aquisicao">
                 </div>
-                <div class="form-group">
-                    <label for="proprietario">Prorietário</label>
-                    <input type="search" class="form-control" id="search-status" placeholder="digite o cpf ou o nome">
-                    <select name="cliente_id" id="cliente_id" class="form-control">
-                        <option value=""> Selecione  um cliente</option>
-                        {% for cliente in clientes %}
-                    
-                        <option value='{{cliente.id}}'> {{cliente.nome_completo}}</option>
-                        {% endfor %}
-                    </select>
-                    
-                </div>
+               
                 <button type="submit" class="btn btn-primary">Cadastrar</button>
             </form>
         </div>

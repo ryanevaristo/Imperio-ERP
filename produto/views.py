@@ -5,8 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
 from cliente.models import Cliente
-
-
+import uuid
 # Create your views here.
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
@@ -63,19 +62,49 @@ def lotes(request, id):
 
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
-def cadastrar_lote(request, id):
-    cliente = Cliente.objects.all()
+def cadastrar_lote(request, id_quadra):
     if request.method == 'POST':
         numero = request.POST.get('numero')
         metragem  = request.POST.get('metragem')
         preco = request.POST.get('preco')
         status = request.POST.get('status')
         data_aquisicao = request.POST.get('data_aquisicao')
-        cliente_id = request.POST.get('cliente_id')
-        lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, data_aquisicao=data_aquisicao, proprietario=Cliente.objects.get(id=cliente_id), quadra_id=id)
+        if data_aquisicao:
+        
+            lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, data_aquisicao=data_aquisicao, quadra_id=id_quadra)
+        else:
+             lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, quadra_id=id_quadra)
         lote.save()
+
         messages.success(request, 'Lote cadastrado com sucesso!')
-        return redirect(reverse('produto:quadras', args=[id]))
-    return render(request, 'produto/lote/cadastrar_lote.html', {'id': id, 'clientes'  : cliente})
+        return redirect(reverse('produto:quadras', args=[id_quadra]))
+    return render(request, 'produto/lote/cadastrar_lote.html')
+
+
+@login_required(login_url='/login/')
+@has_role_decorator("Administrador")
+def editar_lote(request, id):
+    lote = Lote.objects.get(id=id)
+    if request.method == 'POST':
+        lote.numero = request.POST.get('numero')
+        lote.metragem = request.POST.get('metragem')
+        lote.preco = request.POST.get('preco')
+        lote.status = request.POST.get('status')
+        lote.data_aquisicao = request.POST.get('data_aquisicao')
+        lote.save()
+        messages.success(request, 'Lote editado com sucesso!')
+        return redirect(reverse('produto:quadras', args=[lote.quadra.id]))
+    return render(request, 'produto/lote/cadastrar_lote.html'  , {'lote': lote})
+
+    
+@login_required(login_url='/login/')
+@has_role_decorator("Administrador")
+def excluir_lote(request, id):
+    lote = Lote.objects.get(id=id)
+    lote.delete()
+    messages.success(request, 'Lote deletado com sucesso!')
+    return redirect(reverse('produto:quadras', args=[lote.quadra.id]))
+
+
 
 

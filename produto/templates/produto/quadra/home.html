@@ -79,19 +79,73 @@
       </div>
       <h6>Lotes Disponíveis:</h6>
       <ul>
-        {% for lote in quadra.lotes_disponiveis %}
-          <li>{{ lote.nome }} ({{ lote.tamanho }}m²) - R$ {{ lote.preco }}</li>
-        {% empty %}
-          <li>Nenhum lote disponível.</li>
-        {% endfor %}
+          <div class="lote_table">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Nº do Lote</th>
+                  <th>Tamanho em  m²</th>
+                  <th>Valor</th>
+                  <th>Cliente</th>
+                  <th>Opções</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for lote in quadra.lotes_disponiveis %}
+                <tr>
+                  <td>{{lote.numero}}</td>
+                  <td>{{lote.metragem}}</td>
+                  <td>R$ {{lote.preco|floatformat:"2g"}}</td>
+                  <td>Disponivel</td>
+                  <td>
+                    <a href="" class="btn btn-secondary btn-sm">Ver Detalhes</a>
+                    <a href="{% url 'produto:editar_lote' lote.id %}" class="btn btn-primary btn-sm">Editar</a>
+                    <a href="{% url 'produto:excluir_lote' lote.id %}" class="btn btn-danger btn-sm">Excluir</a>
+                  </td>
+                </tr>
+                {% empty %}
+                <li>Nenhum lote disponível.</li>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+      
       </ul>
       <h6>Lotes Vendidos:</h6>
       <ul>
-        {% for lote in quadra.lotes_vendidos %}
-          <li>{{ lote.nome }} ({{ lote.tamanho }}m²) - R$ {{ lote.preco }}</li>
-        {% empty %}
-          <li>Nenhum lote vendido.</li>
-        {% endfor %}
+        <div class="lote_table">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Nº do Lote</th>
+                <th>Tamanho em  m²</th>
+                <th>Valor</th>
+                <th>Data da Aquisição</th>
+                <th>Cliente</th>
+                <th>Opções</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for lote in quadra.lotes_vendidos %}
+              <tr>
+                <td>{{lote.numero}}</td>
+                  <td>{{lote.metragem}}</td>
+                  <td>R${{lote.preco|floatformat:"2g"}}</td>
+                  <td>{{lote.get_data_aquisicao}}</td>
+                  <td>{{lote.proprietario}}</td>
+                  <td>
+                    <a href="" class="btn btn-secondary btn-sm">Ver Detalhes</a>
+                    <a href="{% url 'produto:editar_lote' lote.id %}" class="btn btn-primary btn-sm">Editar</a>
+                    <a href="{% url 'produto:excluir_lote' lote.id %}" class="btn btn-danger btn-sm">Excluir</a>
+                  </td>
+              </tr>
+              {% empty %}
+              <li>Nenhum lote vendido.</li>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        
       </ul>
     </article>
   </section>

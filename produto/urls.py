@@ -9,5 +9,7 @@ urlpatterns = [
     path('cadastrar_quadra/<uuid:id>/', views.cadastrar_quadra, name='cadastrar_quadra'),
     path('quadras/<uuid:id>/', views.quadras, name='quadras'),
     path('lotes/<uuid:id>/', views.lotes, name='lotes'),
-    path('cadastrar_lote/<uuid:id>/', views.cadastrar_lote, name='cadastrar_lote')
+    path('cadastrar_lote/<uuid:id_quadra>/', views.cadastrar_lote, name='cadastrar_lote'),
+    path('editar_lote/<uuid:id>',views.editar_lote,name='editar_lote'),
+    path('excluir_lote/<uuid:id>/',views.excluir_lote, name="excluir_lote")
 ]

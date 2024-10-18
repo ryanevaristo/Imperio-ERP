@@ -43,6 +43,14 @@ class Quadra(models.Model):
     def get_total_lotes_vendidos(self):
         return self.lote_set.filter(status='V').count()
     
+    def  lotes_disponiveis(self):
+        return self.lote_set.filter(status='D')
+    
+    def lotes_vendidos(self):
+        return self.lote_set.filter(status="V")
+    
+    
+    
 
 class Lote(models.Model):
     CHOICE_STATUS ={
@@ -54,9 +62,9 @@ class Lote(models.Model):
     numero = models.IntegerField(auto_created=True)
     metragem = models.DecimalField(max_digits=10, decimal_places=2)
     preco = models.DecimalField(max_digits=10, decimal_places=2)
-    data_aquisicao = models.DateTimeField(null=True, blank=True, default=datetime(1900, 1, 1))
+    data_aquisicao = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     status = models.CharField(max_length=1, default=True, choices=CHOICE_STATUS)
-    proprietario = models.ForeignKey(Cliente, blank=False, null=False, related_name="Lotes", on_delete=models.CASCADE)
+    proprietario = models.ForeignKey(Cliente, blank=True, null=True, related_name="Lotes", on_delete=models.CASCADE)
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -67,4 +75,7 @@ class Lote(models.Model):
 
     def __str__(self):
         return f'{self.quadra} - {self.numero}'
+    
+    def  get_data_aquisicao(self):
+        return self.data_aquisicao.strftime('%d/%m/%Y')
 
