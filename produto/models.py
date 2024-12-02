@@ -60,7 +60,7 @@ class Lote(models.Model):
     }
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     numero = models.IntegerField(auto_created=True)
-    metragem = models.DecimalField(max_digits=10, decimal_places=2)
+    metragem = models.CharField(max_length=10)
     preco = models.DecimalField(max_digits=10, decimal_places=2)
     data_aquisicao = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
     status = models.CharField(max_length=1, default=True, choices=CHOICE_STATUS)
