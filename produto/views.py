@@ -4,8 +4,8 @@ from rolepermissions.decorators import has_role_decorator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse
-from cliente.models import Cliente
-import uuid
+
+
 # Create your views here.
 @login_required(login_url='/login/')
 @has_role_decorator("Administrador")
