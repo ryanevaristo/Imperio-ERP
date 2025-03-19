@@ -33,7 +33,7 @@ def cadastrar_produto(request):
         produto.save()
         messages.success(request, 'Produto cadastrado com sucesso!')
         return redirect(reverse('estoque:home_estoque'))
-    return render(request, 'estoque/cadastrar_produto.html')
+    return render(request, 'estoque/cadastrar_editar_produto.html')
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente"])
@@ -51,7 +51,7 @@ def editar_produto(request, id):
         produto.save()
         messages.success(request, 'Produto editado com sucesso!')
         return redirect(reverse('estoque:home_estoque'))
-    return render(request, 'estoque/editar_produto.html', {'produto': produto})
+    return render(request, 'estoque/cadastrar_editar_produto.html', {'produto': produto})
 
 
 @login_required(login_url='/login/')
