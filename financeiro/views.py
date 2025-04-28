@@ -9,7 +9,7 @@ import pandas as pd
 from django.core.paginator import Paginator
 from django.contrib import messages
 from datetime import datetime
-import tempfile
+
 import io
 
 

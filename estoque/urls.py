@@ -9,5 +9,7 @@ urlpatterns = [
     path('editar_produto/<uuid:id>/', views.editar_produto, name='editar_produto'),
     path('deletar_produto/<uuid:id>/', views.deletar_produto, name='deletar_produto'),
     path('detalhes_produto/<uuid:id>/', views.detalhes_produto, name='detalhes_produto'),
+    # MOVIENTAÇÕES
+    path('movimentacao/<uuid:id>/', views.movimentacao, name='registrar_movimentacao'),
 
 ]

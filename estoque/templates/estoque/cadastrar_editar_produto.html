@@ -1,0 +1,133 @@
+{%extends 'base-home.html'%}
+{%block 'title'%}cadastrar produtos em estoque{%endblock%}
+{% load static %}
+{%block 'head'%}
+<link rel="stylesheet" href="{% static 'core/css/forms.css' %}">
+<link rel="stylesheet" href="{% static 'estoque/css/cadastrar_editar_produto.css' %}">
+{% endblock %}
+{% block 'body' %}
+<div class="container-fluid" id="container">
+
+    {% if produto %}
+        <h2 class="page-title">Editar Produto</h2>
+    {% else %}
+        <h2 class="page-title">Cadastrar Produto</h2>
+    {% endif %}
+    <hr>
+    {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if produto %}
+    <form method="post" action="{% url 'estoque:editar_produto' produto.id %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="nome">Nome do Produto:</label>
+            <input type="text" class="form-control" id="nome" name="nome"  >
+        </div>
+        <div class="form-group">
+            <label for="qtd"> Quantidade Disponivel:</label>
+            <input type="number" class="form-control" id="qtd" name="qtd"  >
+
+        </div>
+        <div class="form-group">
+            <label for="qtd_min">Quantidade Minima:</label>
+            <input type="number" class="form-control" id="qtd_min" name="qtd_min"  >
+        </div>
+        <div class="form-group">
+            <label for="custo">Custo:</label>
+            <input type="number" class="form-control" id="custo" name="custo"  >
+        </div>
+        <div class="form-group">
+            <label for="Vendas">Venda:</label>
+            <input type="number" class="form-control" id="venda" name="venda"  >
+        </div>
+        <div class="form-group">
+            <label for="Margem">Margem:</label>
+            <input type="number" class="form-control" id="margem" name="margem" disabled>
+        </div>
+
+        <div class="form-group">
+            <label for ="categoria">Categoria:</label>
+            {% if categorias %}
+                <select class="form-control" id="categoria" name="categoria" value="{{despesas.categoria}}"  >
+                    {% for categoria in categorias %}
+                        <option value="{{categoria.id}}">{{categoria.nome_categoria}}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+            
+                <p>Não há categorias cadastradas</p>
+            {% endif %}
+        </div>
+
+    </form>
+    {% else %}
+    <form action="{% url 'estoque:cadastrar_produto' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="nome">Nome do Produto:</label>
+            <input type="text" class="form-control" id="nome" name="nome" value="{{ produto.nome }}" >
+        </div>
+        <div class="form-group">
+            <label for="qtd"> Quantidade Disponivel:</label>
+            <input type="number" class="form-control" id="qtd" name="qtd" value="{{ produto.qtd }}" >
+
+        </div>
+        <div class="form-group">
+            <label for="qtd_min">Quantidade Minima:</label>
+            <input type="number" class="form-control" id="qtd_min" name="qtd_min" value="{{ produto.qtd_min }}" >
+        </div>
+        <div class="form-group">
+            <label for="custo">Custo:</label>
+            <input type="number" class="form-control" id="custo" name="custo" value="{{ produto.custo }}" >
+        </div>
+        <div class="form-group">
+            <label for="Vendas">Venda:</label>
+            <input type="number" class="form-control" id="venda" name="venda" value="{{ produto.venda }}" >
+        </div>
+        <div class="form-group">
+            <label for="Margem">Margem:</label>
+            <input type="number" class="form-control" id="margem" name="margem" value="{{ produto.margem }}" disabled>
+        </div>
+        <div class="form-group">
+            <label for ="categoria">Categoria:</label>
+            {% if categorias %}
+            <div class="row">
+                <div class="col-sm-6">
+                    <select class="form-control" id="categoria" name="categoria" value="{{produto.categoria}}" >
+                        {% for categoria in categorias %}
+                            <option value="{{categoria.id}}">{{categoria.nome_categoria}}</option>
+                        {% endfor %}
+                    </select>
+    
+                </div>
+                <div class="col-sm-6">
+                    {% include 'estoque/cadastrar_categoria_estoque.html' %}
+                </div>
+            </div>
+            
+            {% else %}
+                
+                <p>Não há categorias cadastradas</p>
+                <div class="col-sm-6">
+                    {% include 'estoque/cadastrar_categoria_estoque.html' %}
+                </div>
+                        
+        </div>
+                
+            {% endif %}
+        <button type="submit" class="btn btn-success">Salvar</button>
+        </div>
+
+    </form>
+    {% endif %} 
+
+
+</div>
+
+{% endblock %}
