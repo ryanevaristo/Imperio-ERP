@@ -10,6 +10,6 @@ urlpatterns = [
     path('deletar_produto/<uuid:id>/', views.deletar_produto, name='deletar_produto'),
     path('detalhes_produto/<uuid:id>/', views.detalhes_produto, name='detalhes_produto'),
     # MOVIENTAÇÕES
-    path('movimentacao/<uuid:id>/', views.movimentacao, name='registrar_movimentacao'),
+    path('movimentacao/<uuid:produto_id>/', views.movimentacao, name='registrar_movimentacao'),
 
 ]

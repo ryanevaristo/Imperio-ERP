@@ -1,16 +1,12 @@
 <!-- Button trigger modal -->
-<button type="button" class="form-control" style="background-color: #555558; color: white;" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Cadastrar Categoria
-</button>
-  
 {% for produto in produtos %}
   <!-- Modal -->
   <div class="modal fade
-  " id="exampleModal" tabindex="-1" aria-labelledby="modalCategoria" aria-hidden="true">
+  " id="modalMovimentacao{{ produto.id  }}" tabindex="-1" aria-labelledby="modalMovimentacao" aria-hidden="true">
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
-                  <h5 class="modal-title" id="modalCategoria">Movimentação - {{produto.nome}}</h5>
+                  <h5 class="modal-title" id="modalMovimentacao">Movimentação - {{produto.id}}</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body
@@ -19,21 +15,18 @@
                   ">
                       <form method="POST" action="{% url 'estoque:registrar_movimentacao' produto.id %}">
                           {% csrf_token %}
-                          <label for="label_categoria">Descrição</label>
-                          <input type="text" class="form-control" id="descricao" name="descricao"  >
                           <label for="qtd">Quantidade:</label>
                           <input type="number" class="form-control" id="qtd" name="qtd"  >
                           <label for="tipo_movimentacao">Tipo de Movimentação:</label>
                           <select class="form-control" id="tipo_movimentacao" name="tipo_movimentacao">
-                              <option value="entrada">Entrada</option>
-                              <option value="saida">Saída</option>
-                              <option value="devolucao">Devolução</option>
+                              <option value="Entrada">Entrada</option>
+                              <option value="Saida">Saída</option>
+                              <option value="Devolucao">Devolução</option>
                           </select>
-                            <label for="data_movimentacao">Data:</label>
-                            <input type="date" class="form-control" id="data_movimentacao" name="data_movimentacao"  >
                             <label for="observacao">Observação:</label>
-                            <textarea class="form-control" id="observacao" name="observacao"></textarea>
-                            <button type="submit" class="btn btn-success"> Salvar Movimentação</button>
+                            <textarea class="form-control" id="motivo" name="motivo"></textarea>
+                            <hr>
+                            <button type="submit" class="btn btn-success  "> Salvar Movimentação</button>
                         </form>
                   </div>
               </div>

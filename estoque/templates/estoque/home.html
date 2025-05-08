@@ -95,15 +95,20 @@
                             <td>{{ produto.produto }}</td>
                             <td>{{ produto.qtd }}</td>
                             <td>{{ produto.qtd_min }}</td>
-                            <td>{{ produto.custo }}</td>
-                            <td>{{ produto.venda }}</td>
-                            <td>{{ produto.margem_porcentagem }}</td>
+                            <td>R${{ produto.custo|floatformat:"2g" }}</td>
+                            <td>R${{ produto.venda|floatformat:"2g" }}</td>
+                            <td>{{ produto.Margem }}%</td>
                             <td class="text-center">
-                                <a href="{% url 'estoque:registrar_movimentacao' produto.id %}" class="btn btn-primary btn-sm">Movimentação</a>
-                                <a href="{% url 'estoque:editar_produto' produto.id %}" class="btn btn-warning btn-sm">Editar</a>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMovimentacao{{ produto.id }}">
+                                    Adicionar Movimentação
+                                </button>
+                
+                                <!-- <a href="{% url 'estoque:editar_produto' produto.id %}" class="btn btn-warning btn-sm">Editar</a>
                                 <a href="{% url 'estoque:deletar_produto' produto.id %}" class="btn btn-danger btn-sm">Deletar</a>
-                                
+                                 -->
                         </tr>
+                        
+                        {% include "estoque/movimentacao/registrar_movimentacao.html" %}
                     {% endfor %}
                 </tbody>
             </table>

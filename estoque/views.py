@@ -65,16 +65,15 @@ def cadastrar_produto(request):
         # Aqui você deve salvar os dados do produto no banco de dados
         calculo_margem = (float(venda) - float(custo)) / float(custo) * 100
         margem = round(calculo_margem, 2)
-        
+
         produtos = Produtos(
             produto=produto,
             qtd=qtd,
             qtd_min=qtd_min,
             custo=custo,
-            margem=margem,
-            preco=preco,
             venda=venda,
-            categoria=EstoqueCategoria.objects.get(nome_categoria=categoria)
+            Margem=margem,
+            categoria=EstoqueCategoria.objects.get(id=categoria)
         )
         produtos.save()
         messages.success(request, 'Produto cadastrado com sucesso!')
@@ -138,30 +137,40 @@ def cadastrar_categorias(request):
         return redirect('/estoque/')
 
 
-# MOVIMENTAÇOES
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.urls import reverse
+from .models import Produtos, Movimentacao
+from django.contrib.auth.decorators import login_required
+from rolepermissions.decorators import has_role_decorator
+
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente"])
-def movimentacao(request):
+def movimentacao(request, produto_id):  # Certifique-se de que está recebendo produto_id
     if request.method == 'POST':
-        produto = request.POST.get('produto')
         qtd = request.POST.get('qtd')
-        tipo = request.POST.get('tipo')
+        tipo = request.POST.get('tipo_movimentacao')
         motivo = request.POST.get('motivo')
 
-        # Aqui deve fazer a lógica para atualizar a quantidade do produto no estoque
-        produto_obj = Produtos.objects.get(id=produto)
+        try:
+            produto_obj = Produtos.objects.get(id=produto_id)  # Buscando o produto correto
+        except Produtos.DoesNotExist:
+            messages.error(request, 'Produto não encontrado!', extra_tags='danger')
+            return redirect(reverse('estoque:home_estoque'))
+
+        # Atualiza a quantidade do produto no estoque
         if tipo == 'Entrada':
             produto_obj.qtd += int(qtd)
-        elif tipo == 'Saída':
+        elif tipo == 'Saida':
             produto_obj.qtd -= int(qtd)
-        elif tipo == 'Devolução':
+        elif tipo == 'Devolucao':
             produto_obj.qtd += int(qtd)
-        
+
         # Verifica se a quantidade não fica negativa
         if produto_obj.qtd < 0:
             messages.error(request, 'Quantidade não pode ser negativa!', extra_tags='danger')
             return redirect(reverse('estoque:home_estoque'))
-        
+
         # Salva a movimentação no banco de dados
         movimentacao = Movimentacao(
             produto=produto_obj,
@@ -170,8 +179,12 @@ def movimentacao(request):
             motivo=motivo
         )
         movimentacao.save()
+
         # Atualiza a quantidade do produto no banco de dados
         produto_obj.save()
+
         # Redireciona para a página de movimentação com uma mensagem de sucesso
         messages.success(request, 'Movimentação realizada com sucesso!')
         return redirect(reverse('estoque:home_estoque'))
+
+    return redirect(reverse('estoque:home_estoque'))

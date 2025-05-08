@@ -40,11 +40,11 @@ class Movimentacao(models.Model):
 
     CHOICE_TIPO = (
         ('Entrada', 'Entrada'),
-        ('Saída', 'Saída'),
-        ('Devolução', 'Devolução')
+        ('Saida', 'Saída'),
+        ('Devolucao', 'Devolução')
     )
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
-    produto = models.ForeignKey(Produtos, on_delete=models.CASCADE, null=True, blank=True)
+    produto = models.ForeignKey('Produtos',on_delete=models.CASCADE, related_name='movimentacoes')
     qtd = models.IntegerField(default=0, null=True, blank=True)
     tipo = models.CharField(max_length=20, choices=CHOICE_TIPO, null=True, blank=True)
     motivo = models.CharField(max_length=100, null=True, blank=True)
@@ -55,4 +55,4 @@ class Movimentacao(models.Model):
         verbose_name_plural = 'Movimentações'
     
     def __str__(self):
-        return self.produto.produto
+        return f'{self.produto} - {self.tipo} - {self.qtd}'
