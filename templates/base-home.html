@@ -58,6 +58,17 @@
         {% include 'sidebar.html' %}
         <div id="fundo_preto"></div>
         <div id="main" class="main">
+           <a class="nav-link position-relative" data-bs-toggle="modal" data-bs-target="#notificacoesModal">
+            <i class="bi bi-bell" style="font-size: 1.5rem;"></i>
+            {% if notificacoes_count > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ notificacoes_count }}
+            </span>
+            {% endif %}
+            </a>
+            {% include 'estoque/modal_notificacoes.html' %}
+
+
         {% block 'body' %}
             
             {% endblock %}  

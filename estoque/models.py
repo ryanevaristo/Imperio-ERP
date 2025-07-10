@@ -8,7 +8,7 @@ class Produtos(models.Model):
     produto = models.CharField(max_length=100, null=True, blank=True)
     qtd = models.IntegerField(default=0, null=True, blank=True)
     qtd_min = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    custo = models.IntegerField(default=0, null=True, blank=True)
+    custo = models.DecimalField(default=0, null=True, blank=True, decimal_places=2, max_digits=10)
     Margem = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     venda = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -56,3 +56,15 @@ class Movimentacao(models.Model):
     
     def __str__(self):
         return f'{self.produto} - {self.tipo} - {self.qtd}'
+    
+
+class Notificacao(models.Model):
+    produto = models.ForeignKey(Produtos, on_delete=models.CASCADE)
+    mensagem = models.TextField()
+    data_criacao = models.DateTimeField(auto_now_add=True)
+    visualizado = models.BooleanField(default=False)  # Para marcar se o usuário já viu a notificação
+
+    def __str__(self):
+        return f'Notificação: {self.produto.produto} - {self.mensagem[:20]}'
+
+    

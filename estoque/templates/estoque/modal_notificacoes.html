@@ -1,0 +1,33 @@
+<div class="modal fade" id="notificacoesModal" tabindex="-1" aria-labelledby="notificacoesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificacoesModalLabel">Notificações</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        {% if notificacoes %}
+          <ul class="list-group">
+            {% for n in notificacoes %}
+              <li class="list-group-item">
+                <strong>{{ n.produto.nome }}</strong><br>
+                {{ n.mensagem }}<br>
+                <small class="text-muted">{{ n.data_criacao|date:"d/m/Y H:i" }}</small>
+                <form method="POST" action="{% url 'estoque:marcar_visualizado' n.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-success">
+                    Marcar como lida
+                </button>
+              </li>
+               
+                </form>
+
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted">Sem notificações no momento.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

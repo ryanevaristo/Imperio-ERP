@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1 class="mb-4">Notificações</h1>
+  
+  {% if notificacoes %}
+    <ul class="list-group">
+      {% for notificacao in notificacoes %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          {{ notificacao.mensagem }}<br>
+          <small class="text-muted">{{ notificacao.data_criacao|date:"d/m/Y H:i" }}</small>
+        </div>
+        <form method="POST" action="{% url 'estoque:marcar_visualizado' notificacao.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-success">
+            Marcar como lida
+          </button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Sem notificações no momento.</p>
+  {% endif %}
+{% endblock %}

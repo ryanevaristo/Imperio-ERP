@@ -11,5 +11,6 @@ urlpatterns = [
     path('detalhes_produto/<uuid:id>/', views.detalhes_produto, name='detalhes_produto'),
     # MOVIENTAÇÕES
     path('movimentacao/<uuid:produto_id>/', views.movimentacao, name='registrar_movimentacao'),
-
+    path('notificacoes/', views.listar_notificacoes, name='listar_notificacoes'),
+    path('marcar_vizualizado/<int:id>/', views.marca_vizualizado, name='marcar_visualizado'),
 ]

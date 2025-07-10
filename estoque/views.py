@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.template import loader
-from .models import Movimentacao, Produtos, EstoqueCategoria
+from .models import Movimentacao, Produtos, EstoqueCategoria, Notificacao
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -183,8 +183,61 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
         # Atualiza a quantidade do produto no banco de dados
         produto_obj.save()
 
+        if produto_obj.qtd < produto_obj.qtd_min:
+            Notificacao.objects.create(
+                produto=produto_obj,
+                mensagem=f'O produto {produto_obj.produto} está abaixo do estoque mínimo!'
+            )
+            messages.success(request, 'Movimentação realizada com sucesso!', extra_tags='success')
+            return redirect(reverse('estoque:home_estoque'))    
+        
+
         # Redireciona para a página de movimentação com uma mensagem de sucesso
         messages.success(request, 'Movimentação realizada com sucesso!')
         return redirect(reverse('estoque:home_estoque'))
 
     return redirect(reverse('estoque:home_estoque'))
+
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente"])
+def relatorio_estoque(request):
+    if request.method == 'POST':
+        data_inicial = request.POST.get('data_inicial')
+        data_final = request.POST.get('data_final')
+        tipo = request.POST.get('tipo')
+        produto_id = request.POST.get('produto')
+        produto = request.POST.get('produto')
+        if produto_id:
+            movimentacoes = Movimentacao.objects.filter(produto__id=produto_id, created_at__range=[data_inicial, data_final])
+        else:
+            movimentacoes = Movimentacao.objects.filter(created_at__range=[data_inicial, data_final])
+        if tipo:
+            movimentacoes = movimentacoes.filter(tipo=tipo)
+            return render(request, 'estoque/relatorio_estoque.html', {'movimentacoes':
+                                                                      movimentacoes})
+    else:
+        movimentacoes = Movimentacao.objects.all()
+    produtos = Produtos.objects.all()
+    return render(request, 'estoque/relatorio_estoque.html', {'movimentacoes': movimentacoes, 'produtos': produtos})
+
+
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente"])
+def listar_notificacoes(request):
+    notificacoes = Notificacao.objects.filter(visualizado=False).order_by('-data_criacao')
+    return render(request, 'estoque/notificacoes.html', {'notificacoes': notificacoes,'notificacoes_count': notificacoes.count()})
+
+
+
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente"])
+def marca_vizualizado(request, id):
+    try:
+        notificacao = Notificacao.objects.get(id=id)
+        notificacao.visualizado = True
+        notificacao.save()
+        messages.success(request, 'Notificação marcada como visualizada!')
+    except Notificacao.DoesNotExist:
+        messages.error(request, 'Notificação não encontrada!', extra_tags='danger')
+    return redirect(request.META.get('HTTP_REFERER', 'estoque:notificacoes'))
+

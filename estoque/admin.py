@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import EstoqueCategoria, Produtos, Movimentacao
+from .models import EstoqueCategoria, Produtos, Movimentacao, Notificacao
 
 @admin.register(Produtos)
 class ProdutosAdmin(admin.ModelAdmin):
@@ -18,4 +18,9 @@ class MovimentacaoAdmin(admin.ModelAdmin):
     ordering = ('created_at',)
 #         categoria = EstoqueCategoria.objects.get(id=request.POST.get('categoria'))
 
-# Register your models here.
+
+@admin.register(Notificacao)
+class NotificacaoAdmin(admin.ModelAdmin):
+    list_display = ('produto', 'mensagem',  'data_criacao','visualizado' )
+    list_filter = ('visualizado', 'data_criacao')
+    ordering = ('data_criacao',)
