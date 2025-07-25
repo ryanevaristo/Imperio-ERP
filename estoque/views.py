@@ -14,7 +14,7 @@ from django.core.paginator import Paginator
 # Create your views here.
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def home_estoque(request):
     produtos = Produtos.objects.all()
 
@@ -48,7 +48,7 @@ def detalhes_produto(request, id):
     return render(request, 'estoque/detalhes_produto.html', {'produto': produto})
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def cadastrar_produto(request):
     cadastrar_categoria = EstoqueCategoria.objects.all()
     if request.method == 'GET':
@@ -92,7 +92,7 @@ def cadastrar_produto(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def editar_produto(request, id):
     produto = Produtos.objects.get(id=id)
     if request.method == 'POST':
@@ -111,7 +111,7 @@ def editar_produto(request, id):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def deletar_produto(request, id):
     produto = Produtos.objects.get(id=id)
     produto.delete()
@@ -145,7 +145,7 @@ from django.contrib.auth.decorators import login_required
 from rolepermissions.decorators import has_role_decorator
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def movimentacao(request, produto_id):  # Certifique-se de que está recebendo produto_id
     if request.method == 'POST':
         qtd = request.POST.get('qtd')
@@ -199,7 +199,7 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
     return redirect(reverse('estoque:home_estoque'))
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def relatorio_estoque(request):
     if request.method == 'POST':
         data_inicial = request.POST.get('data_inicial')
@@ -222,7 +222,7 @@ def relatorio_estoque(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def listar_notificacoes(request):
     notificacoes = Notificacao.objects.filter(visualizado=False).order_by('-data_criacao')
     return render(request, 'estoque/notificacoes.html', {'notificacoes': notificacoes,'notificacoes_count': notificacoes.count()})
@@ -230,7 +230,7 @@ def listar_notificacoes(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente"])
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def marca_vizualizado(request, id):
     try:
         notificacao = Notificacao.objects.get(id=id)

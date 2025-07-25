@@ -7,7 +7,8 @@ class Users(AbstractUser):
     choice_cargo = (
         ('A', 'Administrador'),
         ('V', 'Vendedor'),
-        ('G','Gerente')
+        ('G','Gerente'),
+        ('E', 'Estoquista'),
     )
     cargo = models.CharField(max_length=1, choices=choice_cargo, default='V')
     telefone = models.CharField(max_length=15, blank=True, null=True)

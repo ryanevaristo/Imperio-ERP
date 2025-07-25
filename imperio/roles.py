@@ -18,3 +18,10 @@ class Gerente(AbstractUserRole):
         available_permissions = {
         "cadastrar_usuario": True,
         "Usuarios": True,}
+
+class Estoquista(AbstractUserRole):
+    available_permissions = {
+        "cadastrar_usuario": False,
+        "Usuarios": False,
+        "editar_usuario": False,
+    }

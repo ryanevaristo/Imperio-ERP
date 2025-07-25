@@ -8,7 +8,7 @@ from django.urls import reverse
 
 # Create your views here.
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def home_produto(request):
     empreendimentos = Empreendimento.objects.all()
     return render(request, 'produto/empreendimento/home.html', {'empreendimentos': empreendimentos})
@@ -26,14 +26,14 @@ def cadastrar_empreendimento(request):
     return render(request, 'produto/empreendimento/cadastrar_empreendimento.html')
 
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def detalhes_empreendimento(request, id):
     empreendimento = Empreendimento.objects.get(id=id)
     quadras = Quadra.objects.filter(empreendimento=id)
     return render(request, 'produto/empreendimento/detalhes_empreendimento.html', {'empreendimento': empreendimento, 'quadras': quadras})
 
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def quadras(request, id):
     quadra = Quadra.objects.get(id=id)
     lotes = Lote.objects.filter(quadra_id=quadra.id)
@@ -41,7 +41,7 @@ def quadras(request, id):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def cadastrar_quadra(request, id):
     if request.method == 'POST':
         nome = request.POST.get('nome')
@@ -55,13 +55,13 @@ def cadastrar_quadra(request, id):
     return render(request, 'produto/quadra/cadastrar_quadra.html', {'id': id})
 
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def lotes(request, id):
     lotes = Lote.objects.filter(quadra=id)
     return render(request, 'produto/lotes.html', {'lotes': lotes})
 
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def cadastrar_lote(request, id_quadra):
     if request.method == 'POST':
         numero = request.POST.get('numero')
@@ -82,7 +82,7 @@ def cadastrar_lote(request, id_quadra):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def editar_lote(request, id):
     lote = Lote.objects.get(id=id)
     if request.method == 'POST':
@@ -98,7 +98,7 @@ def editar_lote(request, id):
 
     
 @login_required(login_url='/login/')
-@has_role_decorator("Administrador")
+@has_role_decorator(["Administrador","estoquista"])
 def excluir_lote(request, id):
     lote = Lote.objects.get(id=id)
     lote.delete()

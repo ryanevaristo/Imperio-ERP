@@ -14,6 +14,8 @@ def create_user_profile(sender, instance, created, **kwargs):
             assign_role(instance, 'administrador')
         elif instance.cargo == 'V':
             assign_role(instance, 'vendedor')
+        elif instance.cargo == 'E':
+            assign_role(instance, 'estoquista')
     else:
         if instance.cargo == "G" and not has_role(instance, 'gerente'):
             assign_role(instance, 'gerente')
@@ -21,3 +23,5 @@ def create_user_profile(sender, instance, created, **kwargs):
             assign_role(instance, 'administrador')
         elif instance.cargo == 'V' and not has_role(instance, 'vendedor'):
             assign_role(instance, 'vendedor')
+        elif instance.cargo == 'E' and not has_role(instance, 'estoquista'):
+            assign_role(instance, 'estoquista')

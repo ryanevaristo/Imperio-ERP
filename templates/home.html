@@ -95,7 +95,7 @@
         </div>
     </div>
 
-{% elif user|has_role:'gerente'  %}
+{% elif user|has_role:'Gerente'  %}
 <div class="container-fluid" id="container" >
     <h2>links de acesso</h2>
     <p>acesso rapido para cada categoria.</p>
@@ -172,7 +172,30 @@
             
         </div>
     </div>
+
+{% elif user|has_role:'estoquista' %}
+<div class="container-fluid" id="container" >
+    <h2>links de acesso</h2>
+    <p>acesso rapido para cada categoria.</p>
+    <div id="linha">
+        <div class="group" style="margin-bottom: 2rem;">
+            <div id="linha" style="justify-content: space-around;">
+                <a class="btn btn-app" href="{% url 'estoque:home_estoque' %}" id="button">
+                    <i class="
+                    bi bi-box-seam-fill" id="icone"></i>Estoque
+                </a>
+                <a class="btn btn-app" href="{% url 'produto:home_produto' %}" id="button">
+                    <i class="bi bi-box-seam" id="icone"></i>Produtos
+                </a>  
+            </div>
+        </div>
+        
+    </div>
+
+
 {% endif %}
+
+
 
 {% endblock %}
 
