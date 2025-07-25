@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from .models import Movimentacao, Produtos, EstoqueCategoria, Notificacao
 from django.shortcuts import redirect
@@ -8,6 +8,11 @@ from django.contrib import messages
 from rolepermissions.decorators import has_role_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+
+from django.template.loader import render_to_string
+from weasyprint import HTML
+import openpyxl
+import uuid
 
 
 
@@ -200,26 +205,47 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
-def relatorio_estoque(request):
-    if request.method == 'POST':
-        data_inicial = request.POST.get('data_inicial')
-        data_final = request.POST.get('data_final')
-        tipo = request.POST.get('tipo')
-        produto_id = request.POST.get('produto')
-        produto = request.POST.get('produto')
-        if produto_id:
-            movimentacoes = Movimentacao.objects.filter(produto__id=produto_id, created_at__range=[data_inicial, data_final])
-        else:
-            movimentacoes = Movimentacao.objects.filter(created_at__range=[data_inicial, data_final])
-        if tipo:
-            movimentacoes = movimentacoes.filter(tipo=tipo)
-            return render(request, 'estoque/relatorio_estoque.html', {'movimentacoes':
-                                                                      movimentacoes})
-    else:
-        movimentacoes = Movimentacao.objects.all()
+def exportar_estoque_xls(request):
     produtos = Produtos.objects.all()
-    return render(request, 'estoque/relatorio_estoque.html', {'movimentacoes': movimentacoes, 'produtos': produtos})
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_estoque.xls"'
 
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = 'Estoque'
+
+    # Cabeçalhos
+    headers = ['ID', 'Produto', 'Quantidade', 'Quantidade Mínima', 'Custo', 'Venda', 'Margem', 'Categoria']
+    sheet.append(headers)
+
+    # Dados dos produtos
+    for produto in produtos:
+        row = [
+        str(produto.id) if produto.id else "",
+        str(produto.produto) if produto.produto else "",
+        str(produto.qtd) if produto.qtd is not None else "",
+        str(produto.qtd_min) if produto.qtd_min is not None else "",
+        str(produto.custo) if produto.custo is not None else "",
+        str(produto.venda) if produto.venda is not None else "",
+        str(produto.Margem) if produto.Margem is not None else "",
+        str(produto.categoria.nome_categoria) if getattr(produto.categoria, "nome_categoria", None) else ""
+    ]
+        sheet.append(row)
+
+    workbook.save(response)
+    return response
+
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente", "estoquista"])
+def exportar_estoque_pdf(request):
+    produtos = Produtos.objects.all()
+    html_string = render_to_string('estoque/relatorio_estoque.html', {'produtos': produtos})
+    pdf_file = HTML(string=html_string).write_pdf()
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=relatorio_estoque.pdf'
+    return response
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])

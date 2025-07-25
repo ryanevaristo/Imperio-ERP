@@ -13,4 +13,8 @@ urlpatterns = [
     path('movimentacao/<uuid:produto_id>/', views.movimentacao, name='registrar_movimentacao'),
     path('notificacoes/', views.listar_notificacoes, name='listar_notificacoes'),
     path('marcar_vizualizado/<int:id>/', views.marca_vizualizado, name='marcar_visualizado'),
+
+    # EXPORTAÇÃO
+    path('exportar_estoque_xls/', views.exportar_estoque_xls, name='exportar_estoque_xls'),
+    path('exportar_estoque_pdf/', views.exportar_estoque_pdf, name='exportar_estoque_pdf'),
 ]
