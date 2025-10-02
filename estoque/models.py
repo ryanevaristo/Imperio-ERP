@@ -1,5 +1,7 @@
 from django.db import models
 from uuid import uuid4
+from produto.models import Lote
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 
@@ -50,9 +52,18 @@ class Movimentacao(models.Model):
     motivo = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    empreendimento = models.ForeignKey('produto.Empreendimento', on_delete=models.CASCADE, null=True, blank=True)
+    quadra = models.ForeignKey('produto.Quadra', on_delete=models.CASCADE, null=True, blank=True)
+
+    lote = models.ForeignKey(Lote, on_delete=models.SET_NULL, null=True, blank=True, related_name='lote')
+
     class Meta:
         verbose_name = 'Movimentação'
         verbose_name_plural = 'Movimentações'
+
+    def clean(self):
+        if self.tipo == 'saida' and not self.lote:
+            raise ValidationError("Movimentações de saída devem estar vinculadas a um lote.")
     
     def __str__(self):
         return f'{self.produto} - {self.tipo} - {self.qtd}'

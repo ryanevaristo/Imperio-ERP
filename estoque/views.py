@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from .models import Movimentacao, Produtos, EstoqueCategoria, Notificacao
 from django.shortcuts import redirect
@@ -9,10 +9,13 @@ from rolepermissions.decorators import has_role_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
+
 from django.template.loader import render_to_string
 from weasyprint import HTML
 import openpyxl
 import uuid
+
+from produto.models import Empreendimento, Lote, Quadra
 
 
 
@@ -46,7 +49,7 @@ def home_estoque(request):
         return render(request, 'estoque/home.html', {'produtos': produtos, 'page_obj': page_obj, 'pesquisar':pesquisar})
     
 
-    return render(request, 'estoque/home.html', {'produtos': produtos, 'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar})
+    return render(request, 'estoque/home.html', {'produtos': produtos, 'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar, 'empreendimentos':Empreendimento.objects.all()})
 
 def detalhes_produto(request, id):
     produto = Produtos.objects.get(id=id)
@@ -142,20 +145,20 @@ def cadastrar_categorias(request):
         return redirect('/estoque/')
 
 
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.urls import reverse
-from .models import Produtos, Movimentacao
-from django.contrib.auth.decorators import login_required
-from rolepermissions.decorators import has_role_decorator
+
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def movimentacao(request, produto_id):  # Certifique-se de que está recebendo produto_id
+    empreendimentos = Empreendimento.objects.all()
     if request.method == 'POST':
         qtd = request.POST.get('qtd')
         tipo = request.POST.get('tipo_movimentacao')
         motivo = request.POST.get('motivo')
+        empreendimento = request.POST.get('empreendimento')
+        quadra = request.POST.get('quadra')
+        lote = request.POST.get('lote')
+        
 
         try:
             produto_obj = Produtos.objects.get(id=produto_id)  # Buscando o produto correto
@@ -181,7 +184,10 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
             produto=produto_obj,
             qtd=qtd,
             tipo=tipo,
-            motivo=motivo
+            motivo=motivo,
+            empreendimento= Empreendimento.objects.get(id=empreendimento) if empreendimento else None,
+            quadra= Quadra.objects.get(id=quadra) if quadra else None,
+            lote= Lote.objects.get(id=lote) if lote else None  # Verifica se lote foi fornecido
         )
         movimentacao.save()
 
@@ -202,6 +208,20 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
         return redirect(reverse('estoque:home_estoque'))
 
     return redirect(reverse('estoque:home_estoque'))
+
+
+def get_quadras(request, empreendimento_id):
+    quadras = Quadra.objects.filter(empreendimento_id=empreendimento_id)
+    data = [{'id': str(q.id), 'nome': q.nome} for q in quadras]
+    return JsonResponse({'quadras': data})
+
+
+def get_lotes(request, quadra_id):
+    lotes = Lote.objects.filter(quadra_id=quadra_id)
+    data = [{'id': str(l.id), 'numero': l.numero} for l in lotes]
+    return JsonResponse({'lotes':data}, safe=False)
+
+
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])

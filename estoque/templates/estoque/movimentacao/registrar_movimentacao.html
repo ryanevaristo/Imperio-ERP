@@ -1,8 +1,9 @@
+{% load static %}
 <!-- Button trigger modal -->
 {% for produto in produtos %}
   <!-- Modal -->
   <div class="modal fade
-  " id="modalMovimentacao{{ produto.id  }}" tabindex="-1" aria-labelledby="modalMovimentacao" aria-hidden="true">
+  " id="modalMovimentacao{{ produto.id  }}" data-produto-id="{{ produto.id }}" tabindex="-1" aria-labelledby="modalMovimentacao" aria-hidden="true">
       <div class="modal-dialog">
           <div class="modal-content">
               <div class="modal-header">
@@ -25,8 +26,9 @@
                           </select>
                             <label for="observacao">Observação:</label>
                             <textarea class="form-control" id="motivo" name="motivo"></textarea>
+                            {% include "estoque/movimentacao/select_lote.html" with produto_id=produto.id %}
                             <hr>
-                            <button type="submit" class="btn btn-success  "> Salvar Movimentação</button>
+                          <button type="submit" class="btn btn-success  "> Salvar Movimentação</button>
                         </form>
                   </div>
               </div>
@@ -36,3 +38,7 @@
     </div>
 
 {% endfor %}
+
+<script src="{% static 'estoque/js/dependent_selects.js' %}"></script>
+
+

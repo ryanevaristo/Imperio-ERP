@@ -142,10 +142,16 @@
         </div>
     {% endif %}
 </div>
+
 {% endblock %}
 
 {% block 'scripts' %}
-<script src="{% static 'core/js/jquery.min.js' %}"></script>
-
+<script src="{% static 'core/js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'estoque/js/movimentacao.js' %}"></script>
+<script>
+document.querySelectorAll('[data-produto-id]').forEach(function(modal) {
+  initMovimentacao(modal.dataset.produtoId);
+});
+</script>
 
 {% endblock %}

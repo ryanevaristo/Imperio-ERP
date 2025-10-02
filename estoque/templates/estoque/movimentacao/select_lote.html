@@ -1,0 +1,25 @@
+<div class="form-group">
+  <label for="empreendimento">Empreendimento</label>
+  <select id="empreendimento" class="form-control empreendimento-select">
+    <option value="">Selecione o empreendimento</option>
+    {% for emp in empreendimentos %}
+      <option value="{{ emp.id }}">{{ emp.nome }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="form-group">
+  <label for="quadra">Quadra</label>
+  <select id="quadra" class="form-control quadra-select">
+    <option value="">Selecione a quadra</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label for="lote">Lote</label>
+  <select id="lote" class="form-control lote-select">
+    <option value="">Selecione o lote</option>
+  </select>
+</div>
+
+
