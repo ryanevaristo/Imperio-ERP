@@ -199,7 +199,7 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
                 produto=produto_obj,
                 mensagem=f'O produto {produto_obj.produto} está abaixo do estoque mínimo!'
             )
-            messages.success(request, 'Movimentação realizada com sucesso!', extra_tags='success')
+            messages.success(request, 'Movimentação realizada com sucesso!', extra_tags='success estoque')
             return redirect(reverse('estoque:home_estoque'))    
         
 

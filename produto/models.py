@@ -9,7 +9,7 @@ from cliente.models import  Cliente
 
 class Empreendimento(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    imagem = models.ImageField(upload_to='empreendimentos/', blank=True, null=True)
+    imagem = models.ImageField(upload_to='empreendimentos/', blank=True, null=True, default='empreendimentos/default.png')
     nome = models.CharField(max_length=255)
     descricao = models.TextField(blank=True, null=True)
     localizacao = models.CharField(max_length=255)

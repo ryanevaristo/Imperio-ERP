@@ -19,6 +19,10 @@ def cadastrar_empreendimento(request):
         localizacao = request.POST.get('localizacao')
         imagem = request.FILES.get('imagem')
         descricao = request.POST.get('descricao')
+
+        if imagem is None:
+            imagem = 'empreendimentos/default.png'
+
         empreendimento = Empreendimento(nome=nome, localizacao=localizacao, descricao=descricao, imagem=imagem)
         empreendimento.save()
         messages.success(request, 'Empreendimento cadastrado com sucesso!')
