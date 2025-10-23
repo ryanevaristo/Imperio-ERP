@@ -1,6 +1,6 @@
 {% load static %}
 <!-- Button trigger modal -->
-{% for produto in produtos %}
+{% for produto in page_obj %}
   <!-- Modal -->
   <div class="modal fade
   " id="modalMovimentacao{{ produto.id  }}" data-produto-id="{{ produto.id }}" tabindex="-1" aria-labelledby="modalMovimentacao" aria-hidden="true">

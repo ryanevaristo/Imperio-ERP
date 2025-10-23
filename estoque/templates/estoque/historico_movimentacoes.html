@@ -1,5 +1,5 @@
 {% extends 'base-home.html' %}
-{% block 'title' %}Estoque{% endblock %}
+{% block 'title' %}Histórico de Movimentações{% endblock %}
 {% load permission_tags %}
 {% load static %}
 {% block 'head' %}
@@ -15,16 +15,13 @@
             </div>
         {% endfor %}
     {% endif %}
-    <h1>Estoque</h1>
-    <p>Aqui você gerencia o estoque da sua empresa</p>
+    <h1>Historico de Movimentações</h1>
+    <p>Aqui você encontra todo o histórico de movimentações realizadas no estoque de todos os produtos</p>
     <hr>
     <div class="button-container">
         <div>
-            <div class="row">
-                <a href="{% url 'estoque:cadastrar_produto' %}" class="btn btn-outline-primary w-100 waves-effect " style="margin-top: 10px; margin-right: 10px;">Adicionar novo Produto</a>
-
-                <!-- ver movimentaçoes geral -->
-            <a href="{% url 'estoque:historico_todas_movimentacoes' %}" class="btn w-100 waves-effect " style="margin-top: 10px; margin-right: 10px; background-color: #0e2238; color: white;">Ver Movimentações</a>
+            <div>
+                <a href="{% url 'estoque:home_estoque' %}" class="btn btn-outline-primary w-100 waves-effect " style="margin-top: 10px; margin-right: 10px;">Voltar Estoque</a>
             </div>
             <button class="btn-sm btn-secondary my-2 my-2-sm-0" data-bs-toggle="modal" data-bs-target="#importModal">
                 Importar Excel
@@ -33,7 +30,6 @@
                 <i class="bi bi-file-excel"></i>
                 Exportar Excel
             </a>
-            
             <!-- Import Modal -->
             <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -43,7 +39,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="post" action="{% url 'estoque:importar_estoque_excel' %}" enctype="multipart/form-data">
+                            <form method="post" action="" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 <input type="file" name="file" class="form-control">
 
@@ -56,10 +52,10 @@
                         </div>
                     </div> 
 </div>
-<a href="{% url 'estoque:exportar_estoque_pdf' %}" class="btn-sm btn-secondary my-2 my-2-sm-0  " style="margin-left: 5px;">
-    <i class="bi bi-file-pdf"></i>
-    PDF
-</a>
+    <a href="{% url 'estoque:exportar_estoque_pdf' %}" class="btn-sm btn-secondary my-2 my-2-sm-0  " style="margin-left: 5px;">
+        <i class="bi bi-file-pdf"></i>
+        PDF
+    </a>
 </div>
 
 <div class="alinhar-direita">
@@ -85,28 +81,32 @@
                 <thead>
                     <tr>
                         <th>Produto</th>
-                        <th>Quantidade</th>
-                        <th>Quantidade Minima</th>
-                        <th>Custo</th>
-
+                        <th>qtd</th>
+                        <th>Tipo</th>
+                        <th>Motivo</th>
+                        <th>Data</th>
+                        <th>Empreendimento</th>
+                        <th>Quadra</th>
+                        <th>Lote</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for produto in page_obj %}
+                    {% for Mvt in page_obj %}
                         <tr>
-                            <td>{{ produto.produto }}</td>
-                            <td>{{ produto.qtd }}</td>
-                            <td>{{ produto.qtd_min }}</td>
-                            <td>R${{ produto.custo|floatformat:"2g" }}</td>
+                            <td>{{ Mvt.produto }}</td>
+                            <td>{{ Mvt.qtd }}</td>
+                            <td>{{ Mvt.get_tipo_display }}</td>
+                            <td>{{ Mvt.motivo }}</td>
+                            <td>{{ Mvt.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ Mvt.empreendimento.nome }}</td>
+                            <td>{{ Mvt.quadra.nome }}</td>
+                            <td>{{ Mvt.lote.numero }}</td>
                             <td class="text-center">
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMovimentacao{{ produto.id }}">
-                                    Adicionar Movimentação
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#movimentacaoModal{{ Mvt.produto.id }}" data-produto-id="{{ Mvt.produto.id }}">
+                                    Registrar Movimentação
                                 </button>
-                
-                                <!-- <a href="{% url 'estoque:editar_produto' produto.id %}" class="btn btn-warning btn-sm">Editar</a>
-                                <a href="{% url 'estoque:deletar_produto' produto.id %}" class="btn btn-danger btn-sm">Deletar</a>
-                                 -->
+                            </td>
                         </tr>
                         
                         {% include "estoque/movimentacao/registrar_movimentacao.html" %}
@@ -119,19 +119,19 @@
                 <nav aria-label="Page navigation example">
                     <ul class="pagination justify-content-center">
                         {% if page_obj.has_previous %}
-                            <li class="page-item"><a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Primeira</a></li>
-                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a></li>
+                            <li class="page-item"><a class="page-link" href="?page=1">Primeira</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
                         {% endif %}
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
                                 <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
                             {% else %}
-                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a></li>
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
                             {% endif %}
                         {% endfor %}
                         {% if page_obj.has_next %}
-                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Próxima</a></li>
-                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Última</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+                            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Última</a></li>
                         {% endif %}
                     </ul>
                 </nav>

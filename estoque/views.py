@@ -24,8 +24,7 @@ from produto.models import Empreendimento, Lote, Quadra
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def home_estoque(request):
-    produtos = Produtos.objects.all()
-
+    produtos = Produtos.objects.select_related('categoria').all()
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -33,7 +32,6 @@ def home_estoque(request):
         produtos = produtos.filter(created_at__range=[start_date, end_date])
 
     # Verifica se o usuário tem permissão para ver os produtos
-    
 
     #Filtra por pesquisar se o paramento estiver presente
     pesquisar = request.GET.get('pesquisar')
@@ -44,12 +42,11 @@ def home_estoque(request):
     paginator = Paginator(produtos, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    if start_date and end_date is None:
-        return render(request, 'estoque/home.html', {'produtos': produtos, 'page_obj': page_obj, 'pesquisar':pesquisar})
-    
 
-    return render(request, 'estoque/home.html', {'produtos': produtos, 'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar, 'empreendimentos':Empreendimento.objects.all()})
+    if start_date and end_date is None:
+        return render(request, 'estoque/home.html', {'page_obj': page_obj, 'pesquisar':pesquisar})
+
+    return render(request, 'estoque/home.html', {'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar, "empreendimentos": Empreendimento.objects.all()})
 
 def detalhes_produto(request, id):
     produto = Produtos.objects.get(id=id)
@@ -143,6 +140,35 @@ def cadastrar_categorias(request):
         categoria = EstoqueCategoria(descricao=descricao)
         categoria.save()
         return redirect('/estoque/')
+    
+
+def importar_estoque_excel(request):
+    if request.method == 'POST' and request.FILES['file']:
+        arquivo = request.FILES['file']
+        wb = openpyxl.load_workbook(arquivo)
+        sheet = wb.active
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            produto_nome, qtd,qtd_min, custo, venda, categoria_nome = row
+
+            categoria, created = EstoqueCategoria.objects.get_or_create(nome_categoria=categoria_nome)
+
+            produto, created = Produtos.objects.get_or_create(
+                produto=produto_nome,
+                defaults={'qtd': qtd, 'qtd_min':qtd_min, 'custo': custo, 'venda': venda, 'categoria': categoria}
+            )
+            if not created:
+                produto.qtd += qtd
+                produto.qtd_min = qtd_min
+                produto.custo = custo
+                produto.venda = venda
+                produto.categoria = categoria
+                produto.save()
+
+        messages.success(request, 'Produtos importados com sucesso!')
+        return redirect(reverse('estoque:home_estoque'))
+
+    return render(request, 'estoque/importar_entrada.html')    
 
 
 
@@ -151,6 +177,7 @@ def cadastrar_categorias(request):
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def movimentacao(request, produto_id):  # Certifique-se de que está recebendo produto_id
     empreendimentos = Empreendimento.objects.all()
+    context = {'empreendimentos': empreendimentos}
     if request.method == 'POST':
         qtd = request.POST.get('qtd')
         tipo = request.POST.get('tipo_movimentacao')
@@ -158,6 +185,9 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
         empreendimento = request.POST.get('empreendimento')
         quadra = request.POST.get('quadra')
         lote = request.POST.get('lote')
+        print(f"aqui voce ver o empreendimento selecionado {empreendimento}")
+        print(lote)
+
         
 
         try:
@@ -185,9 +215,9 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
             qtd=qtd,
             tipo=tipo,
             motivo=motivo,
-            empreendimento= Empreendimento.objects.get(id=empreendimento) if empreendimento else None,
-            quadra= Quadra.objects.get(id=quadra) if quadra else None,
-            lote= Lote.objects.get(id=lote) if lote else None  # Verifica se lote foi fornecido
+            empreendimento= Empreendimento.objects.get(id=empreendimento),
+            quadra= Quadra.objects.get(id=quadra),
+            lote= Lote.objects.get(id=lote)  # Verifica se lote foi fornecido
         )
         movimentacao.save()
 
@@ -207,8 +237,29 @@ def movimentacao(request, produto_id):  # Certifique-se de que está recebendo p
         messages.success(request, 'Movimentação realizada com sucesso!')
         return redirect(reverse('estoque:home_estoque'))
 
-    return redirect(reverse('estoque:home_estoque'))
+    return render(request, 'estoque/movimentacao/registrar_movimentacao.html', context)
 
+
+def historico_todas_movimentacoes(request):
+    movimentacoes = Movimentacao.objects.all()
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date and end_date:
+        movimentacoes = movimentacoes.filter(created_at__range=[start_date, end_date])
+
+    pesquisar = request.GET.get('pesquisar')
+    if pesquisar:
+        movimentacoes = movimentacoes.filter(produto__produto__icontains=pesquisar)
+
+    paginator = Paginator(movimentacoes, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if start_date and end_date is None:
+        return render(request, 'estoque/historico_movimentacoes.html', {'movimentacoes': movimentacoes, 'page_obj': page_obj, 'pesquisar':pesquisar})
+    
+    return render(request, 'estoque/historico_movimentacoes.html', {'movimentacoes': movimentacoes, 'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar})
 
 def get_quadras(request, empreendimento_id):
     quadras = Quadra.objects.filter(empreendimento_id=empreendimento_id)
