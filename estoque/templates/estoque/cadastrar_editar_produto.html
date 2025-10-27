@@ -27,30 +27,21 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="produto">Nome do Produto:</label>
-            <input type="text" class="form-control" id="produto" name="produto"  >
+            <input type="text" class="form-control" id="produto" name="produto" value="{{ produto.produto }}"  >
         </div>
         <div class="form-group">
             <label for="qtd"> Quantidade Disponivel:</label>
-            <input type="number" class="form-control" id="qtd" name="qtd"  >
+            <input type="number" class="form-control" id="qtd" name="qtd"  value="{{ produto.qtd }}" >
 
         </div>
         <div class="form-group">
             <label for="qtd_min">Quantidade Minima:</label>
-            <input type="number" class="form-control" id="qtd_min" name="qtd_min"  >
+            <input type="number" class="form-control" id="qtd_min" name="qtd_min" value="{{ produto.qtd_min }}" >
         </div>
         <div class="form-group">
             <label for="custo">Custo:</label>
-            <input type="number" class="form-control" id="custo" name="custo"  >
+            <input type="number" class="form-control" id="custo" name="custo" step="any" value="{{ produto.custo }}" >
         </div>
-        <div class="form-group">
-            <label for="venda">Venda:</label>
-            <input type="number" class="form-control" id="venda" name="venda"  >
-        </div>
-        <div class="form-group">
-            <label for="margem">Margem:</label>
-            <input type="number" class="form-control" id="margem" name="margem" disabled>
-        </div>
-
         <div class="form-group">
             <label for ="categoria">Categoria:</label>
             {% if categorias %}
@@ -64,36 +55,29 @@
                 <p>Não há categorias cadastradas</p>
             {% endif %}
         </div>
-
+        <button type="submit" class="btn btn-success">Salvar</button>
     </form>
     {% else %}
     <form action="{% url 'estoque:cadastrar_produto' %}" method="post">
         {% csrf_token %}
         <div class="form-group">
             <label for="produto">Nome do Produto:</label>
-            <input type="text" class="form-control" id="produto" name="produto" value="{{ produto.produto }}" >
+            <input type="text" class="form-control" id="produto" name="produto" >
         </div>
         <div class="form-group">
             <label for="qtd"> Quantidade Disponivel:</label>
-            <input type="number" class="form-control" id="qtd" name="qtd" value="{{ produto.qtd }}" >
+            <input type="number" class="form-control" id="qtd" name="qtd"  >
 
         </div>
         <div class="form-group">
             <label for="qtd_min">Quantidade Minima:</label>
-            <input type="number" class="form-control" id="qtd_min" name="qtd_min" value="{{ produto.qtd_min }}" >
+            <input type="number" class="form-control" id="qtd_min" name="qtd_min"  >
         </div>
         <div class="form-group">
             <label for="custo">Custo:</label>
-            <input type="number" class="form-control" id="custo" name="custo" value="{{ produto.custo }}" >
+            <input type="number" class="form-control" id="custo" name="custo" step=".01"  >
         </div>
-        <div class="form-group">
-            <label for="Vendas">Venda:</label>
-            <input type="number" class="form-control" id="venda" name="venda" value="{{ produto.venda }}" >
-        </div>
-        <div class="form-group">
-            <label for="Margem">Margem:</label>
-            <input type="number" class="form-control" id="margem" name="margem" value="{{ produto.margem }}" disabled>
-        </div>
+
         <div class="form-group">
             <label for ="categoria">Categoria:</label>
             {% if categorias %}
@@ -121,9 +105,8 @@
         </div>
                 
             {% endif %}
-        <button type="submit" class="btn btn-success">Salvar</button>
         </div>
-
+        <button type="submit" class="btn btn-success">Salvar</button>
     </form>
     {% endif %} 
 

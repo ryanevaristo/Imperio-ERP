@@ -9,10 +9,10 @@ class Produtos(models.Model):
     id = models.UUIDField(primary_key=True, editable=False,default=uuid4)
     produto = models.CharField(max_length=100, null=True, blank=True)
     qtd = models.IntegerField(default=0, null=True, blank=True)
-    qtd_min = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    qtd_min = models.DecimalField(default=0, max_digits=10, decimal_places=2, null=True, blank=True)
     custo = models.DecimalField(default=0, null=True, blank=True, decimal_places=2, max_digits=10)
-    Margem = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    venda = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Margem = models.DecimalField(default=0, max_digits=10, decimal_places=2, null=True, blank=True)
+    # venda = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     categoria = models.ForeignKey('EstoqueCategoria', on_delete=models.SET_NULL, null=True, blank=True)
@@ -25,10 +25,10 @@ class Produtos(models.Model):
         return self.produto
     
   
-    def margem_porcentagem(self):
-        if self.custo > 0:
-            return (self.Margem / self.custo) * 100
-        return 0
+    # def margem_porcentagem(self):
+    #     if self.custo > 0:
+    #         return (self.Margem / self.custo) * 100
+    #     return 0
     
 
 class EstoqueCategoria(models.Model):

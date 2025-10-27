@@ -64,20 +64,17 @@ def cadastrar_produto(request):
         qtd = request.POST.get('qtd')
         qtd_min = request.POST.get('qtd_min')
         custo = request.POST.get('custo')
-        preco = request.POST.get('preco')
-        venda = request.POST.get('venda')
+
         categoria = request.POST.get('categoria')
         # Aqui você deve salvar os dados do produto no banco de dados
-        calculo_margem = (float(venda) - float(custo)) / float(custo) * 100
-        margem = round(calculo_margem, 2)
+        # calculo_margem = (float(venda) - float(custo)) / float(custo) * 100
+        # margem = round(calculo_margem, 2)
 
         produtos = Produtos(
             produto=produto,
             qtd=qtd,
             qtd_min=qtd_min,
             custo=custo,
-            venda=venda,
-            Margem=margem,
             categoria=EstoqueCategoria.objects.get(id=categoria)
         )
         produtos.save()
@@ -100,19 +97,20 @@ def cadastrar_produto(request):
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def editar_produto(request, id):
     produto = Produtos.objects.get(id=id)
-    if request.method == 'POST':
-        nome = request.POST.get('nome')
-        qtd = request.POST.get('qtd')
-        preco = request.POST.get('preco')
-        descricao = request.POST.get('descricao')
-        produto.nome = nome
-        produto.qtd = qtd
-        produto.preco = preco
-        produto.descricao = descricao
+    cadastrar_categoria = EstoqueCategoria.objects.all()
+    if request.method == 'GET':
+        return render(request, 'estoque/cadastrar_editar_produto.html', {'produto': produto, 'categorias': cadastrar_categoria})
+    
+    elif request.method == 'POST':
+        produto.produto = request.POST.get('produto')
+        produto.qtd = request.POST.get('qtd')
+        produto.qtd_min = request.POST.get('qtd_min')
+        produto.custo = request.POST.get('custo')
+        categoria_id = request.POST.get('categoria')
+        produto.categoria = EstoqueCategoria.objects.get(id=categoria_id)
         produto.save()
         messages.success(request, 'Produto editado com sucesso!')
         return redirect(reverse('estoque:home_estoque'))
-    return render(request, 'estoque/cadastrar_editar_produto.html', {'produto': produto})
 
 
 @login_required(login_url='/login/')
