@@ -23,19 +23,19 @@
 
 ### 4. Criar sistema de cache
 - [x] `core/cache_utils.py` - Funções de cache para dados estáticos
-- [ ] `imperio/settings.py` - Configurações de cache
+- [x] `imperio/settings.py` - Configurações de cache
 
 ## 📊 FASE 2 - OTIMIZAÇÕES MÉDIAS
 
 ### 5. Otimizar exportações
-- [ ] `cliente/views.py` - exportar_clientes_xlsx, exportar_clientes_pdf
-- [ ] `estoque/views.py` - exportar_estoque_xls, exportar_estoque_pdf
-- [ ] `financeiro/views.py` - exportar_despesas_xlsx, exportar_entrada_xlsx
-- [ ] `usuarios/views.py` - exportar_Usuarios_xlsx
+- [x] `cliente/views.py` - exportar_clientes_xlsx, exportar_clientes_pdf
+- [x] `estoque/views.py` - exportar_estoque_xls, exportar_estoque_pdf
+- [x] `financeiro/views.py` - exportar_despesas_xlsx, exportar_entrada_xlsx
+- [x] `usuarios/views.py` - exportar_Usuarios_xlsx
 
 ### 6. Melhorias adicionais
-- [ ] Configurar connection pooling no settings.py
-- [ ] Adicionar query hints para otimização
+- [x] Configurar connection pooling no settings.py
+- [x] Adicionar query hints para otimização (implementado via CONN_MAX_AGE e statement_timeout)
 - [ ] Implementar lazy loading em templates
 
 ## 📈 RESULTADOS ESPERADOS

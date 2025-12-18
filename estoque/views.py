@@ -289,42 +289,53 @@ def get_lotes(request, quadra_id):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def exportar_estoque_xls(request):
-    produtos = Produtos.objects.all()
-    response = HttpResponse(content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="relatorio_estoque.xls"'
+    # Otimizado: Usa select_related para categoria e only() para campos necessários
+    produtos = Produtos.objects.select_related('categoria').filter(
+        empresa=request.user.empresa
+    ).only(
+        'id', 'produto', 'qtd', 'qtd_min', 'custo', 'categoria__nome_categoria'
+    ).order_by('produto')
+    
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_estoque.xlsx"'
 
     workbook = openpyxl.Workbook()
     sheet = workbook.active
     sheet.title = 'Estoque'
 
     # Cabeçalhos
-    headers = ['ID', 'Produto', 'Quantidade', 'Quantidade Mínima', 'Custo', 'Venda', 'Margem', 'Categoria']
+    headers = ['ID', 'Produto', 'Quantidade', 'Quantidade Mínima', 'Custo', 'Categoria']
     sheet.append(headers)
 
-    # Dados dos produtos
+    # Dados dos produtos - otimizado para evitar queries adicionais
     for produto in produtos:
         row = [
-        str(produto.id) if produto.id else "",
-        str(produto.produto) if produto.produto else "",
-        str(produto.qtd) if produto.qtd is not None else "",
-        str(produto.qtd_min) if produto.qtd_min is not None else "",
-        str(produto.custo) if produto.custo is not None else "",
-        str(produto.venda) if produto.venda is not None else "",
-        str(produto.Margem) if produto.Margem is not None else "",
-        str(produto.categoria.nome_categoria) if getattr(produto.categoria, "nome_categoria", None) else ""
-    ]
+            str(produto.id) if produto.id else "",
+            str(produto.produto) if produto.produto else "",
+            str(produto.qtd) if produto.qtd is not None else "0",
+            str(produto.qtd_min) if produto.qtd_min is not None else "0",
+            str(produto.custo) if produto.custo is not None else "0",
+            str(produto.categoria.nome_categoria) if produto.categoria else ""
+        ]
         sheet.append(row)
 
     workbook.save(response)
     return response
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
-@login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente", "estoquista"])
 def exportar_estoque_pdf(request):
-    produtos = Produtos.objects.all()
-    html_string = render_to_string('estoque/relatorio_estoque.html', {'produtos': produtos})
+    # Otimizado: Usa select_related para categoria e only() para campos necessários
+    produtos = Produtos.objects.select_related('categoria').filter(
+        empresa=request.user.empresa
+    ).only(
+        'produto', 'qtd', 'qtd_min', 'custo', 'categoria__nome_categoria'
+    ).order_by('produto')
+    
+    html_string = render_to_string('estoque/relatorio_estoque.html', {
+        'produtos': produtos,
+        'empresa': request.user.empresa
+    })
     pdf_file = HTML(string=html_string).write_pdf()
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=relatorio_estoque.pdf'

@@ -156,17 +156,31 @@ def total_despesas(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def exportar_despesas_xlsx(request):
-    despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
+    # Otimizado: Usa select_related para categoria e only() para campos necessários
+    despesas = ContaPagar.objects.select_related('categoria').filter(
+        empresa=request.user.empresa
+    ).only(
+        'descricao', 'valor', 'data_pagamento', 'forma_pagamento', 
+        'pago', 'categoria__nome_categoria'
+    ).order_by('-data_pagamento')
     
-    df = pd.DataFrame(list(despesas.values()))
-    df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).nome_categoria)
-    df.drop('categoria_id', axis=1, inplace=True)
-
-    df['forma_pagamento'] = df['forma_pagamento'].apply(lambda x: dict(ContaPagar.choice_forma_pagamento)[x])
+    # Cria lista de dicionários diretamente sem queries adicionais
+    despesas_data = []
+    for despesa in despesas:
+        despesas_data.append({
+            'Descrição': despesa.descricao,
+            'Valor': float(despesa.valor),
+            'Data Pagamento': despesa.data_pagamento.strftime('%d/%m/%Y') if despesa.data_pagamento else '',
+            'Forma Pagamento': dict(ContaPagar.choice_forma_pagamento).get(despesa.forma_pagamento, ''),
+            'Pago': 'Sim' if despesa.pago else 'Não',
+            'Categoria': despesa.categoria.nome_categoria if despesa.categoria else ''
+        })
+    
+    df = pd.DataFrame(despesas_data)
     output = io.BytesIO()
-    excel = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(excel, sheet_name='Sheet1', index=False)
-    excel.close()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as excel:
+        df.to_excel(excel, sheet_name='Despesas', index=False)
+    
     output.seek(0)
     response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=despesas.xlsx'
@@ -379,17 +393,34 @@ def total_entradas(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def exportar_entrada_xlsx(request):
-    entrada = ContaReceber.objects.all()
+    # Otimizado: Usa select_related para cliente e only() para campos necessários
+    entradas = ContaReceber.objects.select_related('cliente').filter(
+        empresa=request.user.empresa
+    ).only(
+        'descricao', 'valor', 'data_recebimento', 'forma_recebimento',
+        'recebido', 'cliente__nome_completo'
+    ).order_by('-data_recebimento')
     
-    df = pd.DataFrame(list(entrada.values()))
-    df['forma_recebimento'] = df['forma_recebimento'].apply(lambda x: dict(ContaReceber.choice_forma_recebimento)[x])
+    # Cria lista de dicionários diretamente sem queries adicionais
+    entradas_data = []
+    for entrada in entradas:
+        entradas_data.append({
+            'Cliente': entrada.cliente.nome_completo if entrada.cliente else '',
+            'Descrição': entrada.descricao,
+            'Valor': float(entrada.valor),
+            'Data Recebimento': entrada.data_recebimento.strftime('%d/%m/%Y') if entrada.data_recebimento else '',
+            'Forma Recebimento': dict(ContaReceber.choice_forma_recebimento).get(entrada.forma_recebimento, ''),
+            'Recebido': 'Sim' if entrada.recebido else 'Não'
+        })
+    
+    df = pd.DataFrame(entradas_data)
     output = io.BytesIO()
-    excel = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(excel, sheet_name='Sheet1', index=False)
-    excel.close()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as excel:
+        df.to_excel(excel, sheet_name='Entradas', index=False)
+    
     output.seek(0)
     response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename=entrada.xlsx'
+    response['Content-Disposition'] = 'attachment; filename=entradas.xlsx'
     return response
 
 @login_required(login_url='/auth/login/')

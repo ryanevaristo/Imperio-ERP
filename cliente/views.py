@@ -83,30 +83,49 @@ def deletar_clientes(request, id):
 
 @login_required(login_url='/login/')
 def exportar_clientes_xlsx(request):
-    clientes = Cliente.objects.filter(empresa=request.user.empresa)
-    df = pd.DataFrame(list(clientes.values()))
-    df['data_cadastro'] = df['data_cadastro'].dt.strftime('%d/%m/%Y %H:%M:%S')
+    # Otimizado: Usa only() para buscar apenas campos necessários
+    clientes = Cliente.objects.filter(empresa=request.user.empresa).only(
+        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cep', 
+        'cidade', 'estado', 'endereco', 'data_cadastro'
+    )
+    df = pd.DataFrame(list(clientes.values(
+        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cep', 
+        'cidade', 'estado', 'endereco', 'data_cadastro'
+    )))
+    
+    if not df.empty:
+        df['data_cadastro'] = pd.to_datetime(df['data_cadastro']).dt.strftime('%d/%m/%Y %H:%M:%S')
+    
     output = io.BytesIO()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Clientes' ,index=False)
-    writer.close()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Clientes', index=False)
+    
     output.seek(0)
-    response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response = HttpResponse(
+        output, 
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
     response['Content-Disposition'] = 'attachment; filename=clientes.xlsx'
     return response
      
 
 @login_required(login_url='/login/')
 def exportar_clientes_pdf(request):
-    clientes = Cliente.objects.filter(empresa=request.user.empresa)
-    df = pd.DataFrame(list(clientes.values()))
-    df['data_cadastro'] = df['data_cadastro'].dt.strftime('%d/%m/%Y %H:%M:%S')
-    html_string = df.to_html()
+    # Otimizado: Usa only() e renderiza template HTML customizado
+    clientes = Cliente.objects.filter(empresa=request.user.empresa).only(
+        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cidade', 
+        'estado', 'data_cadastro'
+    ).order_by('nome_completo')
+    
+    html_string = render(request, 'clientes_pdf.html', {
+        'clientes': clientes,
+        'empresa': request.user.empresa
+    }).content.decode('utf-8')
+    
     pdf = pdfkit.from_string(html_string, False)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=clientes.pdf'
-
-
+    
     return response
 
 

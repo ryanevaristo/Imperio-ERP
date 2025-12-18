@@ -88,18 +88,35 @@ def excluir_usuario(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator("Administrador")
 def exportar_Usuarios_xlsx(request):
-    Usuarios = Users.objects.filter(cargo="G")
-    if Usuarios.count() == 0:
+    # Otimizado: Usa select_related para empresa e only() para campos necessários
+    usuarios = Users.objects.select_related('empresa').filter(
+        cargo="G",
+        empresa=request.user.empresa
+    ).only(
+        'first_name', 'email', 'telefone', 'username', 'empresa__nome'
+    ).order_by('first_name')
+    
+    if not usuarios.exists():
         messages.error(request, 'Não existem vendedores cadastrados', extra_tags='danger')
         return redirect(reverse('usuarios:Usuarios'))
-    df = pd.DataFrame(list(Usuarios.values()))
-    df = df.drop(columns=['password', 'last_login', 'is_superuser', 'is_staff', 'is_active', 'date_joined', 'cargo', 'id'])
+    
+    # Cria lista de dicionários diretamente sem queries adicionais
+    usuarios_data = []
+    for usuario in usuarios:
+        usuarios_data.append({
+            'Nome': usuario.first_name,
+            'Email': usuario.email,
+            'Username': usuario.username,
+            'Telefone': usuario.telefone or '',
+            'Empresa': usuario.empresa.nome if usuario.empresa else ''
+        })
+    
+    df = pd.DataFrame(usuarios_data)
     output = io.BytesIO()
-    writer = pd.ExcelWriter(output, engine='xlsxwriter')
-    df.to_excel(writer, sheet_name='Usuarios')
-    writer.close()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name='Usuarios', index=False)
+    
     output.seek(0)
-
     response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename=Usuarios.xlsx'
     return response
