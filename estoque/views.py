@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
-from .models import Movimentacao, Produtos, EstoqueCategoria, Notificacao
+from .models import Movimentacao, Produtos, EstoqueCategoria, Notificacao, MovimentacaoItem
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib import messages
@@ -173,78 +173,83 @@ def importar_estoque_excel(request):
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
-def movimentacao(request, produto_id):  # Certifique-se de que está recebendo produto_id
+def registrar_movimentacao(request):
+    produto_id = request.GET.get("produto_id")
+    produtos = Produtos.objects.all()
     empreendimentos = Empreendimento.objects.all()
-    context = {'empreendimentos': empreendimentos}
-    if request.method == 'POST':
-        qtd = request.POST.get('qtd')
-        tipo = request.POST.get('tipo_movimentacao')
-        motivo = request.POST.get('motivo')
-        empreendimento = request.POST.get('empreendimento')
-        quadra = request.POST.get('quadra')
-        lote = request.POST.get('lote')
-        print(f"aqui voce ver o empreendimento selecionado {empreendimento}")
-        print(lote)
 
-        
+    if request.method == "POST":
+        tipo = request.POST.get("tipo_movimentacao")
+        motivo = request.POST.get("motivo")
+        empreendimento_id = request.POST.get("empreendimento")
+        quadra_id = request.POST.get("quadra")
+        lote_id = request.POST.get("lote")
 
-        try:
-            produto_obj = Produtos.objects.get(id=produto_id)  # Buscando o produto correto
-        except Produtos.DoesNotExist:
-            messages.error(request, 'Produto não encontrado!', extra_tags='danger')
-            return redirect(reverse('estoque:home_estoque'))
-
-        # Atualiza a quantidade do produto no estoque
-        if tipo == 'Entrada':
-            produto_obj.qtd += int(qtd)
-        elif tipo == 'Saida':
-            produto_obj.qtd -= int(qtd)
-        elif tipo == 'Devolucao':
-            produto_obj.qtd += int(qtd)
-
-        # Verifica se a quantidade não fica negativa
-        if produto_obj.qtd < 0:
-            messages.error(request, 'Quantidade não pode ser negativa!', extra_tags='danger')
-            return redirect(reverse('estoque:home_estoque'))
-
-        # Salva a movimentação no banco de dados
-        movimentacao = Movimentacao(
-            produto=produto_obj,
-            qtd=qtd,
+        movimentacao = Movimentacao.objects.create(
             tipo=tipo,
             motivo=motivo,
-            empreendimento= Empreendimento.objects.get(id=empreendimento),
-            quadra= Quadra.objects.get(id=quadra),
-            lote= Lote.objects.get(id=lote)  # Verifica se lote foi fornecido
+            empreendimento_id=empreendimento_id,
+            quadra_id=quadra_id,
+            lote_id=lote_id
         )
-        movimentacao.save()
 
-        # Atualiza a quantidade do produto no banco de dados
-        produto_obj.save()
+        # Se veio produto_id → movimentação individual
+        if produto_id:
+            produtos_ids = [produto_id]
+        else:
+            produtos_ids = request.POST.getlist("produtos")
 
-        if produto_obj.qtd < produto_obj.qtd_min:
-            Notificacao.objects.create(
-                produto=produto_obj,
-                mensagem=f'O produto {produto_obj.produto} está abaixo do estoque mínimo!'
-            )
-            messages.success(request, 'Movimentação realizada com sucesso!', extra_tags='success estoque')
-            return redirect(reverse('estoque:home_estoque'))    
-        
+        for pid in produtos_ids:
+            qtd = int(request.POST.get(f"quantidade_{pid}", 0))
+            if qtd > 0:
+                produto_obj = Produtos.objects.get(id=pid)
 
-        # Redireciona para a página de movimentação com uma mensagem de sucesso
-        messages.success(request, 'Movimentação realizada com sucesso!')
-        return redirect(reverse('estoque:home_estoque'))
+                if tipo == 'Entrada':
+                    produto_obj.qtd += qtd
+                elif tipo == 'Saida':
+                    produto_obj.qtd -= qtd
+                elif tipo == 'Devolucao':
+                    produto_obj.qtd += qtd
 
-    return render(request, 'estoque/movimentacao/registrar_movimentacao.html', context)
+                produto_obj.save()
+
+                MovimentacaoItem.objects.create(
+                    movimentacao=movimentacao,
+                    produto=produto_obj,
+                    qtd=qtd
+                )
+
+        messages.success(request, "Movimentação registrada com sucesso!")
+        return redirect("estoque:home_estoque")
+
+    produtos_previos = Produtos.objects.all()[:5]
+
+    return render(request, "estoque/movimentacao/pdv_movimentacao.html", {
+        "produtos": produtos,
+        "empreendimentos": empreendimentos,
+        "produtos_previos": produtos_previos,
+        "produto_id": request.GET.get("produto_id")
+    })
 
 
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
+def buscar_produtos(request):
+    termo = request.GET.get("q", "")
+    produtos = Produtos.objects.filter(produto__icontains=termo)[:10]  # limita a 10 resultados
+    resultados = [{"id": p.id, "nome": p.produto, "qtd": p.qtd} for p in produtos]
+    return JsonResponse(resultados, safe=False)
+
+
+@login_required(login_url='/login/')
+@has_role_decorator(["Administrador", "Gerente","estoquista"])
 def historico_todas_movimentacoes(request):
-    movimentacoes = Movimentacao.objects.all()
+    movimentacoes = MovimentacaoItem.objects.select_related('movimentacao', 'produto', 'movimentacao__empreendimento', 'movimentacao__quadra', 'movimentacao__lote').all()
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
     if start_date and end_date:
-        movimentacoes = movimentacoes.filter(created_at__range=[start_date, end_date])
+        movimentacoes = movimentacoes.filter(movimentacao__created_at__range=[start_date, end_date])
 
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
@@ -256,7 +261,7 @@ def historico_todas_movimentacoes(request):
 
     if start_date and end_date is None:
         return render(request, 'estoque/historico_movimentacoes.html', {'movimentacoes': movimentacoes, 'page_obj': page_obj, 'pesquisar':pesquisar})
-    
+
     return render(request, 'estoque/historico_movimentacoes.html', {'movimentacoes': movimentacoes, 'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar})
 
 def get_quadras(request, empreendimento_id):
@@ -335,4 +340,6 @@ def marca_vizualizado(request, id):
     except Notificacao.DoesNotExist:
         messages.error(request, 'Notificação não encontrada!', extra_tags='danger')
     return redirect(request.META.get('HTTP_REFERER', 'estoque:notificacoes'))
+
+
 

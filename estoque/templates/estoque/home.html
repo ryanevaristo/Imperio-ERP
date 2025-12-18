@@ -80,39 +80,44 @@
 
 
     {% if page_obj %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover" id="tabela_estoque">
-                <thead>
-                    <tr>
-                        <th>Produto</th>
-                        <th>Quantidade</th>
-                        <th>Quantidade Minima</th>
-                        <th>Custo</th>
+        <div class="d-flex justify-content-between mb-3">
+    <h3>Estoque</h3>
+    <a href="{% url 'estoque:registrar_movimentacao' %}" class="btn btn-success">
+        📦 Registrar Movimentação (PDV)
+    </a>
+</div>
 
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for produto in page_obj %}
-                        <tr>
-                            <td>{{ produto.produto }}</td>
-                            <td>{{ produto.qtd }}</td>
-                            <td>{{ produto.qtd_min }}</td>
-                            <td>R${{ produto.custo|floatformat:"2g" }}</td>
-                            <td class="text-center">
-                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMovimentacao{{ produto.id }}">
-                                    Adicionar Movimentação
-                                </button>
-                
-                                <a href="{% url 'estoque:editar_produto' produto.id %}" class="btn btn-warning btn-sm">Editar</a>
-                                <a href="{% url 'estoque:deletar_produto' produto.id %}" class="btn btn-danger btn-sm">Deletar</a>
-                                
-                        </tr>
-                        
-                        {% include "estoque/movimentacao/registrar_movimentacao.html" %}
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="table-responsive">
+    <table class="table table-striped table-bordered table-hover" id="tabela_estoque">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Quantidade Minima</th>
+                <th>Custo</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for produto in page_obj %}
+                <tr>
+                    <td>{{ produto.produto }}</td>
+                    <td>{{ produto.qtd }}</td>
+                    <td>{{ produto.qtd_min }}</td>
+                    <td>R${{ produto.custo|floatformat:"2g" }}</td>
+                    <td class="text-center">
+                        <!-- Atalho para movimentação individual dentro do PDV -->
+                        <a href="{% url 'estoque:registrar_movimentacao' %}?produto_id={{ produto.id }}" 
+                           class="btn btn-primary btn-sm">
+                           Movimentar
+                        </a>
+                        <a href="{% url 'estoque:editar_produto' produto.id %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'estoque:deletar_produto' produto.id %}" class="btn btn-danger btn-sm">Deletar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
             <!-- Paginação -->
             {% if page_obj.has_other_pages %}
@@ -147,8 +152,6 @@
 {% endblock %}
 
 {% block 'scripts' %}
-<script src="{% static 'core/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'estoque/js/movimentacao.js' %}"></script>
 <script>
 document.querySelectorAll('[data-produto-id]').forEach(function(modal) {
   initMovimentacao(modal.dataset.produtoId);

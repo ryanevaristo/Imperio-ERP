@@ -10,7 +10,8 @@ urlpatterns = [
     path('deletar_produto/<uuid:id>/', views.deletar_produto, name='deletar_produto'),
     path('detalhes_produto/<uuid:id>/', views.detalhes_produto, name='detalhes_produto'),
     # MOVIENTAÇÕES
-    path('movimentacao/<uuid:produto_id>/', views.movimentacao, name='registrar_movimentacao'),
+    path("registrar-movimentacao/", views.registrar_movimentacao, name="registrar_movimentacao"),
+
     path('notificacoes/', views.listar_notificacoes, name='listar_notificacoes'),
     path('marcar_vizualizado/<int:id>/', views.marca_vizualizado, name='marcar_visualizado'),
     path('historico_todas_movimentacoes/', views.historico_todas_movimentacoes, name='historico_todas_movimentacoes'),
@@ -18,6 +19,8 @@ urlpatterns = [
     #JSON
     path('get_quadras/<uuid:empreendimento_id>/', views.get_quadras, name='get_quadras'),
     path('get_lotes/<uuid:quadra_id>/', views.get_lotes, name='get_lotes'),
+    path("buscar-produtos/", views.buscar_produtos, name="buscar_produtos"),
+
 
 
     # IMPORTAÇÂO E EXPORTAÇÃO

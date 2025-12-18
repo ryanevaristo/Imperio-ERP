@@ -88,28 +88,22 @@
                         <th>Empreendimento</th>
                         <th>Quadra</th>
                         <th>Lote</th>
-                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for Mvt in page_obj %}
+                    {% for item in page_obj %}
                         <tr>
-                            <td>{{ Mvt.produto }}</td>
-                            <td>{{ Mvt.qtd }}</td>
-                            <td>{{ Mvt.get_tipo_display }}</td>
-                            <td>{{ Mvt.motivo }}</td>
-                            <td>{{ Mvt.created_at|date:"d/m/Y H:i" }}</td>
-                            <td>{{ Mvt.empreendimento.nome }}</td>
-                            <td>{{ Mvt.quadra.nome }}</td>
-                            <td>{{ Mvt.lote.numero }}</td>
-                            <td class="text-center">
-                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#movimentacaoModal{{ Mvt.produto.id }}" data-produto-id="{{ Mvt.produto.id }}">
-                                    Registrar Movimentação
-                                </button>
-                            </td>
+                            <td>{{ item.produto }}</td>
+                            <td>{{ item.qtd }}</td>
+                            <td>{{ item.movimentacao.get_tipo_display }}</td>
+                            <td>{{ item.movimentacao.motivo }}</td>
+                            <td>{{ item.movimentacao.created_at|date:"d/m/Y H:i" }}</td>
+                            <td>{{ item.movimentacao.empreendimento.nome }}</td>
+                            <td>{{ item.movimentacao.quadra.nome }}</td>
+                            <td>{{ item.movimentacao.lote.numero }}</td>
                         </tr>
-                        
-                        {% include "estoque/movimentacao/registrar_movimentacao.html" %}
+
+
                     {% endfor %}
                 </tbody>
             </table>
@@ -143,16 +137,5 @@
         </div>
     {% endif %}
 </div>
-
-{% endblock %}
-
-{% block 'scripts' %}
-<script src="{% static 'core/js/jquery-3.7.1.min.js' %}"></script>
-<script src="{% static 'estoque/js/movimentacao.js' %}"></script>
-<script>
-document.querySelectorAll('[data-produto-id]').forEach(function(modal) {
-  initMovimentacao(modal.dataset.produtoId);
-});
-</script>
 
 {% endblock %}

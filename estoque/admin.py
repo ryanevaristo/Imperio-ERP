@@ -22,10 +22,10 @@ class EstoqueCategoriaAdmin(admin.ModelAdmin):
 @admin.register(Movimentacao)
 class MovimentacaoAdmin(admin.ModelAdmin):
     form = MovimentacaoForm
-    list_display = ('produto', 'qtd', 'tipo', 'created_at')
+    list_display = ( 'tipo', 'created_at')
     list_filter = ('tipo', 'created_at')
     ordering = ('created_at',)
-    fields = ('produto', 'qtd', 'tipo', 'motivo', 'empreendimento', 'quadra', 'lote')
+    fields = ( 'tipo', 'motivo', 'empreendimento', 'quadra', 'lote')
 
     def save_model(self, request, obj, form, change):
         # Salva o objeto primeiro
