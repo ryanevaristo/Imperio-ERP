@@ -696,25 +696,99 @@ def total_despesa_ano_atual(request):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
+def get_available_years(request):
+    """
+    Retorna os anos disponíveis com base nas datas de pagamento e recebimento
+    """
+    from django.db.models import Min, Max
+    
+    # Obtém o ano mínimo e máximo das despesas
+    despesas_years = ContaPagar.objects.filter(
+        empresa=request.user.empresa,
+        pago=True
+    ).aggregate(
+        min_year=Min('data_pagamento__year'),
+        max_year=Max('data_pagamento__year')
+    )
+    
+    # Obtém o ano mínimo e máximo das entradas
+    entradas_years = ContaReceber.objects.filter(
+        empresa=request.user.empresa,
+        recebido=True
+    ).aggregate(
+        min_year=Min('data_recebimento__year'),
+        max_year=Max('data_recebimento__year')
+    )
+    
+    # Determina o intervalo de anos
+    min_year = min(
+        despesas_years['min_year'] or datetime.now().year,
+        entradas_years['min_year'] or datetime.now().year
+    )
+    max_year = max(
+        despesas_years['max_year'] or datetime.now().year,
+        entradas_years['max_year'] or datetime.now().year
+    )
+    
+    # Cria lista de anos disponíveis
+    years = list(range(min_year, max_year + 1))
+    years.reverse()  # Ordem decrescente (mais recente primeiro)
+    
+    return JsonResponse({
+        'years': years,
+        'current_year': datetime.now().year
+    })
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator(["gerente", "administrador"])
 def saldo_anual(request):
-    meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
-    total_entradas = []
-    total_despesas = []
-    saldo = []
-    for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, pago=True, empresa=request.user.empresa)
-        total_despesa = 0
-        for despesa in despesas:
-            total_despesa += despesa.valor
-        
-        entradas = ContaReceber.objects.filter(data_recebimento__month=mes, recebido=True, empresa=request.user.empresa)
-        total_entrada = 0
-        for entrada in entradas:
-            total_entrada += entrada.valor
-        
-        total_despesas.append(total_despesa)
-        total_entradas.append(total_entrada)
-        saldo.append(total_entrada - total_despesa)
-    return JsonResponse({'saldo': saldo,'entradas':total_entradas,'despesas':total_despesas, 'meses': meses_anteriores})
+    from django.db.models import Sum
+    
+    # Obtém o ano do parâmetro GET ou usa o ano atual como padrão
+    ano = request.GET.get('year', datetime.now().year)
+    try:
+        ano = int(ano)
+    except (ValueError, TypeError):
+        ano = datetime.now().year
+    
+    meses_anteriores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    
+    # Otimizado: Uma única query com agregação por mês para despesas
+    despesas_mensais = ContaPagar.objects.filter(
+        data_pagamento__year=ano,
+        pago=True,
+        empresa=request.user.empresa
+    ).values('data_pagamento__month').annotate(
+        total=Sum('valor')
+    ).order_by('data_pagamento__month')
+    
+    # Converte para dicionário para acesso rápido
+    despesas_dict = {item['data_pagamento__month']: float(item['total'] or 0) for item in despesas_mensais}
+    
+    # Otimizado: Uma única query com agregação por mês para entradas
+    entradas_mensais = ContaReceber.objects.filter(
+        data_recebimento__year=ano,
+        recebido=True,
+        empresa=request.user.empresa
+    ).values('data_recebimento__month').annotate(
+        total=Sum('valor')
+    ).order_by('data_recebimento__month')
+    
+    # Converte para dicionário para acesso rápido
+    entradas_dict = {item['data_recebimento__month']: float(item['total'] or 0) for item in entradas_mensais}
+    
+    # Preenche listas com valores (0 para meses sem movimentação)
+    total_despesas = [despesas_dict.get(mes, 0) for mes in meses_anteriores]
+    total_entradas = [entradas_dict.get(mes, 0) for mes in meses_anteriores]
+    saldo = [entradas_dict.get(mes, 0) - despesas_dict.get(mes, 0) for mes in meses_anteriores]
+    
+    return JsonResponse({
+        'saldo': saldo,
+        'entradas': total_entradas,
+        'despesas': total_despesas,
+        'meses': meses_anteriores,
+        'ano': ano
+    })
 
 

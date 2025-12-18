@@ -156,27 +156,29 @@
     <div class="col-12">
       <div class="card">
         <div class="card-content">
-          <div class="card-body media-body text-center">
+          <div class="card-body">
             <div class="row">
-              <div class="col-12 ">
-                <h5 class="card-title
-                ">Saldo Mensal</h5>
+              <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Saldo Mensal</h5>
+                <div class="form-group mb-0">
+                  <label for="year_filter" class="mr-2">Ano:</label>
+                  <select class="form-control" id="year_filter" style="width: auto; display: inline-block;">
+                    <option value="">Carregando...</option>
+                  </select>
                 </div>
+              </div>
                 
-                <div class="col-12">
-                    
-                    <canvas id="myChart2" style="max-height: 375px;height: 100%;"></canvas>
-                    <br>
-                    <p>meses</p>
-
-                
-                
-                </div>
+              <div class="col-12">
+                <canvas id="myChart2" style="max-height: 375px;height: 100%;"></canvas>
+                <br>
+                <p class="text-center">meses</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 </div>
 
 <div style="background-color: white; min-width: 500px; max-height: 375px; height: 100%;">
@@ -189,94 +191,177 @@
 {% block 'scripts' %}
 
 <script>
+  let myChart2 = null; // Variável global para armazenar a instância do gráfico
+
+  // Função para carregar o gráfico com base no ano selecionado
+  function loadChart(year) {
+      $.ajax({
+          url: "{% url 'financeiro:saldo_anual' %}",
+          method: 'GET',
+          data: { year: year },
+          success: function(response) {
+              // transformar objeto em map 
+              var labels = response['meses'];
+              var meses_label = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+              
+              labels = labels.map((label, index) => response['entradas'][index] > 0 ? meses_label[label - 1] : '').filter(el => el !== '');
+
+              ['entradas', 'despesas', 'saldo'].forEach(key => {
+                  response[key] = response[key].filter(el => el !== 0);
+              });
+
+              var ctx = document.getElementById('myChart2').getContext('2d');
+              
+              // Destruir o gráfico anterior se existir
+              if (myChart2) {
+                  myChart2.destroy();
+              }
+              
+              myChart2 = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                      labels: labels,
+                      datasets: [
+                      {
+                          label: 'Entradas',
+                          data: response['entradas'],
+                          backgroundColor: [
+                              'rgba(128,171,0, 0.8)'
+                          ],
+                          borderColor: [
+                              'rgba(128,171,0, 1)'
+                          ],
+                          borderWidth: 2
+                      },
+                      {
+                          label: 'Despesas',
+                          data: response['despesas'],
+                          backgroundColor: [
+                              'rgba(255, 99, 132, 0.8)'
+                          ],
+                          borderColor: [
+                              'rgba(255, 99, 132, 1)'
+                          ],
+                          borderWidth: 2
+                      },
+                      {
+                          label: 'Saldo',
+                          data: response['saldo'],
+                          backgroundColor: [
+                              'rgba(3, 35, 111, 0.8)'
+                          ],
+                          borderColor: [
+                              'rgba(3, 35, 111, 1)'
+                          ],
+                          borderWidth: 2
+                      }
+                    ]
+                  },
+                  plugins: [ChartDataLabels],
+                  options: {
+                    plugins: {
+                      datalabels: {
+                        color: 'white',
+                        display: true,
+                        anchor: 'center',
+                        align: 'center',
+                        font: {
+                          weight: 'bold',
+                          size: 12
+                        },
+                        formatter: function(value, context) {
+                          if (value === 0) return '';
+                          // Formata o número para o padrão brasileiro
+                          return 'R$ ' + value.toLocaleString('pt-BR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          });
+                        }
+                      },
+                      legend: {
+                        display: true,
+                        position: 'top',
+                      },
+                      tooltip: {
+                        enabled: true,
+                        callbacks: {
+                          label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                              label += ': ';
+                            }
+                            label += 'R$ ' + context.parsed.y.toLocaleString('pt-BR', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            });
+                            return label;
+                          }
+                        }
+                      }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                              callback: function(value) {
+                                return 'R$ ' + value.toLocaleString('pt-BR', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                });
+                              }
+                            }
+                        }
+                    },
+                    
+                },
+              });
+          },
+          error: function(error) {
+              console.error('Erro ao carregar dados do gráfico:', error);
+          }
+      });
+  }
+
+  // Carregar anos disponíveis
   $.ajax({
-      url: "{% url 'financeiro:saldo_anual' %}",
+      url: "{% url 'financeiro:get_available_years' %}",
       method: 'GET',
       success: function(response) {
-          // transformar objeto em map 
-          var labels = response['meses'];
-          var meses_label = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+          var yearSelect = $('#year_filter');
+          yearSelect.empty();
           
-          labels = labels.map((label, index) => response['entradas'][index] > 0 ? meses_label[label - 1] : '').filter(el => el !== '');
-
-            ['entradas', 'despesas', 'saldo'].forEach(key => {
-                response[key] = response[key].filter(el => el !== 0);
-            });
-
-
-
-          var ctx = document.getElementById('myChart2').getContext('2d');
-          
-          var myChart2 = new Chart(ctx, {
-              type: 'bar',
-              data: {
-                  labels: labels,
-                  datasets: [
-                  {
-                      label: 'Entradas',
-                      data: response['entradas'],
-                      backgroundColor: [
-                          'rgba(128,171,0, 0.8)'
-                      ],
-                      borderColor: [
-                          'rgba(128,171,0, 1)'
-                      ],
-                      borderWidth: 2
-                  },
-                  {
-                      label: 'Despesas',
-                      data: response['despesas'],
-                      backgroundColor: [
-                          'rgba(255, 99, 132, 0.8)'
-                      ],
-                      borderColor: [
-                          'rgba(255, 99, 132, 1)'
-                      ],
-                      borderWidth: 2
-                  },
-                  {
-                      label: 'Saldo',
-                      data: response['saldo'],
-                      backgroundColor: [
-                          'rgba(3, 35, 111, 0.8)'
-                      ],
-                      borderColor: [
-                          'rgba(3, 35, 111, 1)'
-                      ],
-                      borderWidth: 2
-                  }
-                ]
-              },
-              plugins: [ChartDataLabels],
-              options: {
-                plugins: {
-                  datalabels: {
-                    color: 'black',
-                    display: function(context) {
-                      return context.dataset.data[context.dataIndex] ;
-                    },
-                    font: {
-                      weight: 'bold'
-                    },
-                    formatter: function(value, context) {
-                      return 'R$ ' + value.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-                    }
-                  },
-                },
-                
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                
-            },
+          // Adicionar opções de anos
+          response.years.forEach(function(year) {
+              var option = $('<option></option>')
+                  .attr('value', year)
+                  .text(year);
+              
+              // Selecionar o ano atual por padrão
+              if (year === response.current_year) {
+                  option.attr('selected', 'selected');
+              }
+              
+              yearSelect.append(option);
           });
-
+          
+          // Carregar o gráfico com o ano atual
+          loadChart(response.current_year);
       },
       error: function(error) {
-          // Handle the error here
+          console.error('Erro ao carregar anos disponíveis:', error);
+          // Carregar o gráfico com o ano atual mesmo se houver erro
+          var currentYear = new Date().getFullYear();
+          $('#year_filter').html('<option value="' + currentYear + '">' + currentYear + '</option>');
+          loadChart(currentYear);
       }
+  });
+
+  // Event listener para mudança de ano
+  $('#year_filter').on('change', function() {
+      var selectedYear = $(this).val();
+      loadChart(selectedYear);
   });
 </script>
 {% endblock %}
