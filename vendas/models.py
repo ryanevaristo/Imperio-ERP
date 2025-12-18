@@ -3,6 +3,7 @@ from uuid import uuid4
 from django.utils import timezone
 from produto.models import Lote
 from cliente.models import Cliente
+from core.models import Empresa
 
 # Create your models here.
 
@@ -22,6 +23,7 @@ class Vendas(models.Model):
     status_venda =  models.CharField(max_length=10, choices=CHOICE_STATUS_VENDA, default='Pendente')
     quitado =  models.BooleanField(default=False)
     create_at  = models.DateTimeField(auto_now_add=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
 
     class Meta:
@@ -44,6 +46,7 @@ class  Pagamento(models.Model):
     forma_pagamento = models.CharField(max_length=20, choices=CHOICE_FORMA_PAGAMENTO)
     data_pagamento = models.DateField(auto_now_add=True)
     valor =  models.DecimalField(max_digits=10, decimal_places=2)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = "Pagamento"

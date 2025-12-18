@@ -10,8 +10,11 @@ class UserAdmin(auth_admin.UserAdmin):
     add_form = UserCreationForm
     model = Users
     fieldsets = auth_admin.UserAdmin.fieldsets + (
-        (None, {'fields': ('cargo',)}),
+        ('Informações Adicionais', {'fields': ('cargo', 'empresa', 'telefone')}),
     )
+    list_display = ('username', 'email', 'cargo', 'empresa', 'is_staff', 'is_active')
+    list_filter = ('cargo', 'empresa', 'is_staff', 'is_active')
+    search_fields = ('username', 'email', 'first_name', 'last_name')
 
 
 

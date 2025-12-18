@@ -24,7 +24,7 @@ from produto.models import Empreendimento, Lote, Quadra
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def home_estoque(request):
-    produtos = Produtos.objects.select_related('categoria').all()
+    produtos = Produtos.objects.select_related('categoria').filter(empresa=request.user.empresa)
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -36,7 +36,7 @@ def home_estoque(request):
     #Filtra por pesquisar se o paramento estiver presente
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
-        produtos = produtos.filter(produto__icontains=pesquisar)
+        produtos = produtos.filter(produto__icontains=pesquisar).filter(empresa=request.user.empresa)
 
     #paginator
     paginator = Paginator(produtos, 10)
@@ -49,13 +49,13 @@ def home_estoque(request):
     return render(request, 'estoque/home.html', {'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar, "empreendimentos": Empreendimento.objects.all()})
 
 def detalhes_produto(request, id):
-    produto = Produtos.objects.get(id=id)
+    produto = Produtos.objects.get(id=id, empresa=request.user.empresa)
     return render(request, 'estoque/detalhes_produto.html', {'produto': produto})
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def cadastrar_produto(request):
-    cadastrar_categoria = EstoqueCategoria.objects.all()
+    cadastrar_categoria = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
     if request.method == 'GET':
         return render(request, 'estoque/cadastrar_editar_produto.html', {'categorias': cadastrar_categoria})
     
@@ -96,8 +96,8 @@ def cadastrar_produto(request):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def editar_produto(request, id):
-    produto = Produtos.objects.get(id=id)
-    cadastrar_categoria = EstoqueCategoria.objects.all()
+    produto = Produtos.objects.get(id=id, empresa=request.user.empresa)
+    cadastrar_categoria = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
     if request.method == 'GET':
         return render(request, 'estoque/cadastrar_editar_produto.html', {'produto': produto, 'categorias': cadastrar_categoria})
     
@@ -126,16 +126,16 @@ def deletar_produto(request, id):
 @has_role_decorator(["gerente", "administrador"])
 def cadastrar_categorias(request):
     if request.method == "GET":
-        cadastrar_categorias = EstoqueCategoria.objects.all()
+        cadastrar_categorias = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
         return render(request, 'cadastrar_categoria_estoque.html', {'categorias': cadastrar_categorias})
     elif request.method == "POST":
         descricao = request.POST.get('nome_categoria')
-        if EstoqueCategoria.objects.filter(descricao=descricao).exists():
+        if EstoqueCategoria.objects.filter(descricao=descricao, empresa=request.user.empresa).exists():
             messages.error(request, 'Categoria já existe!', extra_tags='danger')
             return redirect(reverse('estoque:cadastrar_categorias'))
         print(descricao)
         # Aqui você deve salvar os dados da categoria no banco de dados
-        categoria = EstoqueCategoria(descricao=descricao)
+        categoria = EstoqueCategoria(descricao=descricao, empresa=request.user.empresa)
         categoria.save()
         return redirect('/estoque/')
     
@@ -175,8 +175,8 @@ def importar_estoque_excel(request):
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def registrar_movimentacao(request):
     produto_id = request.GET.get("produto_id")
-    produtos = Produtos.objects.all()
-    empreendimentos = Empreendimento.objects.all()
+    produtos = Produtos.objects.filter(empresa=request.user.empresa)
+    empreendimentos = Empreendimento.objects.filter(empresa=request.user.empresa)
 
     if request.method == "POST":
         tipo = request.POST.get("tipo_movimentacao")
@@ -244,7 +244,7 @@ def buscar_produtos(request):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def historico_todas_movimentacoes(request):
-    movimentacoes = MovimentacaoItem.objects.select_related('movimentacao', 'produto', 'movimentacao__empreendimento', 'movimentacao__quadra', 'movimentacao__lote').all()
+    movimentacoes = MovimentacaoItem.objects.select_related('movimentacao', 'produto', 'movimentacao__empreendimento', 'movimentacao__quadra', 'movimentacao__lote').filter(produto__empresa=request.user.empresa)
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 

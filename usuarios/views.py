@@ -33,14 +33,14 @@ def cadastrar_usuario(request):
             messages.error(request,'Email já cadastrado', extra_tags='danger')
             return redirect(reverse('usuarios:cadastrar_usuario'))
 
-        users = Users.objects.create_user(username=email, password=senha, email=email, first_name=nome, cargo=cargo, telefone=telefone )
+        users = Users.objects.create_user(username=email, password=senha, email=email, first_name=nome, cargo=cargo, telefone=telefone, empresa=request.user.empresa)
         users.save()
         return redirect(reverse('usuarios:Usuarios'))
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator("Administrador")
 def Usuarios(request):
-    usuarios = Users.objects.exclude(cargo="A")
+    usuarios = Users.objects.all()
     paginator = Paginator(usuarios, 10)
     page_number = request.GET.get('page')
     usuarios_obj = paginator.get_page(page_number)

@@ -10,7 +10,7 @@ from django.urls import reverse
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador","estoquista"])
 def home_produto(request):
-    empreendimentos = Empreendimento.objects.all()
+    empreendimentos = Empreendimento.objects.filter(empresa=request.user.empresa)
     return render(request, 'produto/empreendimento/home.html', {'empreendimentos': empreendimentos})
 
 def cadastrar_empreendimento(request):
@@ -23,7 +23,7 @@ def cadastrar_empreendimento(request):
         if imagem is None:
             imagem = 'empreendimentos/default.png'
 
-        empreendimento = Empreendimento(nome=nome, localizacao=localizacao, descricao=descricao, imagem=imagem)
+        empreendimento = Empreendimento(nome=nome, localizacao=localizacao, descricao=descricao, imagem=imagem, empresa=request.user.empresa)
         empreendimento.save()
         messages.success(request, 'Empreendimento cadastrado com sucesso!')
         return redirect(reverse('produto:home_produto'))
@@ -32,15 +32,15 @@ def cadastrar_empreendimento(request):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador","estoquista"])
 def detalhes_empreendimento(request, id):
-    empreendimento = Empreendimento.objects.get(id=id)
-    quadras = Quadra.objects.filter(empreendimento=id)
+    empreendimento = Empreendimento.objects.get(id=id, empresa=request.user.empresa)
+    quadras = Quadra.objects.filter(empreendimento=id, empresa=request.user.empresa)
     return render(request, 'produto/empreendimento/detalhes_empreendimento.html', {'empreendimento': empreendimento, 'quadras': quadras})
 
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador","estoquista"])
 def quadras(request, id):
-    quadra = Quadra.objects.get(id=id)
-    lotes = Lote.objects.filter(quadra_id=quadra.id)
+    quadra = Quadra.objects.get(id=id, empresa=request.user.empresa)
+    lotes = Lote.objects.filter(quadra_id=quadra.id, empresa=request.user.empresa)
     return render(request, 'produto/quadra/home.html', {'quadra': quadra,  'lotes': lotes})
 
 
@@ -52,7 +52,7 @@ def cadastrar_quadra(request, id):
         imagem = request.FILES.get('imagem')
         descricao = request.POST.get('descricao')
         metragem = request.POST.get('metragem')
-        quadra = Quadra(nome=nome, empreendimento_id=id, metragem=metragem, descricao=descricao, imagem=imagem)
+        quadra = Quadra(nome=nome, empreendimento_id=id, metragem=metragem, descricao=descricao, imagem=imagem, empresa=request.user.empresa)
         quadra.save()
         messages.success(request, 'Quadra cadastrada com sucesso!')
         return redirect(reverse('produto:detalhes_empreendimento', args=[id]))
@@ -61,7 +61,7 @@ def cadastrar_quadra(request, id):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador","estoquista"])
 def lotes(request, id):
-    lotes = Lote.objects.filter(quadra=id)
+    lotes = Lote.objects.filter(quadra=id, empresa=request.user.empresa)
     return render(request, 'produto/lotes.html', {'lotes': lotes})
 
 @login_required(login_url='/login/')
@@ -75,9 +75,9 @@ def cadastrar_lote(request, id_quadra):
         data_aquisicao = request.POST.get('data_aquisicao')
         if data_aquisicao:
         
-            lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, data_aquisicao=data_aquisicao, quadra_id=id_quadra)
+            lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, data_aquisicao=data_aquisicao, quadra_id=id_quadra, empresa=request.user.empresa)
         else:
-             lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, quadra_id=id_quadra)
+             lote = Lote(numero=numero, metragem=metragem, preco=preco, status=status, quadra_id=id_quadra, empresa=request.user.empresa)
         lote.save()
 
         messages.success(request, 'Lote cadastrado com sucesso!')
@@ -88,7 +88,7 @@ def cadastrar_lote(request, id_quadra):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador","estoquista"])
 def editar_lote(request, id):
-    lote = Lote.objects.get(id=id)
+    lote = Lote.objects.get(id=id, empresa=request.user.empresa)
     if request.method == 'POST':
         lote.numero = request.POST.get('numero')
         lote.metragem = request.POST.get('metragem')
@@ -104,7 +104,7 @@ def editar_lote(request, id):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador","estoquista"])
 def excluir_lote(request, id):
-    lote = Lote.objects.get(id=id)
+    lote = Lote.objects.get(id=id, empresa=request.user.empresa)
     lote.delete()
     messages.success(request, 'Lote deletado com sucesso!')
     return redirect(reverse('produto:quadras', args=[lote.quadra.id]))

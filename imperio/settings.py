@@ -75,6 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'estoque.context_processors.notificacoes_context',
+                'core.context_processors.empresa_context',
             ],
         },
     },

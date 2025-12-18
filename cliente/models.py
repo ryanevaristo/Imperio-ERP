@@ -1,4 +1,5 @@
 from django.db import models
+from core.models import Empresa
 
 # Create your models here.
 
@@ -12,7 +13,7 @@ class Cliente(models.Model):
     estado = models.CharField(max_length=2, blank=True, null=True)
     cep = models.CharField(max_length=10, blank=True, null=True)
     data_cadastro = models.DateTimeField(auto_now_add=True)
-    
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.nome_completo

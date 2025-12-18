@@ -18,7 +18,7 @@ import io
 @has_role_decorator(["gerente", "administrador"])
 def despesas(request):
    # Obtém todas as despesas
-    despesas = ContaPagar.objects.all()
+    despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
 
     # Filtra por data, se os parâmetros estiverem presentes
     start_date = request.GET.get('start_date')
@@ -65,10 +65,10 @@ def cadastrar_despesas(request):
             data_pagamento = '1900-01-01'
         # Aqui você deve salvar os dados da conta a pagar no banco de dados
         despesas = ContaPagar(descricao=descricao, valor=valor,
-                               data_pagamento=data_pagamento, 
-                               forma_pagamento=forma_pagamento, 
-                               categoria=DespesasCategoria.objects.get(id=categoria), 
-                               pago=pago)
+                               data_pagamento=data_pagamento,
+                               forma_pagamento=forma_pagamento,
+                               categoria=DespesasCategoria.objects.get(id=categoria),
+                               pago=pago, empresa=request.user.empresa)
         despesas.save()
         print(request.POST)
     else:
@@ -130,9 +130,9 @@ def excluir_despesas(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def total_despesas_m_atual(request):
-    despesas = ContaPagar.objects.all()
+    despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     #maiores despesas no mês atual
-    despesas = ContaPagar.objects.filter(data_pagamento_month=datetime.now().month).order_by('-valor')[:5]
+    despesas = ContaPagar.objects.filter(data_pagamento_month=datetime.now().month, empresa=request.user.empresa).order_by('-valor')[:5]
     total_valor = 0
     total_despesas = {
 
@@ -147,7 +147,7 @@ def total_despesas_m_atual(request):
     return JsonResponse({'total_valor': total_valor, 'total_despesas': total_despesas, 'mes_atual': datetime.now().month})
 
 def total_despesas(request):
-    despesas = ContaPagar.objects.all()
+    despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     total_valor = 0
     for despesa in despesas:
         total_valor += despesa.valor
@@ -156,7 +156,7 @@ def total_despesas(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def exportar_despesas_xlsx(request):
-    despesas = ContaPagar.objects.all()
+    despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     
     df = pd.DataFrame(list(despesas.values()))
     df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).nome_categoria)
@@ -196,7 +196,7 @@ def importar_despesa_xlsx(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def exportar_despesas_pdf(request):
-    despesas = ContaPagar.objects.all()
+    despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     df = pd.DataFrame(list(despesas.values()))
     df['categoria'] = df['categoria_id'].apply(lambda x: DespesasCategoria.objects.get(id=x).descricao)
     df.drop('categoria_id', axis=1, inplace=True)
@@ -231,16 +231,16 @@ def cadastrar_categorias(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def entrada(request):
-    entrada = ContaReceber.objects.filter(recebido=True)
-    
+    entrada = ContaReceber.objects.filter(recebido=True, empresa=request.user.empresa)
+
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-        entrada = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date])
-    
+        entrada = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date], empresa=request.user.empresa)
+
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
-        entrada = ContaReceber.objects.filter(descricao__icontains=pesquisar)
+        entrada = ContaReceber.objects.filter(descricao__icontains=pesquisar, empresa=request.user.empresa)
 
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
@@ -255,16 +255,16 @@ def entrada(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def contas_a_receber(request):
-    entrada = ContaReceber.objects.filter(recebido=False)
+    entrada = ContaReceber.objects.filter(recebido=False, empresa=request.user.empresa)
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
-        entrada = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date])
-    
+        entrada = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date], empresa=request.user.empresa)
+
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
-        entrada = ContaReceber.objects.filter(descricao__icontains=pesquisar)
+        entrada = ContaReceber.objects.filter(descricao__icontains=pesquisar, empresa=request.user.empresa)
     
     paginator = Paginator(entrada, 10)
     page_number = request.GET.get('page')
@@ -295,7 +295,7 @@ def cadastrar_entrada(request):
             messages.error(request,'Data de recebimento não pode ser vazia', extra_tags='danger')
             return redirect("financeiro:cadastrar_entrada")
         # Aqui você deve salvar os dados da conta a receber no banco de dados
-        conta_receber = ContaReceber(cliente=Cliente.objects.get(id=cliente),descricao=descricao, valor=valor, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido)
+        conta_receber = ContaReceber(cliente=Cliente.objects.get(id=cliente),descricao=descricao, valor=valor, data_recebimento=data_recebimento, forma_recebimento=forma_recebimento, recebido=recebido, empresa=request.user.empresa)
         conta_receber.save()
         messages.success(request, "Entrada Cadastrada com Sucesso!")
         return redirect('financeiro:entradas')
@@ -321,7 +321,7 @@ def importar_entrada_xlsx(request):
         df['Forma'] = df['Forma'].apply(lambda x: dict(choice_forma_recebimento)[x])
     
         for index, row in df.iterrows():
-            conta_receber = ContaReceber(cliente=Cliente.objects.get(id=2),descricao=row['Descrição'], valor=row["Valor"], data_recebimento=row["Data"],forma_recebimento=row["Forma"],recebido=True)
+            conta_receber = ContaReceber(cliente=Cliente.objects.get(id=2),descricao=row['Descrição'], valor=row["Valor"], data_recebimento=row["Data"],forma_recebimento=row["Forma"],recebido=True, empresa=request.user.empresa)
             conta_receber.save()
 
         
@@ -545,7 +545,7 @@ def excluir_fornecedor(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def caixa(request):
-    cheques = Cheque.objects.all()
+    cheques = Cheque.objects.filter(empresa=request.user.empresa)
     total_valor = 0
     total_valor_compensado = 0
     total_valor_repassado = 0
@@ -557,17 +557,17 @@ def caixa(request):
         elif cheque.situacao == 'R':
             total_valor_repassado += cheque.valor
 
-    entradas = ContaReceber.objects.filter(recebido=True)
+    entradas = ContaReceber.objects.filter(recebido=True, empresa=request.user.empresa)
     total_entradas = 0
     for entrada in entradas:
         total_entradas += entrada.valor
-    
-    despesas = ContaPagar.objects.filter(pago=True)
+
+    despesas = ContaPagar.objects.filter(pago=True, empresa=request.user.empresa)
     total_despesas = 0
     for despesa in despesas:
         total_despesas += despesa.valor
-    
-    cheques = Cheque.objects.all()
+
+    cheques = Cheque.objects.filter(empresa=request.user.empresa)
     total_cheque_emitido = 0
     for cheque in cheques:
         if cheque.situacao == 'E':
@@ -576,17 +576,17 @@ def caixa(request):
     if request.GET.get('start_date') and request.GET.get('end_date'):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
-        despesas = ContaPagar.objects.filter(data_pagamento__range=[start_date, end_date])
+        despesas = ContaPagar.objects.filter(data_pagamento__range=[start_date, end_date], empresa=request.user.empresa)
         total_despesas = 0
         for despesa in despesas:
             total_despesas += despesa.valor
-        
-        entradas = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date], recebido=True)
+
+        entradas = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date], recebido=True, empresa=request.user.empresa)
         total_entradas = 0
         for entrada in entradas:
             total_entradas += entrada.valor
-        
-        cheque = Cheque.objects.filter(data_compensacao__range=[start_date, end_date])
+
+        cheque = Cheque.objects.filter(data_compensacao__range=[start_date, end_date], empresa=request.user.empresa)
         total_valor_repassado = 0
         total_valor_compensado = 0
         total_cheque_emitido = 0
@@ -594,17 +594,17 @@ def caixa(request):
         for cheque in cheques:
             if cheque.situacao == 'E':
                 total_cheque_emitido += cheque.valor
-        
+
         return render(request, 'caixa.html', {'saldo': (total_entradas + total_valor_compensado) - total_despesas, 'total_entradas': total_entradas + total_valor_compensado , 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
     return render(request, 'caixa.html', {'saldo': (total_entradas + total_valor_compensado) - total_despesas , 'total_entradas': total_entradas + total_valor_compensado, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def total_despesa_categoria(request):
-    categorias = DespesasCategoria.objects.all()
+    categorias = DespesasCategoria.objects.filter(empresa=request.user.empresa)
     total_d_categoria = {}
     for categoria in categorias:
-        despesas = ContaPagar.objects.filter(categoria=categoria)
+        despesas = ContaPagar.objects.filter(categoria=categoria, empresa=request.user.empresa)
         total = 0
         for despesa in despesas:
             total += despesa.valor
@@ -618,7 +618,7 @@ def total_despesa_ano_atual(request):
     total_despesas = []
     ano_atual = datetime.now().year
     for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, data_pagamento__year=ano_atual)
+        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, data_pagamento__year=ano_atual, empresa=request.user.empresa)
         total = 0
         for despesa in despesas:
             total += despesa.valor
@@ -635,12 +635,12 @@ def saldo_anual(request):
     total_despesas = []
     saldo = []
     for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, pago=True)
+        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, pago=True, empresa=request.user.empresa)
         total_despesa = 0
         for despesa in despesas:
             total_despesa += despesa.valor
         
-        entradas = ContaReceber.objects.filter(data_recebimento__month=mes, recebido=True)
+        entradas = ContaReceber.objects.filter(data_recebimento__month=mes, recebido=True, empresa=request.user.empresa)
         total_entrada = 0
         for entrada in entradas:
             total_entrada += entrada.valor

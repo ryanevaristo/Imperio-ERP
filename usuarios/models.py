@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from core.models import Empresa
 
 # Create your models here.
 
@@ -12,7 +13,7 @@ class Users(AbstractUser):
     )
     cargo = models.CharField(max_length=1, choices=choice_cargo, default='V')
     telefone = models.CharField(max_length=15, blank=True, null=True)
-    
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.username

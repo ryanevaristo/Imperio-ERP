@@ -2,6 +2,7 @@ from django.db import models
 from uuid import uuid4
 from produto.models import Lote
 from django.core.exceptions import ValidationError
+from core.models import Empresa
 
 # Create your models here.
 
@@ -16,6 +17,7 @@ class Produtos(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     categoria = models.ForeignKey('EstoqueCategoria', on_delete=models.SET_NULL, null=True, blank=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Produto'
@@ -34,6 +36,7 @@ class Produtos(models.Model):
 class EstoqueCategoria(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     nome_categoria = models.CharField(max_length=100)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return self.nome_categoria
     
@@ -84,6 +87,7 @@ class Movimentacao(models.Model):
     empreendimento = models.ForeignKey('produto.Empreendimento', on_delete=models.CASCADE, null=True, blank=True)
     quadra = models.ForeignKey('produto.Quadra', on_delete=models.CASCADE, null=True, blank=True)
     lote = models.ForeignKey(Lote, on_delete=models.SET_NULL, null=True, blank=True, related_name='lote')
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Movimentação'
@@ -97,6 +101,7 @@ class MovimentacaoItem(models.Model):
     movimentacao = models.ForeignKey(Movimentacao, on_delete=models.CASCADE, related_name='itens')
     produto = models.ForeignKey('Produtos', on_delete=models.CASCADE, related_name='movimentacao_itens')
     qtd = models.IntegerField(default=0, null=True, blank=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'{self.produto} - {self.qtd}'
@@ -107,6 +112,7 @@ class Notificacao(models.Model):
     mensagem = models.TextField()
     data_criacao = models.DateTimeField(auto_now_add=True)
     visualizado = models.BooleanField(default=False)  # Para marcar se o usuário já viu a notificação
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f'Notificação: {self.produto.produto} - {self.mensagem[:20]}'

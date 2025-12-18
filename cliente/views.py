@@ -21,14 +21,14 @@ def clear_messages(request):
 @login_required(login_url='/login/')
 @has_role_decorator('gerente')
 def listar_clientes(request):
-    clientes = Cliente.objects.all()
+    clientes = Cliente.objects.filter(empresa=request.user.empresa)
     paginator = Paginator(clientes, 10)
     page = request.GET.get('page')
     clientes = paginator.get_page(page)
     
     if request.GET.get("pesquisar"):
         pesquisar = request.GET.get("pesquisar")
-        clientes = Cliente.objects.filter(nome_completo__icontains=pesquisar)
+        clientes = Cliente.objects.filter(nome_completo__icontains=pesquisar, empresa=request.user.empresa)
         paginator = Paginator(clientes, 10)
         page = request.GET.get('page')
         clientes = paginator.get_page(page)
@@ -43,7 +43,9 @@ def cadastrar_clientes(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)  # Use o formulário de Cliente (se você tiver um)
         if form.is_valid():
-            form.save()  # Salve o cliente no banco de dados
+            cliente = form.save(commit=False)
+            cliente.empresa = request.user.empresa
+            cliente.save()  # Salve o cliente no banco de dados
             messages.success(request, 'Cliente cadastrado com sucesso!')
             
             return redirect('/clientes/')  # Redirecione para a lista de clientes
@@ -56,7 +58,7 @@ def cadastrar_clientes(request):
 
 @login_required(login_url='/login/')
 def editar_clientes(request, id):
-    cliente = Cliente.objects.get(id=id)
+    cliente = Cliente.objects.get(id=id, empresa=request.user.empresa)
     clear_messages(request)
     if request.method == 'POST':
         form = ClienteForm(request.POST, instance=cliente)
@@ -70,14 +72,14 @@ def editar_clientes(request, id):
 
 @login_required(login_url='/login/')
 def deletar_clientes(request, id):
-    cliente = Cliente.objects.get(id=id)
+    cliente = Cliente.objects.get(id=id, empresa=request.user.empresa)
     cliente.delete()
     messages.success(request, 'Cliente deletado com sucesso!')
     return redirect('/clientes/')
 
 @login_required(login_url='/login/')
 def exportar_clientes_xlsx(request):
-    clientes = Cliente.objects.all()
+    clientes = Cliente.objects.filter(empresa=request.user.empresa)
     df = pd.DataFrame(list(clientes.values()))
     df['data_cadastro'] = df['data_cadastro'].dt.strftime('%d/%m/%Y %H:%M:%S')
     output = io.BytesIO()
@@ -92,7 +94,7 @@ def exportar_clientes_xlsx(request):
 
 @login_required(login_url='/login/')
 def exportar_clientes_pdf(request):
-    clientes = Cliente.objects.all()
+    clientes = Cliente.objects.filter(empresa=request.user.empresa)
     df = pd.DataFrame(list(clientes.values()))
     df['data_cadastro'] = df['data_cadastro'].dt.strftime('%d/%m/%Y %H:%M:%S')
     html_string = df.to_html()

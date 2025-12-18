@@ -9,7 +9,14 @@ class MovimentacaoForm(forms.ModelForm):
 
 @admin.register(Produtos)
 class ProdutosAdmin(admin.ModelAdmin):
-    list_display = ('produto','qtd')
+    list_display = ('produto','qtd', 'empresa')
+    list_filter = ('empresa',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(empresa=request.user.empresa)
 
 @admin.register(EstoqueCategoria)
 class EstoqueCategoriaAdmin(admin.ModelAdmin):
@@ -22,10 +29,16 @@ class EstoqueCategoriaAdmin(admin.ModelAdmin):
 @admin.register(Movimentacao)
 class MovimentacaoAdmin(admin.ModelAdmin):
     form = MovimentacaoForm
-    list_display = ( 'tipo', 'created_at')
-    list_filter = ('tipo', 'created_at')
+    list_display = ('tipo', 'created_at', 'empresa')
+    list_filter = ('tipo', 'created_at', 'empresa')
     ordering = ('created_at',)
-    fields = ( 'tipo', 'motivo', 'empreendimento', 'quadra', 'lote')
+    fields = ('tipo', 'motivo', 'empreendimento', 'quadra', 'lote')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(empresa=request.user.empresa)
 
     def save_model(self, request, obj, form, change):
         # Salva o objeto primeiro
@@ -67,6 +80,12 @@ class MovimentacaoAdmin(admin.ModelAdmin):
 
 @admin.register(Notificacao)
 class NotificacaoAdmin(admin.ModelAdmin):
-    list_display = ('produto', 'mensagem',  'data_criacao','visualizado' )
-    list_filter = ('visualizado', 'data_criacao')
+    list_display = ('produto', 'mensagem',  'data_criacao','visualizado', 'empresa' )
+    list_filter = ('visualizado', 'data_criacao', 'empresa')
     ordering = ('data_criacao',)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(empresa=request.user.empresa)

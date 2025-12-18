@@ -3,6 +3,7 @@ from django.db import models
 from uuid import uuid4
 from django.utils import timezone
 from cliente.models import  Cliente
+from core.models import Empresa
 
 
 # Create your models here.
@@ -14,6 +15,7 @@ class Empreendimento(models.Model):
     descricao = models.TextField(blank=True, null=True)
     localizacao = models.CharField(max_length=255)
     created_at = models.DateTimeField(default=timezone.now)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Empreendimento'
@@ -31,6 +33,7 @@ class Quadra(models.Model):
     descricao = models.TextField(blank=True, null=True)
     metragem = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(default=timezone.now)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
     class Meta:
         verbose_name = 'Quadra'
         verbose_name_plural = 'Quadras'
@@ -67,6 +70,7 @@ class Lote(models.Model):
     proprietario = models.ForeignKey(Cliente, blank=True, null=True, related_name="Lotes", on_delete=models.CASCADE)
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
 
     class Meta:
