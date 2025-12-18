@@ -37,6 +37,11 @@ class Quadra(models.Model):
     class Meta:
         verbose_name = 'Quadra'
         verbose_name_plural = 'Quadras'
+        indexes = [
+            models.Index(fields=['empresa', 'empreendimento']),
+            models.Index(fields=['empresa', 'nome']),
+            models.Index(fields=['empreendimento']),
+        ]
 
     def __str__(self):
         return self.nome

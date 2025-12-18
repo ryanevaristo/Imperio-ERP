@@ -22,7 +22,14 @@ class Produtos(models.Model):
     class Meta:
         verbose_name = 'Produto'
         verbose_name_plural = 'Produtos'
-    
+        indexes = [
+            models.Index(fields=['empresa', 'produto']),
+            models.Index(fields=['empresa', 'categoria']),
+            models.Index(fields=['empresa', 'created_at']),
+            models.Index(fields=['empresa', 'qtd']),
+            models.Index(fields=['categoria']),
+        ]
+
     def __str__(self):
         return self.produto
     
@@ -92,6 +99,13 @@ class Movimentacao(models.Model):
     class Meta:
         verbose_name = 'Movimentação'
         verbose_name_plural = 'Movimentações'
+        indexes = [
+            models.Index(fields=['empresa', 'created_at']),
+            models.Index(fields=['empresa', 'tipo']),
+            models.Index(fields=['empreendimento']),
+            models.Index(fields=['quadra']),
+            models.Index(fields=['lote']),
+        ]
 
     def __str__(self):
         return f'{self.tipo} - {self.motivo or ""}'
@@ -113,6 +127,13 @@ class Notificacao(models.Model):
     data_criacao = models.DateTimeField(auto_now_add=True)
     visualizado = models.BooleanField(default=False)  # Para marcar se o usuário já viu a notificação
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['empresa', 'visualizado']),
+            models.Index(fields=['empresa', 'data_criacao']),
+            models.Index(fields=['produto']),
+        ]
 
     def __str__(self):
         return f'Notificação: {self.produto.produto} - {self.mensagem[:20]}'

@@ -21,19 +21,22 @@ def clear_messages(request):
 @login_required(login_url='/login/')
 @has_role_decorator('gerente')
 def listar_clientes(request):
-    clientes = Cliente.objects.filter(empresa=request.user.empresa)
+    # Otimizado: Usa select_related para empresa e filtra eficientemente
+    clientes = Cliente.objects.select_related('empresa').filter(empresa=request.user.empresa).order_by('-data_cadastro')
+
+    if request.GET.get("pesquisar"):
+        pesquisar = request.GET.get("pesquisar")
+        clientes = clientes.filter(
+            nome_completo__icontains=pesquisar
+        ) | clientes.filter(
+            cpf_cnpj__icontains=pesquisar
+        ) | clientes.filter(
+            email__icontains=pesquisar
+        )
+
     paginator = Paginator(clientes, 10)
     page = request.GET.get('page')
     clientes = paginator.get_page(page)
-    
-    if request.GET.get("pesquisar"):
-        pesquisar = request.GET.get("pesquisar")
-        clientes = Cliente.objects.filter(nome_completo__icontains=pesquisar, empresa=request.user.empresa)
-        paginator = Paginator(clientes, 10)
-        page = request.GET.get('page')
-        clientes = paginator.get_page(page)
-        
-
 
     return render(request, 'clientes.html', {'clientes_obj': clientes})
 
@@ -58,7 +61,8 @@ def cadastrar_clientes(request):
 
 @login_required(login_url='/login/')
 def editar_clientes(request, id):
-    cliente = Cliente.objects.get(id=id, empresa=request.user.empresa)
+    # Otimizado: Usa select_related para empresa
+    cliente = Cliente.objects.select_related('empresa').get(id=id, empresa=request.user.empresa)
     clear_messages(request)
     if request.method == 'POST':
         form = ClienteForm(request.POST, instance=cliente)

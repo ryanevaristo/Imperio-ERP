@@ -24,29 +24,38 @@ from produto.models import Empreendimento, Lote, Quadra
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def home_estoque(request):
-    produtos = Produtos.objects.select_related('categoria').filter(empresa=request.user.empresa)
+    # Otimizado: Usa select_related para categoria e order_by para consistência
+    produtos = Produtos.objects.select_related('categoria').filter(
+        empresa=request.user.empresa
+    ).order_by('-created_at')
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     if start_date and end_date:
         produtos = produtos.filter(created_at__range=[start_date, end_date])
 
-    # Verifica se o usuário tem permissão para ver os produtos
-
-    #Filtra por pesquisar se o paramento estiver presente
+    #Filtra por pesquisar se o parâmetro estiver presente
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
-        produtos = produtos.filter(produto__icontains=pesquisar).filter(empresa=request.user.empresa)
+        produtos = produtos.filter(produto__icontains=pesquisar)
 
     #paginator
     paginator = Paginator(produtos, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    if start_date and end_date is None:
-        return render(request, 'estoque/home.html', {'page_obj': page_obj, 'pesquisar':pesquisar})
+    # Otimizado: Só busca empreendimentos se necessário
+    empreendimentos = None
+    if not start_date or not end_date:
+        empreendimentos = Empreendimento.objects.filter(empresa=request.user.empresa)
 
-    return render(request, 'estoque/home.html', {'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar, "empreendimentos": Empreendimento.objects.all()})
+    return render(request, 'estoque/home.html', {
+        'page_obj': page_obj,
+        'start_date': start_date,
+        'end_date': end_date,
+        'pesquisar': pesquisar,
+        'empreendimentos': empreendimentos
+    })
 
 def detalhes_produto(request, id):
     produto = Produtos.objects.get(id=id, empresa=request.user.empresa)

@@ -545,85 +545,121 @@ def excluir_fornecedor(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def caixa(request):
-    cheques = Cheque.objects.filter(empresa=request.user.empresa)
-    total_valor = 0
-    total_valor_compensado = 0
-    total_valor_repassado = 0
-    total_cheque_emitido = 0
-    for cheque in cheques:
-        total_valor += cheque.valor
-        if cheque.situacao == 'C':
-                total_valor_compensado += cheque.valor
-        elif cheque.situacao == 'R':
-            total_valor_repassado += cheque.valor
+    from django.db.models import Sum, Case, When, Value, IntegerField
 
-    entradas = ContaReceber.objects.filter(recebido=True, empresa=request.user.empresa)
-    total_entradas = 0
-    for entrada in entradas:
-        total_entradas += entrada.valor
+    empresa = request.user.empresa
 
-    despesas = ContaPagar.objects.filter(pago=True, empresa=request.user.empresa)
-    total_despesas = 0
-    for despesa in despesas:
-        total_despesas += despesa.valor
+    # Otimizado: Calcula totais usando agregações
+    cheques_agg = Cheque.objects.filter(empresa=empresa).aggregate(
+        total_cheques=Sum('valor'),
+        total_compensado=Sum(Case(When(situacao='C', then='valor'), default=Value(0), output_field=IntegerField())),
+        total_repassado=Sum(Case(When(situacao='R', then='valor'), default=Value(0), output_field=IntegerField())),
+        total_emitido=Sum(Case(When(situacao='E', then='valor'), default=Value(0), output_field=IntegerField()))
+    )
 
-    cheques = Cheque.objects.filter(empresa=request.user.empresa)
-    total_cheque_emitido = 0
-    for cheque in cheques:
-        if cheque.situacao == 'E':
-            total_cheque_emitido += cheque.valor
+    entradas_agg = ContaReceber.objects.filter(
+        recebido=True, empresa=empresa
+    ).aggregate(total=Sum('valor'))
 
+    despesas_agg = ContaPagar.objects.filter(
+        pago=True, empresa=empresa
+    ).aggregate(total=Sum('valor'))
+
+    # Valores padrão se None
+    total_cheques = float(cheques_agg['total_cheques'] or 0)
+    total_compensado = float(cheques_agg['total_compensado'] or 0)
+    total_repassado = float(cheques_agg['total_repassado'] or 0)
+    total_emitido = float(cheques_agg['total_emitido'] or 0)
+    total_entradas = float(entradas_agg['total'] or 0)
+    total_despesas = float(despesas_agg['total'] or 0)
+
+    # Filtro por data se fornecido
     if request.GET.get('start_date') and request.GET.get('end_date'):
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
-        despesas = ContaPagar.objects.filter(data_pagamento__range=[start_date, end_date], empresa=request.user.empresa)
-        total_despesas = 0
-        for despesa in despesas:
-            total_despesas += despesa.valor
 
-        entradas = ContaReceber.objects.filter(data_recebimento__range=[start_date, end_date], recebido=True, empresa=request.user.empresa)
-        total_entradas = 0
-        for entrada in entradas:
-            total_entradas += entrada.valor
+        # Recalcula para o período
+        despesas_periodo = ContaPagar.objects.filter(
+            data_pagamento__range=[start_date, end_date],
+            pago=True,
+            empresa=empresa
+        ).aggregate(total=Sum('valor'))
 
-        cheque = Cheque.objects.filter(data_compensacao__range=[start_date, end_date], empresa=request.user.empresa)
-        total_valor_repassado = 0
-        total_valor_compensado = 0
-        total_cheque_emitido = 0
+        entradas_periodo = ContaReceber.objects.filter(
+            data_recebimento__range=[start_date, end_date],
+            recebido=True,
+            empresa=empresa
+        ).aggregate(total=Sum('valor'))
 
-        for cheque in cheques:
-            if cheque.situacao == 'E':
-                total_cheque_emitido += cheque.valor
+        total_despesas = float(despesas_periodo['total'] or 0)
+        total_entradas = float(entradas_periodo['total'] or 0)
 
-        return render(request, 'caixa.html', {'saldo': (total_entradas + total_valor_compensado) - total_despesas, 'total_entradas': total_entradas + total_valor_compensado , 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
-    return render(request, 'caixa.html', {'saldo': (total_entradas + total_valor_compensado) - total_despesas , 'total_entradas': total_entradas + total_valor_compensado, 'total_despesas': total_despesas, 'total_cheques': total_valor, 'total_valor_repassado': total_valor_repassado,'total_cheque_emitido': total_cheque_emitido, 'total_valor_compensado': total_valor_compensado})
+        return render(request, 'caixa.html', {
+            'saldo': (total_entradas + total_compensado) - total_despesas,
+            'total_entradas': total_entradas + total_compensado,
+            'total_despesas': total_despesas,
+            'total_cheques': total_cheques,
+            'total_valor_repassado': total_repassado,
+            'total_cheque_emitido': total_emitido,
+            'total_valor_compensado': total_compensado
+        })
+
+    return render(request, 'caixa.html', {
+        'saldo': (total_entradas + total_compensado) - total_despesas,
+        'total_entradas': total_entradas + total_compensado,
+        'total_despesas': total_despesas,
+        'total_cheques': total_cheques,
+        'total_valor_repassado': total_repassado,
+        'total_cheque_emitido': total_emitido,
+        'total_valor_compensado': total_compensado
+    })
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def total_despesa_categoria(request):
-    categorias = DespesasCategoria.objects.filter(empresa=request.user.empresa)
-    total_d_categoria = {}
-    for categoria in categorias:
-        despesas = ContaPagar.objects.filter(categoria=categoria, empresa=request.user.empresa)
-        total = 0
-        for despesa in despesas:
-            total += despesa.valor
-        total_d_categoria[categoria.nome_categoria] = total
+    from django.db.models import Sum
+
+    # Otimizado: Uma única query com agregação por categoria
+    despesas_por_categoria = ContaPagar.objects.filter(
+        pago=True,
+        empresa=request.user.empresa
+    ).values('categoria__nome_categoria').annotate(
+        total=Sum('valor')
+    ).order_by('categoria__nome_categoria')
+
+    # Converte para dicionário
+    total_d_categoria = {item['categoria__nome_categoria']: float(item['total'] or 0) for item in despesas_por_categoria}
+
     return JsonResponse({'total_d_categoria': total_d_categoria})
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(["gerente", "administrador"])
 def total_despesa_ano_atual(request):
-    meses_anteriores = [1,2,3,4,5,6,7,8,9,10,11,12]
-    total_despesas = []
+    from django.db.models import Sum
+
     ano_atual = datetime.now().year
-    for mes in meses_anteriores:
-        despesas = ContaPagar.objects.filter(data_pagamento__month=mes, data_pagamento__year=ano_atual, empresa=request.user.empresa)
-        total = 0
-        for despesa in despesas:
-            total += despesa.valor
-        total_despesas.append(total)
-    return JsonResponse({'total_despesas': total_despesas, 'meses': meses_anteriores,'ano_atual': ano_atual})
+    meses_anteriores = list(range(1, 13))
+
+    # Otimizado: Uma única query com agregação por mês
+    despesas_mensais = ContaPagar.objects.filter(
+        data_pagamento__year=ano_atual,
+        pago=True,
+        empresa=request.user.empresa
+    ).values('data_pagamento__month').annotate(
+        total=Sum('valor')
+    ).order_by('data_pagamento__month')
+
+    # Converte para dicionário para acesso rápido
+    despesas_dict = {item['data_pagamento__month']: float(item['total'] or 0) for item in despesas_mensais}
+
+    # Preenche lista com valores (0 para meses sem despesas)
+    total_despesas = [despesas_dict.get(mes, 0) for mes in meses_anteriores]
+
+    return JsonResponse({
+        'total_despesas': total_despesas,
+        'meses': meses_anteriores,
+        'ano_atual': ano_atual
+    })
     
 
 

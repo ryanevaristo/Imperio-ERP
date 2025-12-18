@@ -15,6 +15,14 @@ class Cliente(models.Model):
     data_cadastro = models.DateTimeField(auto_now_add=True)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['empresa', 'nome_completo']),
+            models.Index(fields=['empresa', 'cpf_cnpj']),
+            models.Index(fields=['empresa', 'email']),
+            models.Index(fields=['empresa', 'data_cadastro']),
+        ]
+
     def __str__(self):
         return self.nome_completo
         

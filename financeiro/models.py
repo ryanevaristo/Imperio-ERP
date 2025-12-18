@@ -66,6 +66,14 @@ class ContaReceber(models.Model):
     forma_recebimento = models.CharField(max_length=1, choices=choice_forma_recebimento,default='D',null=True, blank=True)
     empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['empresa', 'data_recebimento']),
+            models.Index(fields=['empresa', 'recebido']),
+            models.Index(fields=['empresa', 'cliente']),
+            models.Index(fields=['cliente']),
+        ]
+
     def __str__(self):
         return self.descricao
     
