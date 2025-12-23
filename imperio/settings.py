@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'usuarios.middleware.MensalidadeMiddleware',  # Middleware de verificação de mensalidade
 ]
 
 ROOT_URLCONF = 'imperio.urls'
@@ -160,6 +161,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usuarios.Users'
+
+# Authentication Backends
+AUTHENTICATION_BACKENDS = [
+    'usuarios.backends.MensalidadeBackend',  # Backend customizado com verificação de mensalidade
+    # Removido o ModelBackend padrão para garantir que apenas o backend customizado seja usado
+]
 
 # Role Permissions
 ROLEPERMISSIONS_MODULE = 'imperio.roles'
