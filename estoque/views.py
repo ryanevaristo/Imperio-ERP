@@ -231,7 +231,7 @@ def registrar_movimentacao(request):
                 )
 
         messages.success(request, "Movimentação registrada com sucesso!")
-        return redirect("estoque:home_estoque")
+        return redirect("estoque:historico_todas_movimentacoes")
 
     produtos_previos = Produtos.objects.all()[:5]
 
