@@ -131,14 +131,44 @@ def login(request):
         email = request.POST.get('email')
         senha = request.POST.get('senha')
         print(email, senha)
-        # Aqui você deve fazer a validação do login
+        
+        # Primeiro, tenta autenticar o usuário
         user = auth.authenticate(username=email, password=senha)
+        
         if user is None:
+            # Verifica se o usuário existe mas a mensalidade está vencida
+            try:
+                from .models import Users
+                user_check = Users.objects.select_related('empresa').get(username=email)
+                
+                # Verifica a senha manualmente
+                if user_check.check_password(senha):
+                    # Senha correta, mas autenticação falhou - provavelmente mensalidade vencida
+                    if user_check.empresa and not user_check.empresa.pode_acessar_sistema():
+                        messages.error(
+                            request, 
+                            'Sua mensalidade está vencida. Entre em contato com o suporte para renovar o acesso ao sistema.',
+                            extra_tags='danger'
+                        )
+                        return redirect(reverse('usuarios:login'))
+            except Users.DoesNotExist:
+                pass
+            
+            # Se chegou aqui, é realmente usuário ou senha inválidos
             messages.error(request, 'Usuário ou senha inválidos', extra_tags='danger')
             return redirect(reverse('usuarios:login'))
         
+        # Verifica novamente a mensalidade antes de fazer login (segurança extra)
+        if hasattr(user, 'empresa') and user.empresa:
+            if not user.empresa.pode_acessar_sistema():
+                messages.error(
+                    request,
+                    'Sua mensalidade está vencida. Entre em contato com o suporte para renovar o acesso ao sistema.',
+                    extra_tags='danger'
+                )
+                return redirect(reverse('usuarios:login'))
+        
         auth.login(request, user)
-
         return redirect(reverse('home'))
     
 

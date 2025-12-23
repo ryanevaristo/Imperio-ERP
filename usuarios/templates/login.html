@@ -23,8 +23,18 @@
        <div class="login-form">
          {% if messages %}
             {% for message in messages %}
-                  <div class="alert alert-{{ message.tags }}">
+                  <div class="alert alert-{{ message.tags }}" style="margin-bottom: 20px;">
+                     <strong>{% if 'mensalidade' in message|lower %}⚠️ Mensalidade Vencida{% else %}Atenção!{% endif %}</strong><br>
                      {{ message }}
+                     {% if 'mensalidade' in message|lower %}
+                        <hr style="margin: 10px 0;">
+                        <small>
+                           <strong>Entre em contato com o suporte:</strong><br>
+                           📞 Telefone: (XX) XXXX-XXXX<br>
+                           📧 Email: suporte@imperioerp.com.br<br>
+                           💬 WhatsApp: (XX) XXXXX-XXXX
+                        </small>
+                     {% endif %}
                      <a href="#" class="del-msg">&times;</a>
                   </div>
             {% endfor %}
