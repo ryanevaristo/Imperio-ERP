@@ -199,7 +199,8 @@ def registrar_movimentacao(request):
             motivo=motivo,
             empreendimento_id=empreendimento_id,
             quadra_id=quadra_id,
-            lote_id=lote_id
+            lote_id=lote_id,
+            empresa=request.user.empresa
         )
 
         # Se veio produto_id → movimentação individual
@@ -225,7 +226,8 @@ def registrar_movimentacao(request):
                 MovimentacaoItem.objects.create(
                     movimentacao=movimentacao,
                     produto=produto_obj,
-                    qtd=qtd
+                    qtd=qtd,
+                    empresa=request.user.empresa
                 )
 
         messages.success(request, "Movimentação registrada com sucesso!")
@@ -253,25 +255,47 @@ def buscar_produtos(request):
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente","estoquista"])
 def historico_todas_movimentacoes(request):
-    movimentacoes = MovimentacaoItem.objects.select_related('movimentacao', 'produto', 'movimentacao__empreendimento', 'movimentacao__quadra', 'movimentacao__lote').filter(produto__empresa=request.user.empresa)
+    # Busca todas as movimentações ordenadas da mais recente para a mais antiga
+    movimentacoes_query = Movimentacao.objects.select_related(
+        'empreendimento',
+        'quadra',
+        'lote'
+    ).prefetch_related(
+        'itens__produto'
+    ).filter(
+        empresa=request.user.empresa
+    ).order_by('-created_at')
+    
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
 
     if start_date and end_date:
-        movimentacoes = movimentacoes.filter(movimentacao__created_at__range=[start_date, end_date])
+        movimentacoes_query = movimentacoes_query.filter(created_at__range=[start_date, end_date])
 
     pesquisar = request.GET.get('pesquisar')
     if pesquisar:
-        movimentacoes = movimentacoes.filter(produto__produto__icontains=pesquisar)
+        movimentacoes_query = movimentacoes_query.filter(itens__produto__produto__icontains=pesquisar).distinct()
 
-    paginator = Paginator(movimentacoes, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    # Agrupa as movimentações com seus itens
+    movimentacoes_agrupadas = {}
+    for movimentacao in movimentacoes_query:
+        itens = movimentacao.itens.all()
+        # Se houver filtro de pesquisa, filtra os itens
+        if pesquisar:
+            itens = itens.filter(produto__produto__icontains=pesquisar)
+        
+        if itens.exists():  # Só adiciona se tiver itens
+            movimentacoes_agrupadas[str(movimentacao.id)] = {
+                'movimentacao': movimentacao,
+                'itens': list(itens)
+            }
 
-    if start_date and end_date is None:
-        return render(request, 'estoque/historico_movimentacoes.html', {'movimentacoes': movimentacoes, 'page_obj': page_obj, 'pesquisar':pesquisar})
-
-    return render(request, 'estoque/historico_movimentacoes.html', {'movimentacoes': movimentacoes, 'page_obj': page_obj,'start_date': start_date, 'end_date': end_date,'pesquisar':pesquisar})
+    return render(request, 'estoque/historico_movimentacoes.html', {
+        'movimentacoes_agrupadas': movimentacoes_agrupadas,
+        'start_date': start_date,
+        'end_date': end_date,
+        'pesquisar': pesquisar
+    })
 
 def get_quadras(request, empreendimento_id):
     quadras = Quadra.objects.filter(empreendimento_id=empreendimento_id)
