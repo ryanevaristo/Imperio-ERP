@@ -21,6 +21,7 @@
         padding: 0.875rem 1.25rem;
         border: none;
         line-height: 1.5;
+        min-width: 70%;
     }
     
     .accordion-button:not(.collapsed) {
@@ -92,26 +93,27 @@
     
     .accordion-button .row .col-md-2,
     .accordion-button .row .col-md-3 {
-        padding: 0 1rem;
-        display: inline-flex;
+        padding: 0 0.75rem;
+        display: flex;
         align-items: center;
         font-size: 0.875rem;
-        white-space: nowrap;
-        flex-shrink: 0;
+        flex-shrink: 1;
         margin-right: 0.5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        min-width: 0;
     }
     
     .accordion-button .row .col-md-2:first-child {
         padding-left: 0;
         margin-right: 0.75rem;
+        flex-shrink: 0;
     }
     
     .accordion-button .row .col-md-2:last-child,
     .accordion-button .row .col-md-3:last-child {
         margin-right: 0;
-        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     
     /* Responsividade para telas menores */
