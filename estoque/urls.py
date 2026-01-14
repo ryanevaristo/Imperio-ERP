@@ -27,6 +27,8 @@ urlpatterns = [
     path('importar_estoque_excel/', views.importar_estoque_excel, name='importar_estoque_excel'),
     path('exportar_estoque_xls/', views.exportar_estoque_xls, name='exportar_estoque_xls'),
     path('exportar_estoque_pdf/', views.exportar_estoque_pdf, name='exportar_estoque_pdf'),
+    path('exportar_movimentacao_xlsx/', views.exportar_movimentacao_xlsx, name='exportar_movimentacao_xlsx'),
+    path('exportar_movimentacao_pdf/', views.exportar_movimentacao_pdf, name='exportar_movimentacao_pdf'),
 
 
 ]

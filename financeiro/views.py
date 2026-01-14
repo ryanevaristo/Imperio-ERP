@@ -10,12 +10,14 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from datetime import datetime
 
+from global_variables import lista_permissoes_financeiro
+
 import io
 
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def despesas(request):
    # Obtém todas as despesas
     despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
@@ -43,7 +45,7 @@ def despesas(request):
     return render(request, 'despesas.html', {'page_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def cadastrar_despesas(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
@@ -90,7 +92,7 @@ def cadastrar_despesas(request):
 
     
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def editar_despesas(request, id):
     despesas = ContaPagar.objects.get(id=id)
     categorias = DespesasCategoria.objects.all()
@@ -120,7 +122,7 @@ def editar_despesas(request, id):
         return redirect('/financeiro/despesas/')
     
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def excluir_despesas(request, id):
     despesas = ContaPagar.objects.get(id=id)
     despesas.delete()
@@ -128,7 +130,7 @@ def excluir_despesas(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def total_despesas_m_atual(request):
     despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     #maiores despesas no mês atual
@@ -154,7 +156,7 @@ def total_despesas(request):
     return JsonResponse({'total_valor': total_valor})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def exportar_despesas_xlsx(request):
     # Otimizado: Usa select_related para categoria e only() para campos necessários
     despesas = ContaPagar.objects.select_related('categoria').filter(
@@ -208,7 +210,7 @@ def importar_despesa_xlsx(request):
         return redirect('financeiro:despesas')
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def exportar_despesas_pdf(request):
     despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     df = pd.DataFrame(list(despesas.values()))
@@ -228,7 +230,7 @@ def exportar_despesas_pdf(request):
 #categoria
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def cadastrar_categorias(request):
     if request.method == "GET":
         cadastrar_categorias = DespesasCategoria.objects.all()
@@ -243,7 +245,7 @@ def cadastrar_categorias(request):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def entrada(request):
     entrada = ContaReceber.objects.filter(recebido=True, empresa=request.user.empresa)
 
@@ -267,7 +269,7 @@ def entrada(request):
     return render(request, 'entradas.html', {'page_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def contas_a_receber(request):
     entrada = ContaReceber.objects.filter(recebido=False, empresa=request.user.empresa)
 
@@ -344,7 +346,7 @@ def importar_entrada_xlsx(request):
     
     
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def editar_entrada(request, id):
     entrada = ContaReceber.objects.get(id=id)
     clientes = Cliente.objects.all()
@@ -373,14 +375,14 @@ def editar_entrada(request, id):
     
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def excluir_entrada(request, id):
     conta_receber = ContaReceber.objects.get(id=id)
     conta_receber.delete()
     return redirect('financeiro:entradas')
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def total_entradas(request):
     entradas = ContaReceber.objects.all()
     total_valor = 0
@@ -391,7 +393,7 @@ def total_entradas(request):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def exportar_entrada_xlsx(request):
     # Otimizado: Usa select_related para cliente e only() para campos necessários
     entradas = ContaReceber.objects.select_related('cliente').filter(
@@ -424,7 +426,7 @@ def exportar_entrada_xlsx(request):
     return response
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def cheques(request):
     cheques = Cheque.objects.all()
 
@@ -447,7 +449,7 @@ def cheques(request):
         
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def cadastrar_cheque(request):
     if request.method == "GET":
         clientes = Cliente.objects.all()
@@ -506,7 +508,7 @@ def excluir_cheque(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def exportar_cheque_xlsx(request):
     cheques = Cheque.objects.all()
     
@@ -527,13 +529,13 @@ def exportar_cheque_xlsx(request):
 
 # Path: imperio/financeiro/models.py
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def fornecedores(request):
     fornecedores = Fornecedor.objects.all()
     return render(request, 'fornecedores.html', {'fornecedores': fornecedores})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def cadastrar_fornecedor(request):
     if request.method == "GET":
         return render(request, 'cadastrar_fornecedor.html')
@@ -548,7 +550,7 @@ def cadastrar_fornecedor(request):
     
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def editar_fornecedor(request, id):
     fornecedor = Fornecedor.objects.get(id=id)
     if request.method == "GET":
@@ -565,7 +567,7 @@ def editar_fornecedor(request, id):
     
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def excluir_fornecedor(request, id):
     fornecedor = Fornecedor.objects.get(id=id)
     fornecedor.delete()
@@ -574,7 +576,7 @@ def excluir_fornecedor(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def caixa(request):
     from django.db.models import Sum, Case, When, Value, IntegerField
 
@@ -646,7 +648,7 @@ def caixa(request):
     })
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def total_despesa_categoria(request):
     from django.db.models import Sum
 
@@ -664,7 +666,7 @@ def total_despesa_categoria(request):
     return JsonResponse({'total_d_categoria': total_d_categoria})
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def total_despesa_ano_atual(request):
     from django.db.models import Sum
 
@@ -695,7 +697,7 @@ def total_despesa_ano_atual(request):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def get_available_years(request):
     """
     Retorna os anos disponíveis com base nas datas de pagamento e recebimento
@@ -741,7 +743,7 @@ def get_available_years(request):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_financeiro)
 def saldo_anual(request):
     from django.db.models import Sum
     

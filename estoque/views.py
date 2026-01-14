@@ -17,12 +17,14 @@ import uuid
 
 from produto.models import Empreendimento, Lote, Quadra
 
+from global_variables import lista_permissoes_estoque
+
 
 
 # Create your views here.
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def home_estoque(request):
     # Otimizado: Usa select_related para categoria e order_by para consistência
     produtos = Produtos.objects.select_related('categoria').filter(
@@ -62,7 +64,7 @@ def detalhes_produto(request, id):
     return render(request, 'estoque/detalhes_produto.html', {'produto': produto})
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def cadastrar_produto(request):
     cadastrar_categoria = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
     if request.method == 'GET':
@@ -103,7 +105,7 @@ def cadastrar_produto(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def editar_produto(request, id):
     produto = Produtos.objects.get(id=id, empresa=request.user.empresa)
     cadastrar_categoria = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
@@ -123,7 +125,7 @@ def editar_produto(request, id):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def deletar_produto(request, id):
     produto = Produtos.objects.get(id=id)
     produto.delete()
@@ -132,7 +134,7 @@ def deletar_produto(request, id):
 
 
 @login_required(login_url='/auth/login/')
-@has_role_decorator(["gerente", "administrador"])
+@has_role_decorator(lista_permissoes_estoque)
 def cadastrar_categorias(request):
     if request.method == "GET":
         cadastrar_categorias = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
@@ -149,6 +151,9 @@ def cadastrar_categorias(request):
         return redirect('/estoque/')
     
 
+
+@login_required(login_url='/login/')
+@has_role_decorator(lista_permissoes_estoque)
 def importar_estoque_excel(request):
     if request.method == 'POST' and request.FILES['file']:
         arquivo = request.FILES['file']
@@ -181,7 +186,7 @@ def importar_estoque_excel(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def registrar_movimentacao(request):
     produto_id = request.GET.get("produto_id")
     produtos = Produtos.objects.filter(empresa=request.user.empresa)
@@ -244,7 +249,7 @@ def registrar_movimentacao(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def buscar_produtos(request):
     termo = request.GET.get("q", "")
     produtos = Produtos.objects.filter(produto__icontains=termo)[:10]  # limita a 10 resultados
@@ -253,7 +258,7 @@ def buscar_produtos(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(["administrador", "gerente","estoquista"])
 def historico_todas_movimentacoes(request):
     # Busca todas as movimentações ordenadas da mais recente para a mais antiga
     movimentacoes_query = Movimentacao.objects.select_related(
@@ -309,9 +314,58 @@ def get_lotes(request, quadra_id):
     return JsonResponse({'lotes':data}, safe=False)
 
 
+@login_required(login_url='/login/')
+@has_role_decorator(lista_permissoes_estoque)
+def importar_movimentacao_excel(request):
+    if request.method == 'POST' and request.FILES['file']:
+        arquivo = request.FILES['file']
+        wb = openpyxl.load_workbook(arquivo)
+        sheet = wb.active
+
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            tipo, motivo, empreendimento_nome, quadra_nome, lote_numero, produto_nome, qtd = row
+
+            empreendimento = Empreendimento.objects.filter(nome=empreendimento_nome).first()
+            quadra = Quadra.objects.filter(nome=quadra_nome, empreendimento=empreendimento).first() if empreendimento else None
+            lote = Lote.objects.filter(numero=lote_numero, quadra=quadra).first() if quadra else None
+            produto = Produtos.objects.filter(produto=produto_nome).first()
+
+            if not produto:
+                continue  # Pula se o produto não existir
+
+            movimentacao = Movimentacao.objects.create(
+                tipo=tipo,
+                motivo=motivo,
+                empreendimento=empreendimento,
+                quadra=quadra,
+                lote=lote,
+                empresa=request.user.empresa
+            )
+
+            if tipo == 'Entrada':
+                produto.qtd += qtd
+            elif tipo == 'Saida':
+                produto.qtd -= qtd
+            elif tipo == 'Devolucao':
+                produto.qtd += qtd
+
+            produto.save()
+
+            MovimentacaoItem.objects.create(
+                movimentacao=movimentacao,
+                produto=produto,
+                qtd=qtd,
+                empresa=request.user.empresa
+            )
+
+        messages.success(request, 'Movimentações importadas com sucesso!')
+        return redirect(reverse('estoque:historico_todas_movimentacoes'))
+
+    return render(request, 'estoque/importar_movimentacao.html')
+
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def exportar_estoque_xls(request):
     # Otimizado: Usa select_related para categoria e only() para campos necessários
     produtos = Produtos.objects.select_related('categoria').filter(
@@ -346,6 +400,69 @@ def exportar_estoque_xls(request):
     workbook.save(response)
     return response
 
+
+
+@login_required(login_url='/login/')
+@has_role_decorator(lista_permissoes_estoque)
+def exportar_movimentacao_xlsx(request):
+    movimentacoes = Movimentacao.objects.select_related(
+        'empreendimento',
+        'quadra',
+        'lote'
+    ).prefetch_related(
+        'itens__produto'
+    ).filter(
+        empresa=request.user.empresa
+    ).order_by('-created_at')
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_movimentacoes.xlsx"'
+
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = 'Movimentações'
+
+    headers = ['ID', 'Tipo', 'Motivo', 'Empreendimento', 'Quadra', 'Lote', 'Data', 'Produto', 'Quantidade']
+    sheet.append(headers)
+
+    for movimentacao in movimentacoes:
+        for item in movimentacao.itens.all():
+            row = [
+                str(movimentacao.id),
+                str(movimentacao.tipo),
+                str(movimentacao.motivo),
+                str(movimentacao.empreendimento.nome) if movimentacao.empreendimento else "",
+                str(movimentacao.quadra.nome) if movimentacao.quadra else "",
+                str(movimentacao.lote.numero) if movimentacao.lote else "",
+                movimentacao.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                str(item.produto.produto) if item.produto else "",
+                str(item.qtd)
+            ]
+            sheet.append(row)
+
+    workbook.save(response)
+    return response
+
+def exportar_movimentacao_pdf(request):
+    movimentacoes = Movimentacao.objects.select_related(
+        'empreendimento',
+        'quadra',
+        'lote'
+    ).prefetch_related(
+        'itens__produto'
+    ).filter(
+        empresa=request.user.empresa
+    ).order_by('-created_at')
+
+    html_string = render_to_string('estoque/movimentacao/relatorio_movimentacoes.html', {
+        'movimentacoes': movimentacoes,
+        'empresa': request.user.empresa
+    })
+    pdf_file = HTML(string=html_string).write_pdf()
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=relatorio_movimentacoes.pdf'
+    return response
+
 @login_required(login_url='/login/')
 @has_role_decorator(["Administrador", "Gerente", "estoquista"])
 def exportar_estoque_pdf(request):
@@ -366,7 +483,7 @@ def exportar_estoque_pdf(request):
     return response
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def listar_notificacoes(request):
     notificacoes = Notificacao.objects.filter(visualizado=False).order_by('-data_criacao')
     return render(request, 'estoque/notificacoes.html', {'notificacoes': notificacoes,'notificacoes_count': notificacoes.count()})
@@ -374,7 +491,7 @@ def listar_notificacoes(request):
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def marca_vizualizado(request, id):
     try:
         notificacao = Notificacao.objects.get(id=id)
