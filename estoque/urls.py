@@ -12,7 +12,7 @@ urlpatterns = [
     # MOVIENTAÇÕES
     path("registrar-movimentacao/", views.registrar_movimentacao, name="registrar_movimentacao"),
 
-    path('notificacoes/', views.listar_notificacoes, name='listar_notificacoes'),
+
     path('marcar_vizualizado/<int:id>/', views.marca_vizualizado, name='marcar_visualizado'),
     path('historico_todas_movimentacoes/', views.historico_todas_movimentacoes, name='historico_todas_movimentacoes'),
 

@@ -86,7 +86,8 @@ def cadastrar_produto(request):
             qtd=qtd,
             qtd_min=qtd_min,
             custo=custo,
-            categoria=EstoqueCategoria.objects.get(id=categoria)
+            categoria=EstoqueCategoria.objects.get(id=categoria),
+            empresa=request.user.empresa
         )
         produtos.save()
         messages.success(request, 'Produto cadastrado com sucesso!')
@@ -189,7 +190,7 @@ def importar_estoque_excel(request):
 @has_role_decorator(lista_permissoes_estoque)
 def registrar_movimentacao(request):
     produto_id = request.GET.get("produto_id")
-    produtos = Produtos.objects.filter(empresa=request.user.empresa)
+    produtos = Produtos.objects.filter(empresa=request.user.empresa).order_by('produto')
     empreendimentos = Empreendimento.objects.filter(empresa=request.user.empresa)
 
     if request.method == "POST":
@@ -227,6 +228,7 @@ def registrar_movimentacao(request):
                     produto_obj.qtd += qtd
 
                 produto_obj.save()
+                
 
                 MovimentacaoItem.objects.create(
                     movimentacao=movimentacao,
@@ -234,11 +236,18 @@ def registrar_movimentacao(request):
                     qtd=qtd,
                     empresa=request.user.empresa
                 )
+                if produto_obj.qtd < produto_obj.qtd_min:
+                    Notificacao.objects.create(
+                        produto=produto_obj,
+                        mensagem=f'O produto {produto_obj.produto} está abaixo da quantidade mínima.',
+                        empresa=request.user.empresa
+                    )
+                
 
         messages.success(request, "Movimentação registrada com sucesso!")
         return redirect("estoque:historico_todas_movimentacoes")
 
-    produtos_previos = Produtos.objects.all()[:5]
+    produtos_previos = produtos[:5]
 
     return render(request, "estoque/movimentacao/pdv_movimentacao.html", {
         "produtos": produtos,
@@ -252,13 +261,14 @@ def registrar_movimentacao(request):
 @has_role_decorator(lista_permissoes_estoque)
 def buscar_produtos(request):
     termo = request.GET.get("q", "")
-    produtos = Produtos.objects.filter(produto__icontains=termo)[:10]  # limita a 10 resultados
+    produtos = Produtos.objects.filter(produto__icontains=termo,
+                                       empresa=request.user.empresa)[:10]  # limita a 10 resultados
     resultados = [{"id": p.id, "nome": p.produto, "qtd": p.qtd} for p in produtos]
     return JsonResponse(resultados, safe=False)
 
 
 @login_required(login_url='/login/')
-@has_role_decorator(["administrador", "gerente","estoquista"])
+@has_role_decorator(lista_permissoes_estoque)
 def historico_todas_movimentacoes(request):
     # Busca todas as movimentações ordenadas da mais recente para a mais antiga
     movimentacoes_query = Movimentacao.objects.select_related(
@@ -481,13 +491,6 @@ def exportar_estoque_pdf(request):
     response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=relatorio_estoque.pdf'
     return response
-
-@login_required(login_url='/login/')
-@has_role_decorator(lista_permissoes_estoque)
-def listar_notificacoes(request):
-    notificacoes = Notificacao.objects.filter(visualizado=False).order_by('-data_criacao')
-    return render(request, 'estoque/notificacoes.html', {'notificacoes': notificacoes,'notificacoes_count': notificacoes.count()})
-
 
 
 @login_required(login_url='/login/')

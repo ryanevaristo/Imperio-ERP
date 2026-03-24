@@ -64,4 +64,28 @@ class Empresa(models.Model):
         """Verifica se a empresa pode acessar o sistema"""
         return self.mensalidade_ativa and not self.mensalidade_vencida()
     
+    def dias_para_vencimento(self):
+        """Retorna o número de dias para o vencimento da mensalidade"""
+        if self.data_vencimento_mensalidade is None:
+            return None
+        delta = self.data_vencimento_mensalidade - date.today()
+        return delta.days
+    
+class NotificacoesGeral(models.Model):
+    id = models.AutoField(primary_key=True)
+    empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='notificacoes_geral')
+    mensagem = models.TextField()
+    criado_em = models.DateTimeField(auto_now_add=True)
+    visualizado = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = 'Notificação Geral'
+        verbose_name_plural = 'Notificações Gerais'
+        indexes = [
+            models.Index(fields=['empresa']),
+            models.Index(fields=['visualizado']),
+            models.Index(fields=['criado_em']),
+        ]
+
+    def __str__(self):
+        return f'Notificação {self.id} para {self.empresa.nome}'

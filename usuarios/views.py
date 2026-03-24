@@ -10,6 +10,7 @@ import openpyxl
 import pandas as pd
 import io
 
+
 from django.core.paginator import Paginator
 # Create your views here.
 @login_required(login_url='/auth/login/')
@@ -138,7 +139,7 @@ def login(request):
         if user is None:
             # Verifica se o usuário existe mas a mensalidade está vencida
             try:
-                from .models import Users
+                
                 user_check = Users.objects.select_related('empresa').get(username=email)
                 
                 # Verifica a senha manualmente

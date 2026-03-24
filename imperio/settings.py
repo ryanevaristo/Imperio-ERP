@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'cliente',
     'produto',
     'estoque',
+    'notifications',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -187,6 +189,6 @@ MIDDLEWARE.append('django.middleware.cache.FetchFromCacheMiddleware')
 
 # Cache settings
 CACHE_MIDDLEWARE_ALIAS = 'default'
-CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes
+CACHE_MIDDLEWARE_SECONDS = 3  # 10 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'imperio'
 
