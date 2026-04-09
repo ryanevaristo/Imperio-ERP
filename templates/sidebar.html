@@ -1,223 +1,194 @@
 {% load static %}
 {% load permission_tags %}
 
-{% block head %}
-    <link href="{% static 'core/css/sidebar.css' %}" rel="stylesheet" />
-{% endblock %}
+{% if user.is_authenticated %}
 
-    <aside id="sidebar" class="overlay ">
-        <div class="d-flex">
-            <button class="toggle-btn" type="button">
-                <i class="lni lni-grid-alt"></i>
-            </button>
-            <div class="sidebar-logo">
-                <a href="{% url 'home' %}">Randtech</a>
+{% if user|has_role:'administrador' or user|has_role:'gerente' %}
 
-            </div>
-                            
+<p class="sb-section">Principal</p>
+<ul>
+    <li class="sb-item">
+        <a href="{% url 'home' %}" class="sb-link">
+            <i class="bi bi-grid-1x2-fill sb-icon"></i>
+            <span class="sb-label">Dashboard</span>
+        </a>
+    </li>
+</ul>
 
-        </div>
-        {% if user.is_authenticated %}
-
-        {% if user|has_role:'administrador' or user|has_role:'gerente' %}
-        <ul class="list-unstyled">
-             <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Produtos" aria-expanded="false" aria-controls="Produtos">
-                    <i class="bi bi-box-seam"></i>
-                    <span>Produtos (em breve)</span>
-                </a>
-                <ul id="Produtos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'produto:home_produto' %}" class="sidebar-link">Empreendimentos</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'produto:cadastrar_empreendimento' %}" class="sidebar-link">Cadastrar Empreendimento</a>
-                    </li>
-                </ul>
-            </li>
-            <!--  <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Vendas" aria-expanded="false" aria-controls="Vendas">
-                    <i class="bi bi-cart fill"></i>
-                    <span>Vendas (em breve)</span>
-                </a>
-                <ul id="Vendas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar Vendas</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Cadastrar Vendas</a>
-                    </li>
-                </ul>
-            </li>
--->
-            <li class="sidebar-item">
-                <a href="{% url 'estoque:home_estoque' %}" class="sidebar-link" id="button">
-                    <i class="
-                    bi bi-box-seam-fill"></i>
-                    <span>Estoque</span>
-                </a>
-                <a href="{% url 'estoque:historico_todas_movimentacoes' %}" class="sidebar-link" id="button">
-                    <i class="bi bi-box-seam-fill"></i>
-                    <span>Movimentações</span>
-                </a>
-            </li> 
-
-
-            <!-- adicionar caixa -->
-            <li class="sidebar-item">
-                <a href="{% url 'financeiro:caixa' %}" class="sidebar-link">
-                    <i class="bi bi-box-fill"></i>
-                    <span>Caixa - Analise</span>
-                </a>
-            </li>
-            
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Despesas" aria-expanded="false" aria-controls="Despesas">
-                    <i class="bi bi-cash-stack" id="icone"></i>
-                    <span>Contas a Pagar</span>
-                </a>
-                <ul id="Despesas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:despesas' %}" class="sidebar-link">Listar Contas a Pagar</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:cadastrar_despesas' %}" class="sidebar-link">Cadastrar Contas a Pagar</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Cheques" aria-expanded="false" aria-controls="Cheques">
-                    <i class="bi bi-cassette" id="icone"></i>
-                    <span>Cheques</span>
-                </a>
-                <ul id="Cheques" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:cheques' %}" class="sidebar-link">Listar Cheques</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:cadastrar_cheque' %}" class="sidebar-link">Cadastrar Cheques</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Conta_a_receber" aria-expanded="false" aria-controls="Conta_a_receber">
-                    <i class="bi bi-currency-dollar" id="icone"></i>
-                    <span>Contas a Receber</span>
-                </a>
-                <ul id="Conta_a_receber" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:contas_a_receber' %}" class="sidebar-link">Listar Contas a Receber</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:cadastrar_entrada' %}" class="sidebar-link">Cadastrar Contas a Receber</a>
-                    </li>
-                </ul>
-            </li>
-
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Entradas" aria-expanded="false" aria-controls="Entradas">
-                    <i class="bi bi-currency-dollar" id="icone"></i>
-                    <span>Entradas</span>
-                </a>
-                <ul id="Entradas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'financeiro:entradas' %}" class="sidebar-link">Listar Entradas</a>
-                    </li>
-                </ul>
-            </li>
-            
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Clientes" aria-expanded="false" aria-controls="Clientes">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Clientes</span>
-                </a>
-                <ul id="Clientes" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'cliente:listar_clientes' %}" class="sidebar-link">Listar Clientes</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'cliente:cadastrar_clientes' %}" class="sidebar-link">Cadastrar Clientes</a>
-                    </li>
-                </ul>
-            </li>
-
-
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                data-bs-target="#Usuarios" aria-expanded="false" aria-controls="Usuarios">
-                    <i class="bi bi-person-fill"></i>
-                    <span>Usuarios</span>
-                </a>
-                <ul id="Usuarios" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'usuarios:Usuarios' %}" class="sidebar-link">Listar Usuarios</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'usuarios:cadastrar_usuario' %}" class="sidebar-link">Cadastrar Usuarios</a>
-                    </li>
-                </ul>
-            </li>
-
-            <!-- <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Fornecedores" aria-expanded="false" aria-controls="Fornecedores">
-                    <i class="bi bi-truck-front-fill"></i>
-                    <span>Fornecedores (em breve)</span>
-                </a>
-                <ul id="Fornecedores" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Listar Fornecedores</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Cadastrar Fornecedores</a>
-                    </li>
-                </ul>
-            </li> -->
-
+<p class="sb-section">Comercial</p>
+<ul>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-vendas" aria-expanded="false">
+            <i class="bi bi-cart3 sb-icon"></i>
+            <span class="sb-label">Vendas</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-vendas">
+            <li><a href="{% url 'vendas:home_vendas' %}" class="sb-link">Listar Vendas</a></li>
+            <li><a href="{% url 'vendas:cadastrar_venda' %}" class="sb-link">Nova Venda</a></li>
         </ul>
-        {% elif user|has_role:'estoquista' %}
-        <ul class="list-unstyled">
-            <li class="sidebar-item">
-                <a href="{% url 'estoque:home_estoque' %}" class="sidebar-link" id="button">
-                    <i class="bi bi-box-seam-fill"></i>
-                    <span>Estoque</span>
-                </a>
-                <a href="{% url 'estoque:historico_todas_movimentacoes' %}" class="sidebar-link" id="button">
-                    <i class="bi bi-box-seam-fill"></i>
-                    <span>Movimentações</span>
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#Produtos" aria-expanded="false" aria-controls="Produtos">
-                    <i class="bi bi-box-seam"></i>
-                    <span>Produtos (em breve)</span>
-                </a>
-                <ul id="Produtos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                    <li class="sidebar-item">
-                        <a href="{% url 'produto:home_produto' %}" class="sidebar-link">Empreendimentos</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="{% url 'produto:cadastrar_empreendimento' %}" class="sidebar-link">Cadastrar Empreendimento</a>
-                    </li>
-                </ul>
-            </li>
-        
-        {% endif %}
-        
-        {% endif %}
-        <div class="sidebar-footer">
-            <a href="{% url 'usuarios:logout' %}" class="sidebar-link">
-                <i class="lni lni-exit"></i>
-                <span>Logout</span>
-            </a>
-        </div>
-    </aside>
-    
+    </li>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-clientes" aria-expanded="false">
+            <i class="bi bi-people-fill sb-icon"></i>
+            <span class="sb-label">Clientes</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-clientes">
+            <li><a href="{% url 'cliente:listar_clientes' %}" class="sb-link">Listar Clientes</a></li>
+            <li><a href="{% url 'cliente:cadastrar_clientes' %}" class="sb-link">Novo Cliente</a></li>
+        </ul>
+    </li>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-empreend" aria-expanded="false">
+            <i class="bi bi-buildings-fill sb-icon"></i>
+            <span class="sb-label">Empreendimentos</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-empreend">
+            <li><a href="{% url 'produto:home_produto' %}" class="sb-link">Listar</a></li>
+            <li><a href="{% url 'produto:cadastrar_empreendimento' %}" class="sb-link">Novo Empreendimento</a></li>
+        </ul>
+    </li>
+</ul>
+
+<p class="sb-section">Financeiro</p>
+<ul>
+    <li class="sb-item">
+        <a href="{% url 'financeiro:caixa' %}" class="sb-link">
+            <i class="bi bi-bar-chart-line-fill sb-icon"></i>
+            <span class="sb-label">Caixa — Análise</span>
+        </a>
+    </li>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-pagar" aria-expanded="false">
+            <i class="bi bi-arrow-up-circle-fill sb-icon"></i>
+            <span class="sb-label">Contas a Pagar</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-pagar">
+            <li><a href="{% url 'financeiro:despesas' %}" class="sb-link">Listar</a></li>
+            <li><a href="{% url 'financeiro:cadastrar_despesas' %}" class="sb-link">Nova Despesa</a></li>
+        </ul>
+    </li>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-receber" aria-expanded="false">
+            <i class="bi bi-arrow-down-circle-fill sb-icon"></i>
+            <span class="sb-label">Contas a Receber</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-receber">
+            <li><a href="{% url 'financeiro:contas_a_receber' %}" class="sb-link">Listar</a></li>
+            <li><a href="{% url 'financeiro:cadastrar_entrada' %}" class="sb-link">Nova Entrada</a></li>
+        </ul>
+    </li>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-cheques" aria-expanded="false">
+            <i class="bi bi-bank2 sb-icon"></i>
+            <span class="sb-label">Cheques</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-cheques">
+            <li><a href="{% url 'financeiro:cheques' %}" class="sb-link">Listar</a></li>
+            <li><a href="{% url 'financeiro:cadastrar_cheque' %}" class="sb-link">Novo Cheque</a></li>
+        </ul>
+    </li>
+    <li class="sb-item">
+        <a href="{% url 'financeiro:entradas' %}" class="sb-link">
+            <i class="bi bi-receipt-cutoff sb-icon"></i>
+            <span class="sb-label">Entradas</span>
+        </a>
+    </li>
+</ul>
+
+<p class="sb-section">Operacional</p>
+<ul>
+    <li class="sb-item">
+        <a href="{% url 'estoque:home_estoque' %}" class="sb-link">
+            <i class="bi bi-boxes sb-icon"></i>
+            <span class="sb-label">Estoque</span>
+        </a>
+    </li>
+    <li class="sb-item">
+        <a href="{% url 'estoque:historico_todas_movimentacoes' %}" class="sb-link">
+            <i class="bi bi-arrow-left-right sb-icon"></i>
+            <span class="sb-label">Movimentações</span>
+        </a>
+    </li>
+</ul>
+
+<p class="sb-section">Configurações</p>
+<ul>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-usuarios" aria-expanded="false">
+            <i class="bi bi-person-gear sb-icon"></i>
+            <span class="sb-label">Usuários</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-usuarios">
+            <li><a href="{% url 'usuarios:Usuarios' %}" class="sb-link">Listar</a></li>
+            <li><a href="{% url 'usuarios:cadastrar_usuario' %}" class="sb-link">Novo Usuário</a></li>
+        </ul>
+    </li>
+    <li class="sb-item">
+        <a href="{% url 'minha_assinatura' %}" class="sb-link">
+            <i class="bi bi-credit-card-2-front sb-icon"></i>
+            <span class="sb-label">Minha Assinatura</span>
+        </a>
+    </li>
+</ul>
+
+{% elif user|has_role:'estoquista' %}
+
+<p class="sb-section">Operacional</p>
+<ul>
+    <li class="sb-item">
+        <a href="{% url 'estoque:home_estoque' %}" class="sb-link">
+            <i class="bi bi-boxes sb-icon"></i>
+            <span class="sb-label">Estoque</span>
+        </a>
+    </li>
+    <li class="sb-item">
+        <a href="{% url 'estoque:historico_todas_movimentacoes' %}" class="sb-link">
+            <i class="bi bi-arrow-left-right sb-icon"></i>
+            <span class="sb-label">Movimentações</span>
+        </a>
+    </li>
+    <li class="sb-item">
+        <a href="{% url 'produto:home_produto' %}" class="sb-link">
+            <i class="bi bi-buildings-fill sb-icon"></i>
+            <span class="sb-label">Empreendimentos</span>
+        </a>
+    </li>
+</ul>
+
+{% elif user|has_role:'vendedor' or user|has_role:'supervisor' %}
+
+<p class="sb-section">Comercial</p>
+<ul>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-vendas" aria-expanded="false">
+            <i class="bi bi-cart3 sb-icon"></i>
+            <span class="sb-label">Vendas</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-vendas">
+            <li><a href="{% url 'vendas:home_vendas' %}" class="sb-link">Listar Vendas</a></li>
+            <li><a href="{% url 'vendas:cadastrar_venda' %}" class="sb-link">Nova Venda</a></li>
+        </ul>
+    </li>
+    <li class="sb-item">
+        <button class="sb-link" data-bs-toggle="collapse" data-bs-target="#nav-clientes" aria-expanded="false">
+            <i class="bi bi-people-fill sb-icon"></i>
+            <span class="sb-label">Clientes</span>
+            <i class="bi bi-chevron-right sb-arrow"></i>
+        </button>
+        <ul class="collapse sb-sub" id="nav-clientes">
+            <li><a href="{% url 'cliente:listar_clientes' %}" class="sb-link">Listar Clientes</a></li>
+            <li><a href="{% url 'cliente:cadastrar_clientes' %}" class="sb-link">Novo Cliente</a></li>
+        </ul>
+    </li>
+</ul>
+
+{% endif %}
+{% endif %}

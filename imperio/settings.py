@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'cliente',
     'produto',
     'estoque',
+    'vendas',
     'notifications',
     'rest_framework',
 ]

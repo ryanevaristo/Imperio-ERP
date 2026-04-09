@@ -134,7 +134,7 @@ def excluir_despesas(request, id):
 def total_despesas_m_atual(request):
     despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     #maiores despesas no mês atual
-    despesas = ContaPagar.objects.filter(data_pagamento_month=datetime.now().month, empresa=request.user.empresa).order_by('-valor')[:5]
+    despesas = ContaPagar.objects.filter(data_pagamento__month=datetime.now().month, empresa=request.user.empresa).order_by('-valor')[:5]
     total_valor = 0
     total_despesas = {
 

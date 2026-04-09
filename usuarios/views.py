@@ -41,17 +41,15 @@ def cadastrar_usuario(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator("Administrador")
 def Usuarios(request):
-    usuarios = Users.objects.all()
-    paginator = Paginator(usuarios, 10)
-    page_number = request.GET.get('page')
-    usuarios_obj = paginator.get_page(page_number)
+    usuarios = Users.objects.filter(empresa=request.user.empresa)
 
     if request.GET.get("pesquisar"):
         pesquisar = request.GET.get("pesquisar")
-        usuarios_obj = Users.objects.filter(first_name__icontains=pesquisar)
-        paginator = Paginator(usuarios_obj, 10)
-        page_number = request.GET.get('page')
-        usuarios_obj = paginator.get_page(page_number)
+        usuarios = usuarios.filter(first_name__icontains=pesquisar)
+
+    paginator = Paginator(usuarios, 10)
+    page_number = request.GET.get('page')
+    usuarios_obj = paginator.get_page(page_number)
         
 
     return render(request, 'Usuarios.html', {'usuarios_obj': usuarios_obj})
