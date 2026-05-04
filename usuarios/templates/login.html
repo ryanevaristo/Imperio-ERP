@@ -597,6 +597,7 @@
             <label class="remember-label">
                 <input type="checkbox" name="remember"> Lembrar de mim
             </label>
+            <a href="{% url 'usuarios:password_reset' %}" style="font-size:.82rem;color:#2563eb;text-decoration:none;font-weight:500;">Esqueceu a senha?</a>
         </div>
 
         <button type="submit" class="btn-login">
@@ -611,7 +612,8 @@
     </a>
 
     <div class="login-footer">
-        &copy; 2026 Imperio ERP — Sistema de gestao para construcao civil
+        Nao tem conta? <a href="{% url 'usuarios:cadastro' %}" style="color:#2563eb;font-weight:600;text-decoration:none;">Cadastre-se gratis</a> &nbsp;&middot;&nbsp;
+        &copy; 2026 Imperio ERP
     </div>
 </div>
 

@@ -6,10 +6,10 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from rolepermissions.decorators import has_role_decorator
 from .forms import ClienteForm
+from global_variables import lista_permissoes_cliente
 import pandas as pd
 import io
 import pdfkit
-
 
 
 # Create your views here.
@@ -18,8 +18,8 @@ def clear_messages(request):
     storage = messages.get_messages(request)
     storage.used = True
 
-@login_required(login_url='/login/')
-@has_role_decorator('gerente')
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_cliente)
 def listar_clientes(request):
     # Otimizado: Usa select_related para empresa e filtra eficientemente
     clientes = Cliente.objects.select_related('empresa').filter(empresa=request.user.empresa).order_by('-data_cadastro')
@@ -40,18 +40,17 @@ def listar_clientes(request):
 
     return render(request, 'clientes.html', {'clientes_obj': clientes})
 
-@login_required(login_url='/login/')
-@has_role_decorator('gerente')
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_cliente)
 def cadastrar_clientes(request):
     if request.method == 'POST':
-        form = ClienteForm(request.POST)  # Use o formulário de Cliente (se você tiver um)
+        form = ClienteForm(request.POST)
         if form.is_valid():
             cliente = form.save(commit=False)
             cliente.empresa = request.user.empresa
-            cliente.save()  # Salve o cliente no banco de dados
+            cliente.save()
             messages.success(request, 'Cliente cadastrado com sucesso!')
-            
-            return redirect('/clientes/')  # Redirecione para a lista de clientes
+            return redirect('/clientes/')
         else:
             messages.error(request, f"Este Cpf ou Cnpj já existe", extra_tags='warning')
     else:
@@ -59,7 +58,8 @@ def cadastrar_clientes(request):
 
     return render(request, 'cadastrar_clientes.html', {'form': form})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_cliente)
 def editar_clientes(request, id):
     # Otimizado: Usa select_related para empresa
     cliente = Cliente.objects.select_related('empresa').get(id=id, empresa=request.user.empresa)
@@ -74,58 +74,61 @@ def editar_clientes(request, id):
         form = ClienteForm(instance=cliente)
     return render(request, 'cadastrar_clientes.html', {'cliente': form})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_cliente)
 def deletar_clientes(request, id):
     cliente = Cliente.objects.get(id=id, empresa=request.user.empresa)
     cliente.delete()
     messages.success(request, 'Cliente deletado com sucesso!')
     return redirect('/clientes/')
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_cliente)
 def exportar_clientes_xlsx(request):
     # Otimizado: Usa only() para buscar apenas campos necessários
     clientes = Cliente.objects.filter(empresa=request.user.empresa).only(
-        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cep', 
+        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cep',
         'cidade', 'estado', 'endereco', 'data_cadastro'
     )
     df = pd.DataFrame(list(clientes.values(
-        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cep', 
+        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cep',
         'cidade', 'estado', 'endereco', 'data_cadastro'
     )))
-    
+
     if not df.empty:
         df['data_cadastro'] = pd.to_datetime(df['data_cadastro']).dt.strftime('%d/%m/%Y %H:%M:%S')
-    
+
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name='Clientes', index=False)
-    
+
     output.seek(0)
     response = HttpResponse(
-        output, 
+        output,
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename=clientes.xlsx'
     return response
-     
 
-@login_required(login_url='/login/')
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_cliente)
 def exportar_clientes_pdf(request):
     # Otimizado: Usa only() e renderiza template HTML customizado
     clientes = Cliente.objects.filter(empresa=request.user.empresa).only(
-        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cidade', 
+        'nome_completo', 'cpf_cnpj', 'email', 'telefone', 'cidade',
         'estado', 'data_cadastro'
     ).order_by('nome_completo')
-    
+
     html_string = render(request, 'clientes_pdf.html', {
         'clientes': clientes,
         'empresa': request.user.empresa
     }).content.decode('utf-8')
-    
+
     pdf = pdfkit.from_string(html_string, False)
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=clientes.pdf'
-    
+
     return response
 
 

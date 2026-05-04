@@ -23,7 +23,7 @@ from global_variables import lista_permissoes_estoque
 
 # Create your views here.
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def home_estoque(request):
     # Otimizado: Usa select_related para categoria e order_by para consistência
@@ -63,7 +63,7 @@ def detalhes_produto(request, id):
     produto = Produtos.objects.get(id=id, empresa=request.user.empresa)
     return render(request, 'estoque/detalhes_produto.html', {'produto': produto})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def cadastrar_produto(request):
     cadastrar_categoria = EstoqueCategoria.objects.filter(empresa=request.user.empresa)
@@ -105,7 +105,7 @@ def cadastrar_produto(request):
         
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def editar_produto(request, id):
     produto = Produtos.objects.get(id=id, empresa=request.user.empresa)
@@ -125,7 +125,7 @@ def editar_produto(request, id):
         return redirect(reverse('estoque:home_estoque'))
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def deletar_produto(request, id):
     produto = Produtos.objects.get(id=id)
@@ -153,7 +153,7 @@ def cadastrar_categorias(request):
     
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def importar_estoque_excel(request):
     if request.method == 'POST' and request.FILES['file']:
@@ -186,7 +186,7 @@ def importar_estoque_excel(request):
 
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def registrar_movimentacao(request):
     produto_id = request.GET.get("produto_id")
@@ -257,7 +257,7 @@ def registrar_movimentacao(request):
     })
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def buscar_produtos(request):
     termo = request.GET.get("q", "")
@@ -267,7 +267,7 @@ def buscar_produtos(request):
     return JsonResponse(resultados, safe=False)
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def historico_todas_movimentacoes(request):
     # Busca todas as movimentações ordenadas da mais recente para a mais antiga
@@ -324,7 +324,7 @@ def get_lotes(request, quadra_id):
     return JsonResponse({'lotes':data}, safe=False)
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def importar_movimentacao_excel(request):
     if request.method == 'POST' and request.FILES['file']:
@@ -374,7 +374,7 @@ def importar_movimentacao_excel(request):
     return render(request, 'estoque/importar_movimentacao.html')
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def exportar_estoque_xls(request):
     # Otimizado: Usa select_related para categoria e only() para campos necessários
@@ -412,7 +412,7 @@ def exportar_estoque_xls(request):
 
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def exportar_movimentacao_xlsx(request):
     movimentacoes = Movimentacao.objects.select_related(
@@ -473,8 +473,8 @@ def exportar_movimentacao_pdf(request):
     response['Content-Disposition'] = 'attachment; filename=relatorio_movimentacoes.pdf'
     return response
 
-@login_required(login_url='/login/')
-@has_role_decorator(["Administrador", "Gerente", "estoquista"])
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_estoque)
 def exportar_estoque_pdf(request):
     # Otimizado: Usa select_related para categoria e only() para campos necessários
     produtos = Produtos.objects.select_related('categoria').filter(
@@ -493,7 +493,7 @@ def exportar_estoque_pdf(request):
     return response
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def marca_vizualizado(request, id):
     try:

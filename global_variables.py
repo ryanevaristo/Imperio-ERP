@@ -40,3 +40,10 @@ lista_permissoes_financeiro = [
     CargoUsuario.ADMINISTRADOR,
     CargoUsuario.GERENTE,
 ]
+
+lista_permissoes_cliente = [
+    CargoUsuario.ADMINISTRADOR,
+    CargoUsuario.GERENTE,
+    CargoUsuario.VENDEDOR,
+    CargoUsuario.SUPERVISOR,
+]
