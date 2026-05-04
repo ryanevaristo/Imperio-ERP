@@ -14,6 +14,9 @@ class MensalidadeMiddleware(MiddlewareMixin):
     EXEMPT_URLS = [
         '/auth/login/',
         '/auth/logout/',
+        '/auth/cadastro/',
+        '/auth/recuperar-senha/',
+        '/landing/',
         '/admin/',
         '/static/',
         '/media/',

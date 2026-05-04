@@ -134,7 +134,7 @@ def excluir_despesas(request, id):
 def total_despesas_m_atual(request):
     despesas = ContaPagar.objects.filter(empresa=request.user.empresa)
     #maiores despesas no mês atual
-    despesas = ContaPagar.objects.filter(data_pagamento_month=datetime.now().month, empresa=request.user.empresa).order_by('-valor')[:5]
+    despesas = ContaPagar.objects.filter(data_pagamento__month=datetime.now().month, empresa=request.user.empresa).order_by('-valor')[:5]
     total_valor = 0
     total_despesas = {
 
@@ -649,6 +649,41 @@ def caixa(request):
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
+def caixa_kpi(request):
+    """Retorna KPIs do caixa como JSON — aceita start_date e end_date opcionais."""
+    from django.db.models import Sum, Case, When, Value, IntegerField
+
+    empresa = request.user.empresa
+    start_date = request.GET.get('start_date')
+    end_date   = request.GET.get('end_date')
+
+    cheques_agg = Cheque.objects.filter(empresa=empresa).aggregate(
+        total_emitido=Sum(Case(When(situacao='E', then='valor'), default=Value(0), output_field=IntegerField())),
+        total_compensado=Sum(Case(When(situacao='C', then='valor'), default=Value(0), output_field=IntegerField())),
+    )
+    total_emitido    = float(cheques_agg['total_emitido']    or 0)
+    total_compensado = float(cheques_agg['total_compensado'] or 0)
+
+    qs_entradas = ContaReceber.objects.filter(recebido=True, empresa=empresa)
+    qs_despesas = ContaPagar.objects.filter(pago=True,     empresa=empresa)
+
+    if start_date and end_date:
+        qs_entradas = qs_entradas.filter(data_recebimento__range=[start_date, end_date])
+        qs_despesas = qs_despesas.filter(data_pagamento__range=[start_date, end_date])
+
+    total_entradas = float(qs_entradas.aggregate(t=Sum('valor'))['t'] or 0) + total_compensado
+    total_despesas = float(qs_despesas.aggregate(t=Sum('valor'))['t'] or 0)
+
+    return JsonResponse({
+        'total_entradas':     total_entradas,
+        'total_despesas':     total_despesas,
+        'total_cheque_emitido': total_emitido,
+        'saldo':              total_entradas - total_despesas,
+    })
+
+
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_financeiro)
 def total_despesa_categoria(request):
     from django.db.models import Sum
 
@@ -746,51 +781,48 @@ def get_available_years(request):
 @has_role_decorator(lista_permissoes_financeiro)
 def saldo_anual(request):
     from django.db.models import Sum
-    
-    # Obtém o ano do parâmetro GET ou usa o ano atual como padrão
+
     ano = request.GET.get('year', datetime.now().year)
+    start_date = request.GET.get('start_date')
+    end_date   = request.GET.get('end_date')
+
     try:
         ano = int(ano)
     except (ValueError, TypeError):
         ano = datetime.now().year
-    
+
     meses_anteriores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    
-    # Otimizado: Uma única query com agregação por mês para despesas
-    despesas_mensais = ContaPagar.objects.filter(
-        data_pagamento__year=ano,
-        pago=True,
-        empresa=request.user.empresa
-    ).values('data_pagamento__month').annotate(
-        total=Sum('valor')
-    ).order_by('data_pagamento__month')
-    
-    # Converte para dicionário para acesso rápido
-    despesas_dict = {item['data_pagamento__month']: float(item['total'] or 0) for item in despesas_mensais}
-    
-    # Otimizado: Uma única query com agregação por mês para entradas
-    entradas_mensais = ContaReceber.objects.filter(
-        data_recebimento__year=ano,
-        recebido=True,
-        empresa=request.user.empresa
-    ).values('data_recebimento__month').annotate(
-        total=Sum('valor')
-    ).order_by('data_recebimento__month')
-    
-    # Converte para dicionário para acesso rápido
-    entradas_dict = {item['data_recebimento__month']: float(item['total'] or 0) for item in entradas_mensais}
-    
-    # Preenche listas com valores (0 para meses sem movimentação)
-    total_despesas = [despesas_dict.get(mes, 0) for mes in meses_anteriores]
-    total_entradas = [entradas_dict.get(mes, 0) for mes in meses_anteriores]
-    saldo = [entradas_dict.get(mes, 0) - despesas_dict.get(mes, 0) for mes in meses_anteriores]
-    
+    empresa = request.user.empresa
+
+    qs_despesas = ContaPagar.objects.filter(pago=True, empresa=empresa)
+    qs_entradas = ContaReceber.objects.filter(recebido=True, empresa=empresa)
+
+    if start_date and end_date:
+        qs_despesas = qs_despesas.filter(data_pagamento__range=[start_date, end_date])
+        qs_entradas = qs_entradas.filter(data_recebimento__range=[start_date, end_date])
+    else:
+        qs_despesas = qs_despesas.filter(data_pagamento__year=ano)
+        qs_entradas = qs_entradas.filter(data_recebimento__year=ano)
+
+    despesas_dict = {
+        item['data_pagamento__month']: float(item['total'] or 0)
+        for item in qs_despesas.values('data_pagamento__month').annotate(total=Sum('valor'))
+    }
+    entradas_dict = {
+        item['data_recebimento__month']: float(item['total'] or 0)
+        for item in qs_entradas.values('data_recebimento__month').annotate(total=Sum('valor'))
+    }
+
+    total_despesas = [despesas_dict.get(m, 0) for m in meses_anteriores]
+    total_entradas = [entradas_dict.get(m, 0) for m in meses_anteriores]
+    saldo          = [entradas_dict.get(m, 0) - despesas_dict.get(m, 0) for m in meses_anteriores]
+
     return JsonResponse({
-        'saldo': saldo,
+        'saldo':    saldo,
         'entradas': total_entradas,
         'despesas': total_despesas,
-        'meses': meses_anteriores,
-        'ano': ano
+        'meses':    meses_anteriores,
+        'ano':      ano,
     })
 
 

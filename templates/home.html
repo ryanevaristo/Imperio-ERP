@@ -1,497 +1,452 @@
 {% extends 'base-home.html' %}
-{% block 'title' %}Home{% endblock %}
+{% block 'title' %}Dashboard{% endblock %}
+{% block 'page_title' %}Dashboard{% endblock %}
+{% block 'breadcrumb' %}Início{% endblock %}
 {% load permission_tags %}
 {% load static %}
+
 {% block 'head' %}
-<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
-<link href="{% static 'core/css/charts.css' %}" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<style>
+    /* ── Boas-vindas ── */
+    .welcome-bar {
+        background: linear-gradient(135deg, #0a1628 0%, #1e3a8a 100%);
+        border-radius: 14px;
+        padding: 28px 32px;
+        color: #fff;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .welcome-bar h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 4px; }
+    .welcome-bar p  { font-size: .82rem; color: rgba(255,255,255,.65); margin: 0; }
+    .welcome-date   { font-size: .78rem; color: rgba(255,255,255,.5); text-align: right; }
+
+    /* ── Quick-access cards ── */
+    .section-title {
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #9ca3af;
+        margin: 0 0 14px;
+    }
+
+    .qa-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 28px;
+    }
+
+    .qa-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 18px 14px;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        text-align: center;
+        transition: box-shadow .15s, transform .15s, border-color .15s;
+        box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+
+    .qa-card:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,.1);
+        transform: translateY(-2px);
+        border-color: #bfdbfe;
+        text-decoration: none;
+    }
+
+    .qa-icon {
+        width: 44px; height: 44px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .qa-label {
+        font-size: .75rem;
+        font-weight: 600;
+        color: #374151;
+        line-height: 1.3;
+    }
+
+    /* icon color variants */
+    .ic-blue   { background: #dbeafe; color: #2563eb; }
+    .ic-green  { background: #dcfce7; color: #16a34a; }
+    .ic-red    { background: #fee2e2; color: #dc2626; }
+    .ic-yellow { background: #fef9c3; color: #ca8a04; }
+    .ic-purple { background: #ede9fe; color: #7c3aed; }
+    .ic-teal   { background: #ccfbf1; color: #0d9488; }
+    .ic-orange { background: #ffedd5; color: #ea580c; }
+    .ic-gray   { background: #f3f4f6; color: #4b5563; }
+
+    /* ── Chart cards ── */
+    .chart-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+        height: 100%;
+    }
+
+    .chart-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chart-card-title { font-size: .9rem; font-weight: 700; color: #111827; }
+    .chart-card-sub   { font-size: .73rem; color: #9ca3af; margin-top: 2px; }
+
+    .chart-badge {
+        font-size: .68rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: #eff6ff;
+        color: #2563eb;
+    }
+</style>
 {% endblock %}
 
 {% block 'body' %}
 
-
-<h2 class="page-title">Dashboard</h2>
-{% if user|has_role:'administrador' %}
-<div class="container-fluid" id="container" >
-    <h2>links de acesso</h2>
-    <p>acesso rapido para cada categoria.</p>
-    <br>
-    <div class="group" style="margin-bottom: 2rem;">
-            <div id="linha" style="justify-content: space-around;">
-                <a class="btn btn-app" href="{% url 'financeiro:despesas' %}" id="button">
-                    <i class="bi bi-cash-stack" id="icone"></i>Contas a Pagar
-                </a>
-                <a class="btn btn-app" href="{% url 'financeiro:contas_a_receber' %}" id="button">
-                    <i class="
-                    bi bi-currency-dollar" id="icone"></i>Contas a receber
-                    
-                </a>
-                <a class="btn btn-app" href="{% url 'financeiro:entradas' %}" id="button">
-                    <i class="
-                    bi bi-currency-dollar" id="icone"></i>Entradas
-                    
-                </a>
-                <a class="btn btn-app" href="{% url 'financeiro:cheques' %}" id="button">
-                    <i class="bi bi-cassette" id="icone"></i>Cheques
-                </a>
-                <a class="btn btn-app" href="{% url 'estoque:home_estoque' %}" id="button">
-                    <i class="
-                    bi bi-box-seam-fill" id="icone"></i>Estoque
-                </a>
-                <a class="btn btn-app" href="{% url 'estoque:historico_todas_movimentacoes' %}" id="button">
-                    <i class="
-                    bi bi-box-seam-fill" id="icone"></i>Movimentações
-                </a>
-                
-                <a class="btn btn-app" href="{% url 'financeiro:caixa' %}" id="button">
-                    <i class="
-                    bi bi-bar-chart-fill" id="icone"></i>Caixa - analise
-                </a>
-                <a class="btn btn-app" href="{% url 'produto:home_produto' %}" id="button">
-                    <i class="bi bi-box-seam" id="icone"></i>Produtos
-                </a>  
-                <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-cart fill" id="icone"></i>Vendas
-                </a>
-                <!-- <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-bag-fill" id="icone"></i>PDV
-                </a> -->
-                <a class="btn btn-app" href="{% url 'cliente:listar_clientes' %}" id="button">
-                    <i class="bi bi-people-fill" id="icone"></i>Clientes
-                </a>
-                <a class="btn btn-app" href="{% url 'usuarios:Usuarios' %}" id="button">
-                    <i class="bi bi-person-fill" id="icone"></i>Usuarios
-                </a>
-                <!-- <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores
-                </a> -->
-            </div>
-        </div>
+<!-- Boas-vindas -->
+<div class="welcome-bar">
+    <div>
+        <h2>Olá, {{ request.user.username }} 👋</h2>
+        <p>Bem-vindo ao painel de controle do Império ERP.</p>
+    </div>
+    <div class="welcome-date" id="live-date"></div>
 </div>
-<div class="row">
-    <div class="col-md-8" >
-        <div class="box box-primary" id="container-charts">
-            <div class="box-header">
-                <h3 class="box-title">Gráfico de Vendas Mensal (Em construção)</h3>
-            </div>
-            <div class="box-body">
-                <div style="display: grid;">
-                    <canvas id="myChart2" style="max-height: 400px; height: 100%;min-width: max-content; "></canvas>
-                    <p style="color: transparent;">.</p>
+
+{% if user|has_role:'administrador' or user|has_role:'gerente' %}
+
+<!-- Acesso Rápido -->
+<p class="section-title">Acesso rápido</p>
+<div class="qa-grid">
+    <a class="qa-card" href="{% url 'financeiro:despesas' %}">
+        <div class="qa-icon ic-red"><i class="bi bi-arrow-up-circle-fill"></i></div>
+        <span class="qa-label">Contas a Pagar</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:contas_a_receber' %}">
+        <div class="qa-icon ic-green"><i class="bi bi-arrow-down-circle-fill"></i></div>
+        <span class="qa-label">Contas a Receber</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:entradas' %}">
+        <div class="qa-icon ic-teal"><i class="bi bi-receipt-cutoff"></i></div>
+        <span class="qa-label">Entradas</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:cheques' %}">
+        <div class="qa-icon ic-yellow"><i class="bi bi-bank2"></i></div>
+        <span class="qa-label">Cheques</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:caixa' %}">
+        <div class="qa-icon ic-blue"><i class="bi bi-bar-chart-line-fill"></i></div>
+        <span class="qa-label">Caixa — Análise</span>
+    </a>
+    <a class="qa-card" href="{% url 'estoque:home_estoque' %}">
+        <div class="qa-icon ic-orange"><i class="bi bi-boxes"></i></div>
+        <span class="qa-label">Estoque</span>
+    </a>
+    <a class="qa-card" href="{% url 'estoque:historico_todas_movimentacoes' %}">
+        <div class="qa-icon ic-purple"><i class="bi bi-arrow-left-right"></i></div>
+        <span class="qa-label">Movimentações</span>
+    </a>
+    <a class="qa-card" href="{% url 'vendas:home_vendas' %}">
+        <div class="qa-icon ic-green"><i class="bi bi-cart3"></i></div>
+        <span class="qa-label">Vendas</span>
+    </a>
+    <a class="qa-card" href="{% url 'produto:home_produto' %}">
+        <div class="qa-icon ic-blue"><i class="bi bi-buildings-fill"></i></div>
+        <span class="qa-label">Empreendimentos</span>
+    </a>
+    <a class="qa-card" href="{% url 'cliente:listar_clientes' %}">
+        <div class="qa-icon ic-teal"><i class="bi bi-people-fill"></i></div>
+        <span class="qa-label">Clientes</span>
+    </a>
+    <a class="qa-card" href="{% url 'usuarios:Usuarios' %}">
+        <div class="qa-icon ic-gray"><i class="bi bi-person-gear"></i></div>
+        <span class="qa-label">Usuários</span>
+    </a>
+</div>
+
+<!-- Gráficos -->
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-card-title">Despesas Mensais</div>
+                    <div class="chart-card-sub">Evolução das despesas no ano atual</div>
                 </div>
-                
+                <span class="chart-badge" id="mes-atual-badge">Carregando...</span>
             </div>
+            <canvas id="myChart2" style="max-height: 320px;"></canvas>
         </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="box box-primary"  id="container-charts">
-            <div class="box-header">
-                <h3 id="titulo_chart2" class="box-title">Principais despesas</h3>
-            </div>
-            <div class="box-body" style="text-align: center;">
-                <div style="display:grid">
-                    <canvas id="myChart" style="max-height: 375px; height: 100%;" ></canvas>
-                    <p style="color: white;">margem</p>
+    <div class="col-xl-4">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-card-title">Por Categoria</div>
+                    <div class="chart-card-sub">Maiores despesas do mês</div>
                 </div>
             </div>
-            
+            <canvas id="myChart" style="max-height: 280px;"></canvas>
         </div>
-    </div>
-
-{% elif user|has_role:'gerente'  %}
-<div class="container-fluid" id="container" >
-    <h2>links de acesso</h2>
-    <p>acesso rapido para cada categoria.</p>
-    <div id="linha">
-        <div class="group" style="margin-bottom: 2rem;">
-            <div id="linha" style="justify-content: space-around;">
-                <a class="btn btn-app" href="{% url 'financeiro:despesas' %}" id="button">
-                    <i class="bi bi-cash-stack" id="icone"></i>Contas a Pagar
-                </a>
-                <a class="btn btn-app" href="{% url 'financeiro:contas_a_receber' %}" id="button">
-                    <i class="
-                    bi bi-currency-dollar" id="icone"></i>Contas a receber
-                    
-                </a>
-                <a class="btn btn-app" href="{% url 'financeiro:entradas' %}" id="button">
-                    <i class="
-                    bi bi-currency-dollar" id="icone"></i>Entradas
-                    
-                </a>
-                <a class="btn btn-app" href="{% url 'financeiro:cheques' %}" id="button">
-                    <i class="bi bi-cassette" id="icone"></i>Cheques
-                </a>
-
-                <a class="btn btn-app" href="{% url 'estoque:home_estoque' %}" id="button">
-                    <i class="
-                    bi bi-box-seam-fill" id="icone"></i>Estoque
-                </a>
-                <a class="btn btn-app" href="{% url 'estoque:historico_todas_movimentacoes' %}" id="button">
-                    <i class="
-                    bi bi-box-seam-fill" id="icone"></i>Movimentações
-                </a>
-                
-                <a class="btn btn-app" href="{% url 'financeiro:caixa' %}" id="button">
-                    <i class="
-                    bi bi-bar-chart-fill" id="icone"></i>Caixa - analise
-                </a>
-                <a class="btn btn-app" href="{% url 'cliente:listar_clientes' %}" id="button">
-                    <i class="bi bi-people-fill" id="icone"></i>Clientes
-                </a>
-                <a class="btn btn-app" href="{% url 'usuarios:Usuarios' %}" id="button">
-                    <i class="bi bi-person-fill" id="icone"></i>Usuarios
-                </a>
-                <!-- <a class="btn btn-app" href="" id="button">
-                    <i class="bi bi-truck-front-fill" id="icone"></i>Fornecedores
-                </a> -->
-            </div>
-        </div>
-        
     </div>
 </div>
-<div class="row">
-    <div class="col-md-8" >
-        <div class="box box-primary" id="container-charts">
-            <div class="box-header">
-                <h3 class="box-title">Despesa Anual</h3>
-            </div>
-            <div class="box-body">
-                <div style="display: grid;">
-                    <canvas id="DespesaGerente" style="max-height: 400px; height: 100%;min-width: max-content; "></canvas>
-                    <p style="color: transparent;">.</p>
+
+{% elif user|has_role:'gerente' %}
+
+<p class="section-title">Acesso rápido</p>
+<div class="qa-grid">
+    <a class="qa-card" href="{% url 'financeiro:despesas' %}">
+        <div class="qa-icon ic-red"><i class="bi bi-arrow-up-circle-fill"></i></div>
+        <span class="qa-label">Contas a Pagar</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:contas_a_receber' %}">
+        <div class="qa-icon ic-green"><i class="bi bi-arrow-down-circle-fill"></i></div>
+        <span class="qa-label">Contas a Receber</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:entradas' %}">
+        <div class="qa-icon ic-teal"><i class="bi bi-receipt-cutoff"></i></div>
+        <span class="qa-label">Entradas</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:cheques' %}">
+        <div class="qa-icon ic-yellow"><i class="bi bi-bank2"></i></div>
+        <span class="qa-label">Cheques</span>
+    </a>
+    <a class="qa-card" href="{% url 'financeiro:caixa' %}">
+        <div class="qa-icon ic-blue"><i class="bi bi-bar-chart-line-fill"></i></div>
+        <span class="qa-label">Caixa — Análise</span>
+    </a>
+    <a class="qa-card" href="{% url 'estoque:home_estoque' %}">
+        <div class="qa-icon ic-orange"><i class="bi bi-boxes"></i></div>
+        <span class="qa-label">Estoque</span>
+    </a>
+    <a class="qa-card" href="{% url 'cliente:listar_clientes' %}">
+        <div class="qa-icon ic-teal"><i class="bi bi-people-fill"></i></div>
+        <span class="qa-label">Clientes</span>
+    </a>
+    <a class="qa-card" href="{% url 'usuarios:Usuarios' %}">
+        <div class="qa-icon ic-gray"><i class="bi bi-person-gear"></i></div>
+        <span class="qa-label">Usuários</span>
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-card-title">Despesa Anual</div>
+                    <div class="chart-card-sub">Despesas por mês no ano corrente</div>
                 </div>
-                
             </div>
+            <canvas id="DespesaGerente" style="max-height: 320px;"></canvas>
         </div>
     </div>
-    
-    <div class="col-md-4">
-        <div class="box box-primary"  id="container-charts">
-            <div class="box-header">
-                <h3 id="titulo_chartGerente" class="box-title">Principais despesas (categorias)</h3>
-            </div>
-            <div class="box-body" style="text-align: center;">
-                <div style="display:grid">
-                    <canvas id="CategoriaGerente" style="max-height: 375px; height: 100%;" ></canvas>
-                    <p style="color: white;">margem</p>
+    <div class="col-xl-4">
+        <div class="chart-card">
+            <div class="chart-card-header">
+                <div>
+                    <div class="chart-card-title">Por Categoria</div>
+                    <div class="chart-card-sub" id="titulo_chartGerente">Principais despesas</div>
                 </div>
             </div>
-            
+            <canvas id="CategoriaGerente" style="max-height: 280px;"></canvas>
         </div>
     </div>
+</div>
 
 {% elif user|has_role:'estoquista' %}
-<div class="container-fluid" id="container" >
-    <h2>links de acesso</h2>
-    <p>acesso rapido para cada categoria.</p>
-    <div id="linha">
-        <div class="group" style="margin-bottom: 2rem;">
-            <div id="linha" style="justify-content: space-around;">
-                <a class="btn btn-app" href="{% url 'estoque:home_estoque' %}" id="button">
-                    <i class="
-                    bi bi-box-seam-fill" id="icone"></i>Estoque
-                </a>
-                <a class="btn btn-app" href="{% url 'produto:home_produto' %}" id="button">
-                    <i class="bi bi-box-seam" id="icone"></i>Produtos
-                </a>  
-            </div>
-        </div>
-        
-    </div>
 
+<p class="section-title">Acesso rápido</p>
+<div class="qa-grid">
+    <a class="qa-card" href="{% url 'estoque:home_estoque' %}">
+        <div class="qa-icon ic-orange"><i class="bi bi-boxes"></i></div>
+        <span class="qa-label">Estoque</span>
+    </a>
+    <a class="qa-card" href="{% url 'estoque:historico_todas_movimentacoes' %}">
+        <div class="qa-icon ic-purple"><i class="bi bi-arrow-left-right"></i></div>
+        <span class="qa-label">Movimentações</span>
+    </a>
+    <a class="qa-card" href="{% url 'produto:home_produto' %}">
+        <div class="qa-icon ic-blue"><i class="bi bi-buildings-fill"></i></div>
+        <span class="qa-label">Empreendimentos</span>
+    </a>
+</div>
 
 {% endif %}
-
-
 
 {% endblock %}
 
 {% block 'scripts' %}
 <script>
-    var ctx = document.getElementById('myChart2').getContext('2d');
-    var myChart2 = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                label: 'Teste',
-                data: [12, 19, 3, 5, 2, 3],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+// Data ao vivo
+(function() {
+    const el = document.getElementById('live-date');
+    if (!el) return;
+    const d = new Date();
+    const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+    el.textContent = d.toLocaleDateString('pt-BR', opts);
+})();
 
+// Paleta de cores consistente
+const COLORS = {
+    blue:   { bg: 'rgba(37,99,235,0.85)',   border: '#2563eb' },
+    red:    { bg: 'rgba(239,68,68,0.85)',    border: '#ef4444' },
+    green:  { bg: 'rgba(34,197,94,0.85)',    border: '#22c55e' },
+    purple: { bg: 'rgba(124,58,237,0.85)',   border: '#7c3aed' },
+    orange: { bg: 'rgba(234,88,12,0.85)',    border: '#ea580c' },
+    teal:   { bg: 'rgba(13,148,136,0.85)',   border: '#0d9488' },
+    yellow: { bg: 'rgba(202,138,4,0.85)',    border: '#ca8a04' },
+};
+const PALETTE = Object.values(COLORS).map(c => c.bg);
+const PALETTE_BORDER = Object.values(COLORS).map(c => c.border);
+
+Chart.defaults.font.family = 'Inter, sans-serif';
+Chart.defaults.font.size = 12;
+
+{% if user|has_role:'administrador' %}
+// ── Gráfico bar — despesas mensais
+var ctx2 = document.getElementById('myChart2').getContext('2d');
+var myChart2 = new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Despesas (R$)',
+            data: [],
+            backgroundColor: COLORS.blue.bg,
+            borderColor: COLORS.blue.border,
+            borderWidth: 0,
+            borderRadius: 7,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
                 }
-            },
-            plugins: {
-                legend: {
-                    display: true
+            }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: {
+                beginAtZero: true,
+                grid: { color: '#f3f4f6' },
+                ticks: {
+                    font: { size: 11 },
+                    callback: v => 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 })
                 }
             }
         }
-    });
+    }
+});
+
+// ── Gráfico donut — categorias
+var ctx1 = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx1, {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: PALETTE, borderColor: '#fff', borderWidth: 3 }] },
+    options: {
+        responsive: true,
+        cutout: '65%',
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14, usePointStyle: true } },
+            tooltip: {
+                callbacks: {
+                    label: ctx => ctx.label + ': R$ ' + ctx.parsed.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+                }
+            }
+        }
+    }
+});
+
+// Carrega dados
+const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+$.ajax({
+    url: "{% url 'financeiro:total_despesas_ano_atual' %}",
+    method: 'GET',
+    success: function(r) {
+        var valores = Object.values(r['total_despesas']);
+        var labels2 = [], valores2 = [];
+        valores.forEach((v, i) => { if (v > 0) { labels2.push(meses[i]); valores2.push(v); } });
+        myChart2.data.labels = labels2;
+        myChart2.data.datasets[0].data = valores2;
+        myChart2.update();
+    }
+});
+
+$.ajax({
+    url: "{% url 'financeiro:total_despesas_mes_atual' %}",
+    method: 'GET',
+    success: function(r) {
+        var entries = Object.entries(r['total_despesas']);
+        var labels = entries.map(e => e[0]);
+        var valores = entries.map(e => e[1]);
+        myChart.data.labels = labels;
+        myChart.data.datasets[0].data = valores;
+        myChart.update();
+        var mesNome = meses[(r['mes_atual'] || 1) - 1];
+        document.getElementById('mes-atual-badge').textContent = mesNome;
+    }
+});
+
+{% elif user|has_role:'gerente' %}
+var ctxG = document.getElementById('DespesaGerente').getContext('2d');
+var DespesaGerente = new Chart(ctxG, {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Despesas', data: [], backgroundColor: COLORS.blue.bg, borderRadius: 7, borderWidth: 0 }] },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'R$ ' + c.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) } } },
+        scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#f3f4f6' }, ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR', { maximumFractionDigits: 0 }) } } }
+    }
+});
+
+var ctxGC = document.getElementById('CategoriaGerente').getContext('2d');
+var CategoriaGerente = new Chart(ctxGC, {
+    type: 'doughnut',
+    data: { labels: [], datasets: [{ data: [], backgroundColor: PALETTE, borderColor: '#fff', borderWidth: 3 }] },
+    options: { responsive: true, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 14, usePointStyle: true } } } }
+});
+
+const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+$.ajax({ url: "{% url 'financeiro:total_despesas_ano_atual' %}", method: 'GET', success: function(r) {
+    var vals = Object.values(r['total_despesas']), l2=[], v2=[];
+    vals.forEach((v,i) => { if(v>0){ l2.push(meses[i]); v2.push(v); } });
+    DespesaGerente.data.labels = l2; DespesaGerente.data.datasets[0].data = v2; DespesaGerente.update();
+}});
+
+$.ajax({ url: "{% url 'financeiro:total_despesa_categoria' %}", method: 'GET', success: function(r) {
+    var entries = Object.entries(r['total_d_categoria']);
+    CategoriaGerente.data.labels = entries.map(e=>e[0]);
+    CategoriaGerente.data.datasets[0].data = entries.map(e=>e[1]);
+    CategoriaGerente.update();
+}});
+{% endif %}
 </script>
-<script>
-    var ctx = document.getElementById('myChart').getContext('2d');
-    var myChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                
-                data: [],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true
-                }
-            }
-            
-        }
-    });
-</script>
-
-<!-- GERENTE -->
-<script>
-    var ctx = document.getElementById('DespesaGerente').getContext('2d');
-    var DespesaGerente = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Despesas',
-                data: [],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)'
-                ],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true
-                }
-            }
-        }
-    });
-</script>
-<script>
-    var ctx = document.getElementById('CategoriaGerente').getContext('2d');
-    var CategoriaGerente = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                
-                data: [],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(255, 206, 86, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true
-                }
-            }
-            
-        }
-    });
-</script>
-<script>
-    $.ajax({
-        url: "{% url 'financeiro:total_despesas_mes_atual' %}",
-        method: 'GET',
-        success: function(response) {
-            // transformar objeto em map 
-            var despesas = Object.entries(response['total_despesas']);
-            var mes_atual = response['mes_atual'];
-            valores = [];
-            labels = [];
-            despesas.forEach(element => {
-                valores.push(element[1]);
-                labels.push(element[0]);
-            });
-            myChart.data.datasets[0].data = valores;
-            myChart.data.labels = labels;
-            
-            myChart.update();
-            if (mes_atual == 1) {
-                mes_atual = 'Janeiro';
-            } else if (mes_atual == 2) {
-                mes_atual = 'Fevereiro';
-            } else if (mes_atual == 3) {
-                mes_atual = 'Março';
-            } else if (mes_atual == 4) {
-                mes_atual = 'Abril';
-            } else if (mes_atual == 5) {
-                mes_atual = 'Maio';
-            } else if (mes_atual == 6) {
-                mes_atual = 'Junho';
-            } else if (mes_atual == 7) {
-                mes_atual = 'Julho';
-            } else if (mes_atual == 8) {
-                mes_atual = 'Agosto';
-            } else if (mes_atual == 9) {
-                mes_atual = 'Setembro';
-            } else if (mes_atual == 10) {
-                mes_atual = 'Outubro';
-            } else if (mes_atual == 11) {
-                mes_atual = 'Novembro';
-            } else if (mes_atual == 12) {
-                mes_atual = 'Dezembro';
-            }
-            document.getElementById('titulo_chart2').innerHTML = 'Principais despesas em ' + mes_atual;
-            // myChart.data.datasets[0].data = response['total_despesas'][];
-        },
-        error: function(error) {
-            // Handle the error here
-        }
-    });
-
-    $.ajax({
-        url: "{% url 'financeiro:total_despesas_ano_atual' %}",
-        method: 'GET',
-        success: function(response) {
-            // transformar objeto em map 
-            var despesas = Object.entries(response['total_despesas']);
-            var ano_atual = response['ano_atual'];
-
-            valores = [];
-            labels = response['meses'];
-            labels2 = [];
-            valores2 = []
-            despesas.forEach(element => {
-                valores.push(element[1]);
-            });
-            mes_labels = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-            
-            // console.log(DespesaGerente);
-            // mostrar os meses que tem dados
-            for(let i = 0; i < valores.length; i++) {
-                if (valores[i] != 0) {
-                    labels2.push(mes_labels[i]);
-                    valores2.push(valores[i]);
-                }
-
-            }
-            // console.log(valores);
-            DespesaGerente.data.datasets[0].data = valores2;
-            DespesaGerente.data.labels = labels2;
-            // console.log(labels2);
-            DespesaGerente.update();
-        },
-        error: function(error) {
-            // Handle the error here
-        }
-    });
-
-    $.ajax({
-        url: "{% url 'financeiro:total_despesa_categoria' %}",
-        method: 'GET',
-        success: function(response) {
-            // transformar objeto em map 
-            var despesas = Object.entries(response['total_d_categoria']);
-            valores = [];
-            labels = [];
-            despesas.forEach(element => {
-                valores.push(element[1]);
-                labels.push(element[0]);
-            });
-            CategoriaGerente.data.datasets[0].data = valores;
-            CategoriaGerente.data.labels = labels;
-            CategoriaGerente.update();
-        },
-        error: function(error) {
-            // Handle the error here
-        }
-    });
-</script>
-
 {% endblock %}
-
-
-
-
-<!-- <a class="btn btn-app" href="{% url 'financeiro:financeiro' %}" id="button">
-    <i class="bi bi-currency-dollar" id="icone"></i>Financeiro
-</a>  
-<a class="btn btn-app" href="" id="button">
-    <i class="bi bi-table" id="icone"></i>Relatorios
-</a>   -->

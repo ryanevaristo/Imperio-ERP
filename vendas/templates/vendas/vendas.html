@@ -1,0 +1,94 @@
+{% extends 'base-home.html' %}
+{% block 'title' %}Vendas{% endblock %}
+{% load static %}
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'core/css/table_view.css' %}">
+{% endblock %}
+{% block 'body' %}
+<div class="container-fluid" id="container">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <h1>Vendas</h1>
+    <p>Gerencie as vendas de lotes da sua empresa</p>
+    <hr>
+
+    <div class="button-container">
+        <div>
+            <a href="{% url 'vendas:cadastrar_venda' %}" class="btn btn-outline-primary" style="margin-top: 10px;">
+                Nova Venda
+            </a>
+        </div>
+        <div class="alinhar-direita">
+            <form class="form-inline my-2">
+                <select name="status" class="form-control-sm me-2">
+                    <option value="">Todos os status</option>
+                    <option value="Pendente" {% if status_filtro == 'Pendente' %}selected{% endif %}>Pendente</option>
+                    <option value="Concluída" {% if status_filtro == 'Concluída' %}selected{% endif %}>Concluída</option>
+                    <option value="Cancelada" {% if status_filtro == 'Cancelada' %}selected{% endif %}>Cancelada</option>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
+            </form>
+        </div>
+    </div>
+
+    <form class="mt-2">
+        <input type="text" name="pesquisar" class="form-control" placeholder="Pesquisar por cliente..." value="{{ pesquisar|default:'' }}">
+    </form>
+
+    {% if page_obj %}
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Lote</th>
+                            <th>Valor</th>
+                            <th>Total Pago</th>
+                            <th>Saldo</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Opções</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for venda in page_obj %}
+                        <tr>
+                            <td>{{ venda.id_cliente.nome_completo }}</td>
+                            <td>{{ venda.id_lote.quadra }} - Lote {{ venda.id_lote.numero }}</td>
+                            <td>R$ {{ venda.valor_venda|floatformat:"2g" }}</td>
+                            <td>R$ {{ venda.total_pago|floatformat:"2g" }}</td>
+                            <td>R$ {{ venda.saldo_restante|floatformat:"2g" }}</td>
+                            <td>{{ venda.get_data_venda }}</td>
+                            <td>
+                                {% if venda.status_venda == 'Concluída' %}
+                                    <span class="badge bg-success">Concluída</span>
+                                {% elif venda.status_venda == 'Pendente' %}
+                                    <span class="badge bg-warning text-dark">Pendente</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'vendas:detalhe_venda' venda.id_venda %}" class="btn btn-primary btn-sm">Detalhes</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% include 'pagination.html' %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info mt-3">Nenhuma venda encontrada.</div>
+    {% endif %}
+
+</div>
+{% endblock %}

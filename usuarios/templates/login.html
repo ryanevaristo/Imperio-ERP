@@ -1,62 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Imperio ERP | Gestao para Construtoras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% extends 'base-login.html' %}
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #0a1628;
+            color: #f1f5f9;
+        }
 
-{% load static %}
+        /* ── Left panel ── */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 60px;
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(160deg, rgba(10,22,40,.92) 0%, rgba(30,58,138,.88) 50%, rgba(37,99,235,.85) 100%);
+        }
 
-{% block 'title' %}Login{% endblock %}
+        /* Grid pattern overlay */
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
 
-{% block 'head' %}
-<link rel="stylesheet" href="{% static 'usuarios/css/usuario-login.css' %}"/>
-{% endblock %}
+        /* Glow blob top-right */
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            top: -15%; right: -10%;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(37,99,235,.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
 
-{% block 'body' %}
+        .left-top { position: relative; z-index: 1; }
 
+        .left-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 60px;
+        }
 
-<div class="sidenav" >
-    <div class="login-main-text">
-       <h2>IMPERIO<br> Bem Vindo ao soft de Gestão</h2>
-       <p>Para acessar o sitema basta colocar seu usuário e senha.</p>
+        .left-logo-icon {
+            width: 44px; height: 44px;
+            background: rgba(255,255,255,.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem;
+            color: #fff;
+        }
+
+        .left-logo-text {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .left-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(245,158,11,.12);
+            border: 1px solid rgba(245,158,11,.25);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: .7rem;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .left-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1.12;
+            margin-bottom: 16px;
+        }
+
+        .left-title .accent {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .left-desc {
+            font-size: .95rem;
+            color: rgba(255,255,255,.55);
+            max-width: 420px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        /* Feature cards */
+        .left-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .left-feat {
+            background: rgba(255,255,255,.04);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 12px;
+            padding: 18px;
+            transition: all .2s;
+        }
+
+        .left-feat:hover {
+            background: rgba(255,255,255,.07);
+            border-color: rgba(255,255,255,.12);
+        }
+
+        .left-feat-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .9rem;
+            margin-bottom: 10px;
+        }
+
+        .left-feat-icon.blue    { background: rgba(59,130,246,.2); color: #60a5fa; }
+        .left-feat-icon.green   { background: rgba(34,197,94,.2);  color: #4ade80; }
+        .left-feat-icon.amber   { background: rgba(245,158,11,.2); color: #fbbf24; }
+        .left-feat-icon.purple  { background: rgba(139,92,246,.2); color: #a78bfa; }
+        .left-feat-icon.red     { background: rgba(239,68,68,.2);  color: #f87171; }
+        .left-feat-icon.cyan    { background: rgba(6,182,212,.2);  color: #22d3ee; }
+
+        .left-feat-name {
+            font-size: .78rem;
+            font-weight: 700;
+            color: rgba(255,255,255,.85);
+            margin-bottom: 2px;
+        }
+
+        .left-feat-desc {
+            font-size: .68rem;
+            color: rgba(255,255,255,.4);
+            line-height: 1.4;
+        }
+
+        /* Bottom stats */
+        .left-bottom {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 40px;
+            margin-top: 48px;
+            padding-top: 28px;
+            border-top: 1px solid rgba(255,255,255,.08);
+        }
+
+        .left-stat-num {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .left-stat-label {
+            font-size: .7rem;
+            color: rgba(255,255,255,.4);
+            margin-top: 2px;
+        }
+
+        /* ── Right panel ── */
+        .right-panel {
+            width: 480px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            background: #fff;
+            position: relative;
+        }
+
+        .login-header {
+            margin-bottom: 32px;
+        }
+
+        .login-welcome {
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #2563eb;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .login-welcome i { font-size: .65rem; }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 6px;
+        }
+
+        .login-subtitle {
+            font-size: .85rem;
+            color: #6b7280;
+        }
+
+        /* Messages */
+        .alert {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: .82rem;
+            margin-bottom: 20px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-close {
+            position: absolute;
+            top: 10px; right: 12px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: inherit;
+            opacity: .4;
+            line-height: 1;
+        }
+
+        .alert-close:hover { opacity: 1; }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .alert-support {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,.06);
+            font-size: .75rem;
+            color: #6b7280;
+        }
+
+        .alert-support strong { color: #374151; }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-wrap > i {
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: .92rem;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            font-size: .88rem;
+            font-family: inherit;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            color: #111827;
+            background: #f9fafb;
+            outline: none;
+            transition: all .2s;
+        }
+
+        .form-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+            background: #fff;
+        }
+
+        .form-input::placeholder { color: #9ca3af; }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .82rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .remember-label input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: #2563eb;
+            cursor: pointer;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: .92rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-login:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.3); }
+        .btn-login:active { transform: translateY(0); }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            color: #d1d5db;
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .btn-landing {
+            width: 100%;
+            padding: 12px;
+            background: #f9fafb;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-landing:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+
+        .login-footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: .75rem;
+            color: #9ca3af;
+        }
+
+        /* Toggle password */
+        .toggle-pw {
+            position: absolute;
+            right: 14px; top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            font-size: .95rem;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .toggle-pw:hover { color: #6b7280; }
+
+        /* ── Responsive ── */
+        @media (max-width: 1024px) {
+            .left-features { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 960px) {
+            body { flex-direction: column; }
+            .left-panel { padding: 40px 32px; }
+            .left-title { font-size: 1.8rem; }
+            .left-features { display: none; }
+            .left-bottom { display: none; }
+            .right-panel { width: 100%; padding: 40px 32px; }
+        }
+
+        @media (max-width: 480px) {
+            .left-panel { padding: 32px 24px; }
+            .left-title { font-size: 1.5rem; }
+            .left-desc { font-size: .85rem; margin-bottom: 0; }
+            .right-panel { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Left Panel ── -->
+<div class="left-panel">
+    <div class="left-top">
+        <div class="left-logo">
+            <div class="left-logo-icon"><i class="bi bi-buildings"></i></div>
+            <div class="left-logo-text">Imperio ERP</div>
+        </div>
+
+        <div class="left-tag">
+            <i class="bi bi-hammer"></i>
+            Feito para construtoras e incorporadoras
+        </div>
+
+        <h1 class="left-title">
+            Construa com<br>
+            <span class="accent">controle total</span><br>
+            da sua operacao
+        </h1>
+
+        <p class="left-desc">
+            Do loteamento ao financeiro, gerencie empreendimentos, lotes, materiais de obra, equipes e vendas em uma unica plataforma pensada para o setor da construcao civil.
+        </p>
+
+        <div class="left-features">
+            <div class="left-feat">
+                <div class="left-feat-icon amber"><i class="bi bi-buildings"></i></div>
+                <div class="left-feat-name">Empreendimentos & Lotes</div>
+                <div class="left-feat-desc">Quadras, lotes, mapa de disponibilidade e vinculo direto com vendas</div>
+            </div>
+            <div class="left-feat">
+                <div class="left-feat-icon blue"><i class="bi bi-cash-stack"></i></div>
+                <div class="left-feat-name">Financeiro de Obra</div>
+                <div class="left-feat-desc">Contas a pagar/receber, caixa, cheques e controle de despesas por obra</div>
+            </div>
+            <div class="left-feat">
+                <div class="left-feat-icon green"><i class="bi bi-boxes"></i></div>
+                <div class="left-feat-name">Estoque de Materiais</div>
+                <div class="left-feat-desc">Entrada, saida e devolucao de materiais com rastreio por empreendimento</div>
+            </div>
+            <div class="left-feat">
+                <div class="left-feat-icon purple"><i class="bi bi-cart3"></i></div>
+                <div class="left-feat-name">Vendas & Parcelas</div>
+                <div class="left-feat-desc">Vendas de lotes com parcelamento, comissoes e acompanhamento de pagamentos</div>
+            </div>
+            <div class="left-feat">
+                <div class="left-feat-icon cyan"><i class="bi bi-people-fill"></i></div>
+                <div class="left-feat-name">Clientes & CRM</div>
+                <div class="left-feat-desc">Cadastro completo com CPF/CNPJ, historico de compras e proprietarios</div>
+            </div>
+            <div class="left-feat">
+                <div class="left-feat-icon red"><i class="bi bi-person-gear"></i></div>
+                <div class="left-feat-name">Equipes & Permissoes</div>
+                <div class="left-feat-desc">Admin, gerente, vendedor e estoquista com acessos separados por funcao</div>
+            </div>
+        </div>
     </div>
- </div>
- <div class="main">
-    <div class="col-md-6 col-sm-12">
-       <div class="login-form">
-         {% if messages %}
-            {% for message in messages %}
-                  <div class="alert alert-{{ message.tags }}" style="margin-bottom: 20px;">
-                     <strong>{% if 'mensalidade' in message|lower %}⚠️ Mensalidade Vencida{% else %}Atenção!{% endif %}</strong><br>
-                     {{ message }}
-                     {% if 'mensalidade' in message|lower %}
-                        <hr style="margin: 10px 0;">
-                        <small>
-                           <strong>Entre em contato com o suporte:</strong><br>
-                           📞 Telefone: (XX) XXXX-XXXX<br>
-                           📧 Email: suporte@imperioerp.com.br<br>
-                           💬 WhatsApp: (XX) XXXXX-XXXX
-                        </small>
-                     {% endif %}
-                     <a href="#" class="del-msg">&times;</a>
-                  </div>
-            {% endfor %}
-         {% endif %}
-         <form action="{% url 'usuarios:login' %}" method="post"> {% csrf_token %}
-             <div class="form-group">
-                <label>User Name</label>
-                <input type="text" name="email" id="email" class="form-control" placeholder="Digite seu usuario">
-             </div>
-             <div class="form-group">
-                <label>Senha</label>
-                <input type="password" name="senha" id="senha" class="form-control" placeholder="Digite sua Senha">
-             </div>
-             <br>
-             <button type="submit" class="btn btn-black">Login</button>
-            </form>
-       </div>
+
+    <div class="left-bottom">
+        <div>
+            <div class="left-stat-num">500+</div>
+            <div class="left-stat-label">Construtoras ativas</div>
+        </div>
+        <div>
+            <div class="left-stat-num">12k+</div>
+            <div class="left-stat-label">Lotes gerenciados</div>
+        </div>
+        <div>
+            <div class="left-stat-num">R$ 2bi+</div>
+            <div class="left-stat-label">Em vendas registradas</div>
+        </div>
     </div>
- </div>
+</div>
 
-{% endblock %}
+<!-- ── Right Panel ── -->
+<div class="right-panel">
+    <div class="login-header">
+        <div class="login-welcome"><i class="bi bi-shield-check"></i> Area segura</div>
+        <h2 class="login-title">Acesse sua conta</h2>
+        <p class="login-subtitle">Informe suas credenciais para entrar no sistema da sua construtora.</p>
+    </div>
 
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if 'danger' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% else %}alert-success{% endif %}">
+                <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                {% if 'mensalidade' in message.message|lower %}
+                    <div class="alert-title"><i class="bi bi-exclamation-triangle-fill"></i> Mensalidade Vencida</div>
+                    {{ message }}
+                    <div class="alert-support">
+                        <strong>Entre em contato com o suporte:</strong><br>
+                        <i class="bi bi-whatsapp"></i> (62) 99999-0000 &nbsp;&middot;&nbsp;
+                        <i class="bi bi-envelope"></i> suporte@imperioerp.com.br
+                    </div>
+                {% else %}
+                    {{ message }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<!------ Include the above in your HEAD tag ---------->
+    <form action="{% url 'usuarios:login' %}" method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label class="form-label" for="email">Usuario</label>
+            <div class="input-wrap">
+                <i class="bi bi-person"></i>
+                <input type="text" name="email" id="email" class="form-input" placeholder="Digite seu usuario" autocomplete="username" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="senha">Senha</label>
+            <div class="input-wrap">
+                <i class="bi bi-lock"></i>
+                <input type="password" name="senha" id="senha" class="form-input" placeholder="Digite sua senha" autocomplete="current-password" required>
+                <button type="button" class="toggle-pw" onclick="togglePassword()">
+                    <i class="bi bi-eye" id="pw-icon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="remember-label">
+                <input type="checkbox" name="remember"> Lembrar de mim
+            </label>
+            <a href="{% url 'usuarios:password_reset' %}" style="font-size:.82rem;color:#2563eb;text-decoration:none;font-weight:500;">Esqueceu a senha?</a>
+        </div>
+
+        <button type="submit" class="btn-login">
+            Entrar no sistema <i class="bi bi-arrow-right"></i>
+        </button>
+    </form>
+
+    <div class="login-divider">ou</div>
+
+    <a href="{% url 'landing' %}" class="btn-landing">
+        <i class="bi bi-rocket-takeoff"></i> Conheca nossos planos para construtoras
+    </a>
+
+    <div class="login-footer">
+        Nao tem conta? <a href="{% url 'usuarios:cadastro' %}" style="color:#2563eb;font-weight:600;text-decoration:none;">Cadastre-se gratis</a> &nbsp;&middot;&nbsp;
+        &copy; 2026 Imperio ERP
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const input = document.getElementById('senha');
+    const icon = document.getElementById('pw-icon');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,428 @@
+{% extends 'base-home.html' %}
+{% block 'title' %}Minha Assinatura{% endblock %}
+{% block 'page_title' %}Minha Assinatura{% endblock %}
+{% block 'breadcrumb' %}Configurações &rsaquo; Assinatura{% endblock %}
+{% load static %}
+
+{% block 'head' %}
+<style>
+    .sub-hero {
+        border-radius: 14px;
+        padding: 32px;
+        margin-bottom: 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .sub-hero.ativa {
+        background: linear-gradient(135deg, #0a1628 0%, #1e3a8a 100%);
+    }
+
+    .sub-hero.alerta {
+        background: linear-gradient(135deg, #78350f 0%, #b45309 100%);
+    }
+
+    .sub-hero.vencida {
+        background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
+    }
+
+    .sub-hero.inativa {
+        background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+    }
+
+    .sub-hero::before {
+        content: '';
+        position: absolute;
+        top: -40%; right: -10%;
+        width: 300px; height: 300px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.05);
+    }
+
+    .sub-hero-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .sub-empresa {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .sub-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .sub-badge.ativa { background: rgba(34,197,94,.2); color: #86efac; }
+    .sub-badge.alerta { background: rgba(251,191,36,.2); color: #fde68a; }
+    .sub-badge.vencida { background: rgba(248,113,113,.25); color: #fca5a5; }
+    .sub-badge.inativa { background: rgba(255,255,255,.15); color: #d1d5db; }
+
+    .sub-hero-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 16px;
+    }
+
+    .sub-hero-item {}
+
+    .sub-hero-label {
+        font-size: .68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: rgba(255,255,255,.5);
+        margin-bottom: 4px;
+    }
+
+    .sub-hero-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        word-break: break-word;
+    }
+
+    /* Cards info */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid { grid-template-columns: 1fr; }
+    }
+
+    .info-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    }
+
+    .info-card-title {
+        font-size: .82rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-card-title i { color: #2563eb; font-size: 1rem; }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-label {
+        font-size: .78rem;
+        color: #6b7280;
+    }
+
+    .info-value {
+        font-size: .82rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    /* Progress bar de dias */
+    .days-bar-wrap {
+        margin-top: 8px;
+    }
+
+    .days-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: .72rem;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .days-bar {
+        height: 8px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .days-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width .4s ease;
+    }
+
+    .days-bar-fill.green { background: linear-gradient(90deg, #22c55e, #16a34a); }
+    .days-bar-fill.yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .days-bar-fill.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+    /* Timeline de notificações */
+    .timeline { position: relative; padding-left: 28px; }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 9px; top: 0; bottom: 0;
+        width: 2px;
+        background: #e5e7eb;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-bottom: 20px;
+    }
+
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-dot {
+        position: absolute;
+        left: -23px; top: 3px;
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        background: #2563eb;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 2px #e5e7eb;
+    }
+
+    .timeline-date {
+        font-size: .68rem;
+        color: #9ca3af;
+        margin-bottom: 2px;
+    }
+
+    .timeline-msg {
+        font-size: .8rem;
+        color: #374151;
+    }
+
+    /* Contato suporte */
+    .support-card {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 14px;
+        padding: 24px;
+    }
+
+    .support-title {
+        font-size: .82rem;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .support-title i { font-size: 1.1rem; }
+
+    .support-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 12px;
+    }
+
+    .support-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: .8rem;
+        color: #374151;
+    }
+
+    .support-item i {
+        color: #2563eb;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .support-item span { font-weight: 600; }
+
+    .empty-timeline {
+        text-align: center;
+        padding: 30px 20px;
+        color: #9ca3af;
+        font-size: .82rem;
+    }
+
+    .empty-timeline i {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block 'body' %}
+
+<!-- Hero da assinatura -->
+<div class="sub-hero {{ status }}">
+    <div class="sub-hero-top">
+        <div class="sub-empresa">{{ empresa.nome }}</div>
+        <div class="sub-badge {{ status }}">
+            {% if status == 'ativa' %}
+                <i class="bi bi-check-circle-fill"></i>
+            {% elif status == 'alerta' %}
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            {% elif status == 'vencida' %}
+                <i class="bi bi-x-circle-fill"></i>
+            {% else %}
+                <i class="bi bi-pause-circle-fill"></i>
+            {% endif %}
+            {{ status_label }}
+        </div>
+    </div>
+
+    <div class="sub-hero-grid">
+        <div class="sub-hero-item">
+            <div class="sub-hero-label">Valor Mensal</div>
+            <div class="sub-hero-value">
+                R$ {% if empresa.mensalidade_valor %}{{ empresa.mensalidade_valor|floatformat:"2g" }}{% else %}—{% endif %}
+            </div>
+        </div>
+        <div class="sub-hero-item">
+            <div class="sub-hero-label">Vencimento</div>
+            <div class="sub-hero-value">
+                {% if empresa.data_vencimento_mensalidade %}
+                    {{ empresa.data_vencimento_mensalidade|date:"d/m/Y" }}
+                {% else %}
+                    Sem data definida
+                {% endif %}
+            </div>
+        </div>
+        <div class="sub-hero-item">
+            <div class="sub-hero-label">Dia de Cobrança</div>
+            <div class="sub-hero-value">
+                {% if empresa.mensalidade_dia_vencimento %}
+                    Todo dia {{ empresa.mensalidade_dia_vencimento }}
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+        </div>
+        <div class="sub-hero-item">
+            <div class="sub-hero-label">Dias Restantes</div>
+            <div class="sub-hero-value">
+                {% if dias is not None %}
+                    {% if dias >= 0 %}{{ dias }} dia{{ dias|pluralize }}{% else %}Vencido há {{ dias|cut:"-" }} dia{{ dias|cut:"-"|pluralize }}{% endif %}
+                {% else %}
+                    Ilimitado
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cards de informação -->
+<div class="info-grid">
+    <!-- Dados da empresa -->
+    <div class="info-card">
+        <div class="info-card-title">
+            <i class="bi bi-building"></i>
+            Dados da Empresa
+        </div>
+        <div class="info-row">
+            <span class="info-label">Razão Social</span>
+            <span class="info-value">{{ empresa.nome }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">CNPJ</span>
+            <span class="info-value">{{ empresa.cnpj|default:"Não informado" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">E-mail</span>
+            <span class="info-value">{{ empresa.email|default:"Não informado" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Telefone</span>
+            <span class="info-value">{{ empresa.telefone|default:"Não informado" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Cadastro em</span>
+            <span class="info-value">{{ empresa.created_at|date:"d/m/Y" }}</span>
+        </div>
+
+        {% if dias is not None %}
+        <div class="days-bar-wrap" style="margin-top:16px;">
+            <div class="days-bar-label">
+                <span>Progresso do ciclo</span>
+                <span>{% if dias >= 0 %}{{ dias }} dia{{ dias|pluralize }} restante{{ dias|pluralize }}{% else %}Vencido{% endif %}</span>
+            </div>
+            <div class="days-bar">
+                <div class="days-bar-fill {% if dias > 15 %}green{% elif dias > 7 %}yellow{% else %}red{% endif %}"
+                     style="width: {% if dias >= 30 %}100{% elif dias > 0 %}{{ dias|floatformat:"0" }}{% else %}0{% endif %}%;"></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Histórico de notificações -->
+    <div class="info-card">
+        <div class="info-card-title">
+            <i class="bi bi-bell"></i>
+            Histórico de Avisos
+        </div>
+
+        {% if notificacoes %}
+        <div class="timeline">
+            {% for notif in notificacoes %}
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-date">{{ notif.criado_em|date:"d/m/Y H:i" }}</div>
+                <div class="timeline-msg">{{ notif.mensagem }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-timeline">
+            <i class="bi bi-bell-slash"></i>
+            Nenhum aviso registrado.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Suporte -->
+<div class="support-card">
+    <div class="support-title">
+        <i class="bi bi-headset"></i>
+        Precisa de ajuda? Fale com o suporte
+    </div>
+    <div class="support-grid">
+        <div class="support-item">
+            <i class="bi bi-whatsapp"></i>
+            <div>WhatsApp<br><span>(62) 99999-0000</span></div>
+        </div>
+        <div class="support-item">
+            <i class="bi bi-envelope"></i>
+            <div>E-mail<br><span>suporte@imperioerp.com.br</span></div>
+        </div>
+        <div class="support-item">
+            <i class="bi bi-telephone"></i>
+            <div>Telefone<br><span>(62) 3333-0000</span></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

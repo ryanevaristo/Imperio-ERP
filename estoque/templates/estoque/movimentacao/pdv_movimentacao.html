@@ -1,92 +1,734 @@
 {% extends 'base-home.html' %}
-
+{% block 'title' %}Registrar Movimentação{% endblock %}
+{% block 'page_title' %}Registrar Movimentação{% endblock %}
+{% block 'breadcrumb' %}Estoque &rsaquo; Nova Movimentação{% endblock %}
 {% load static %}
+
+{% block 'head' %}
+<style>
+    /* ── Steps indicator ── */
+    .steps {
+        display: flex;
+        gap: 0;
+        margin-bottom: 28px;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+
+    .step {
+        flex: 1;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #fff;
+        position: relative;
+        cursor: pointer;
+        transition: background .15s;
+    }
+
+    .step + .step { border-left: 1px solid #e5e7eb; }
+
+    .step.active { background: #eff6ff; }
+    .step.done { background: #f0fdf4; }
+
+    .step-num {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: .8rem; font-weight: 700;
+        background: #e5e7eb; color: #6b7280;
+        flex-shrink: 0;
+        transition: all .2s;
+    }
+
+    .step.active .step-num { background: #2563eb; color: #fff; }
+    .step.done .step-num { background: #22c55e; color: #fff; }
+
+    .step-text { font-size: .8rem; font-weight: 600; color: #374151; line-height: 1.3; }
+    .step-sub { font-size: .68rem; color: #9ca3af; font-weight: 400; }
+
+    /* ── Panel card ── */
+    .panel {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+        padding: 28px;
+        margin-bottom: 20px;
+    }
+
+    .panel-title {
+        font-size: .95rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 4px;
+    }
+
+    .panel-sub {
+        font-size: .78rem;
+        color: #9ca3af;
+        margin-bottom: 24px;
+    }
+
+    .panel[hidden] { display: none; }
+
+    /* ── Tipo cards (Step 1) ── */
+    .tipo-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .tipo-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all .15s;
+        background: #fff;
+    }
+
+    .tipo-card:hover { border-color: #bfdbfe; background: #f8faff; }
+    .tipo-card.selected { border-color: #2563eb; background: #eff6ff; }
+
+    .tipo-card-icon {
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem;
+        margin: 0 auto 12px;
+    }
+
+    .tipo-card-icon.entrada { background: #dcfce7; color: #16a34a; }
+    .tipo-card-icon.saida { background: #fee2e2; color: #dc2626; }
+    .tipo-card-icon.devolucao { background: #fef9c3; color: #ca8a04; }
+
+    .tipo-card-label { font-size: .85rem; font-weight: 600; color: #111827; }
+    .tipo-card-desc { font-size: .72rem; color: #9ca3af; margin-top: 4px; }
+
+    /* ── Destino (Step 1) ── */
+    .dest-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+    }
+
+    .field-label {
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #6b7280;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .field-select, .field-input, .field-textarea {
+        width: 100%;
+        font-size: .85rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 10px 14px;
+        color: #111827;
+        background: #f9fafb;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .field-select:focus, .field-input:focus, .field-textarea:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        background: #fff;
+    }
+
+    /* ── Search bar (Step 2) ── */
+    .search-wrap {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .search-wrap i {
+        position: absolute;
+        left: 14px; top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 12px 14px 12px 42px;
+        font-size: .88rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        color: #111827;
+        background: #f9fafb;
+        outline: none;
+        transition: all .2s;
+    }
+
+    .search-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37,99,235,.1);
+        background: #fff;
+    }
+
+    .search-input::placeholder { color: #9ca3af; }
+
+    /* Sugestões dropdown */
+    .suggest-list {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0; right: 0;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        max-height: 260px;
+        overflow-y: auto;
+        z-index: 50;
+        display: none;
+    }
+
+    .suggest-list.visible { display: block; }
+
+    .suggest-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        cursor: pointer;
+        transition: background .1s;
+        border-bottom: 1px solid #f3f4f6;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .suggest-item:last-child { border-bottom: none; }
+    .suggest-item:hover { background: #eff6ff; }
+
+    .suggest-name { font-size: .82rem; font-weight: 500; color: #111827; }
+    .suggest-stock { font-size: .72rem; color: #9ca3af; }
+
+    /* ── Recentes ── */
+    .recentes-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #9ca3af; margin-bottom: 10px; }
+    .recentes-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        font-size: .78rem;
+        font-weight: 500;
+        color: #374151;
+        cursor: pointer;
+        transition: all .15s;
+    }
+
+    .chip:hover { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+    .chip i { font-size: .7rem; color: #9ca3af; }
+
+    /* ── Carrinho (Step 2 + Step 3) ── */
+    .cart-empty {
+        text-align: center;
+        padding: 40px 20px;
+        color: #9ca3af;
+    }
+
+    .cart-empty i { font-size: 2.5rem; display: block; margin-bottom: 12px; }
+    .cart-empty span { font-size: .85rem; }
+
+    .cart-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+    .cart-table thead th {
+        font-size: .71rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #6b7280;
+        padding: 10px 14px;
+        border-bottom: 2px solid #e5e7eb;
+        background: #f9fafb;
+        text-align: left;
+    }
+
+    .cart-table thead th:first-child { border-radius: 8px 0 0 0; }
+    .cart-table thead th:last-child { border-radius: 0 8px 0 0; }
+
+    .cart-table tbody td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: .82rem;
+        color: #374151;
+        vertical-align: middle;
+    }
+
+    .cart-table tbody tr:hover { background: #fafafa; }
+
+    .cart-prod-name { font-weight: 600; color: #111827; }
+    .cart-prod-cat { font-size: .72rem; color: #9ca3af; }
+
+    .cart-stock { font-weight: 500; }
+
+    .qty-input {
+        width: 80px;
+        padding: 6px 10px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: .85rem;
+        text-align: center;
+        outline: none;
+        transition: border-color .15s;
+    }
+
+    .qty-input:focus { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,.1); }
+
+    .btn-remove {
+        background: none;
+        border: none;
+        color: #9ca3af;
+        font-size: 1rem;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all .15s;
+    }
+
+    .btn-remove:hover { background: #fee2e2; color: #dc2626; }
+
+    .cart-count-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #2563eb;
+        color: #fff;
+        font-size: .68rem;
+        font-weight: 700;
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        margin-left: 6px;
+    }
+
+    /* ── Action bar ── */
+    .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid #f3f4f6;
+        margin-top: 20px;
+    }
+
+    .btn-step {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: 8px;
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all .15s;
+    }
+
+    .btn-next { background: #2563eb; color: #fff; }
+    .btn-next:hover { background: #1d4ed8; }
+    .btn-next:disabled { background: #93c5fd; cursor: not-allowed; }
+
+    .btn-back { background: #f3f4f6; color: #374151; }
+    .btn-back:hover { background: #e5e7eb; }
+
+    .btn-finish { background: #22c55e; color: #fff; font-size: .88rem; padding: 12px 28px; }
+    .btn-finish:hover { background: #16a34a; }
+
+    /* ── Resumo (Step 3) ── */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .summary-item {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 16px;
+        border: 1px solid #f3f4f6;
+    }
+
+    .summary-label { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #9ca3af; margin-bottom: 4px; }
+    .summary-value { font-size: .9rem; font-weight: 600; color: #111827; }
+
+    @media (max-width: 768px) {
+        .tipo-grid, .dest-grid { grid-template-columns: 1fr; }
+        .steps { flex-direction: column; }
+    }
+</style>
+{% endblock %}
+
 {% block 'body' %}
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">📦 Registrar Movimentação de Materiais</h4>
+
+<form method="POST" id="movForm">
+    {% csrf_token %}
+    <input type="hidden" name="tipo_movimentacao" id="hid_tipo" value="Entrada">
+
+    <!-- ── STEPS INDICATOR ── -->
+    <div class="steps">
+        <div class="step active" data-step="1" id="step-ind-1">
+            <div class="step-num">1</div>
+            <div>
+                <div class="step-text">Tipo & Destino</div>
+                <div class="step-sub">Defina a movimentação</div>
+            </div>
         </div>
-        <div class="card-body">
-            <form method="POST">
-                {% csrf_token %}
-
-                <!-- Campos de empreendimento/quadra/lote -->
-                {% include "estoque/movimentacao/select_lote.html" %}
-
-                <!-- Tipo e motivo -->
-                <div class="form-row mt-3">
-                    <div class="form-group col-md-6">
-                        <label for="tipo_movimentacao">Tipo de Movimentação</label>
-                        <select class="form-control" id="tipo_movimentacao" name="tipo_movimentacao">
-                            <option value="Entrada">Entrada</option>
-                            <option value="Saida">Saída</option>
-                            <option value="Devolucao">Devolução</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="motivo">Motivo</label>
-                        <textarea class="form-control" id="motivo" name="motivo" rows="2"></textarea>
-                    </div>
-                </div>
-
-                <hr>
-                <h5 class="mb-3">Adicionar Materiais</h5>
-
-                <!-- Campo de busca -->
-                <div class="form-group">
-                    <input type="text" id="busca-produto" class="form-control" placeholder="Digite o nome do produto...">
-                    <div id="sugestoes" class="list-group mt-2"></div>
-                </div>
-
-                <div class="mt-3">
-                    <h6>Produtos mais usados / recentes:</h6>
-                    <div class="list-group">
-                        {% for produto in produtos_previos %}
-                            <a href="#" class="list-group-item list-group-item-action"
-                            data-id="{{ produto.id }}"
-                            data-nome="{{ produto.produto }}"
-                            data-qtd="{{ produto.qtd }}">
-                                {{ produto.produto }} (Estoque: {{ produto.qtd }})
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-
-
-                <!-- Carrinho de movimentação -->
-                <div id="carrinho" class="mt-3">
-                    <h6>Produtos selecionados:</h6>
-                    <table class="table table-sm table-bordered">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Produto</th>
-                                <th>Qtd Atual</th>
-                                <th>Qtd Movimentar</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody id="carrinho-body">
-                            <!-- Produtos adicionados via JS -->
-                        </tbody>
-                    </table>
-                </div>
-
-
-                <div class="text-right mt-3">
-                    <button type="submit" class="btn btn-success btn-lg">✅ Finalizar Movimentação</button>
-                </div>
-            </form>
+        <div class="step" data-step="2" id="step-ind-2">
+            <div class="step-num">2</div>
+            <div>
+                <div class="step-text">Materiais</div>
+                <div class="step-sub">Selecione os produtos</div>
+            </div>
+        </div>
+        <div class="step" data-step="3" id="step-ind-3">
+            <div class="step-num">3</div>
+            <div>
+                <div class="step-text">Revisão</div>
+                <div class="step-sub">Confirme e finalize</div>
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- ═══════════ STEP 1: Tipo & Destino ═══════════ -->
+    <div class="panel" id="panel-1">
+        <div class="panel-title">Tipo de Movimentação</div>
+        <div class="panel-sub">Selecione o tipo de operação que deseja registrar</div>
+
+        <div class="tipo-grid">
+            <div class="tipo-card selected" data-tipo="Entrada" onclick="selectTipo(this)">
+                <div class="tipo-card-icon entrada"><i class="bi bi-box-arrow-in-down"></i></div>
+                <div class="tipo-card-label">Entrada</div>
+                <div class="tipo-card-desc">Compras e reposições</div>
+            </div>
+            <div class="tipo-card" data-tipo="Saida" onclick="selectTipo(this)">
+                <div class="tipo-card-icon saida"><i class="bi bi-box-arrow-up"></i></div>
+                <div class="tipo-card-label">Saída</div>
+                <div class="tipo-card-desc">Uso em obra ou consumo</div>
+            </div>
+            <div class="tipo-card" data-tipo="Devolucao" onclick="selectTipo(this)">
+                <div class="tipo-card-icon devolucao"><i class="bi bi-arrow-return-left"></i></div>
+                <div class="tipo-card-label">Devolução</div>
+                <div class="tipo-card-desc">Retorno ao estoque</div>
+            </div>
+        </div>
+
+        <div class="panel-title" style="margin-top:28px;">Destino / Origem</div>
+        <div class="panel-sub">Vincule a movimentação a um empreendimento (opcional)</div>
+
+        <div class="dest-grid">
+            <div>
+                <label class="field-label">Empreendimento</label>
+                <select id="empreendimento" name="empreendimento" class="field-select empreendimento-select">
+                    <option value="">Nenhum</option>
+                    {% for emp in empreendimentos %}
+                        <option value="{{ emp.id }}">{{ emp.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="field-label">Quadra</label>
+                <select id="quadra" name="quadra" class="field-select quadra-select">
+                    <option value="">Selecione o empreend. primeiro</option>
+                </select>
+            </div>
+            <div>
+                <label class="field-label">Lote</label>
+                <select id="lote" name="lote" class="field-select lote-select">
+                    <option value="">Selecione a quadra primeiro</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <label class="field-label">Motivo / Observação</label>
+            <textarea id="motivo" name="motivo" class="field-textarea" rows="2" placeholder="Ex: Compra fornecedor — Materiais Goiás"></textarea>
+        </div>
+
+        <div class="action-bar">
+            <div></div>
+            <button type="button" class="btn-step btn-next" onclick="goStep(2)">
+                Próximo <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════ STEP 2: Materiais ═══════════ -->
+    <div class="panel" id="panel-2" hidden>
+        <div class="panel-title">Adicionar Materiais</div>
+        <div class="panel-sub">Busque e adicione os produtos que farão parte desta movimentação</div>
+
+        <!-- Search -->
+        <div class="search-wrap">
+            <i class="bi bi-search"></i>
+            <input type="text" id="busca-produto" class="search-input" placeholder="Buscar produto pelo nome..." autocomplete="off">
+            <div id="sugestoes" class="suggest-list"></div>
+        </div>
+
+        <!-- Recentes -->
+        {% if produtos_previos %}
+        <div class="recentes-title">Recentes / Mais usados</div>
+        <div class="recentes-grid">
+            {% for produto in produtos_previos %}
+                <div class="chip" data-id="{{ produto.id }}" data-nome="{{ produto.produto }}" data-qtd="{{ produto.qtd }}" onclick="addFromChip(this)">
+                    <i class="bi bi-plus-circle"></i>
+                    {{ produto.produto }} ({{ produto.qtd }})
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Carrinho -->
+        <div id="cart-area">
+            <div class="d-flex align-items-center mb-3">
+                <span style="font-size:.85rem; font-weight:700; color:#111827;">Itens selecionados</span>
+                <span class="cart-count-badge" id="cart-count">0</span>
+            </div>
+
+            <div id="cart-empty" class="cart-empty">
+                <i class="bi bi-inbox"></i>
+                <span>Nenhum produto adicionado. Use a busca acima.</span>
+            </div>
+
+            <table class="cart-table" id="cart-table" style="display:none;">
+                <thead>
+                    <tr>
+                        <th style="width:40%;">Produto</th>
+                        <th>Estoque Atual</th>
+                        <th style="width:120px;">Quantidade</th>
+                        <th style="width:60px;"></th>
+                    </tr>
+                </thead>
+                <tbody id="carrinho-body"></tbody>
+            </table>
+        </div>
+
+        <div class="action-bar">
+            <button type="button" class="btn-step btn-back" onclick="goStep(1)">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </button>
+            <button type="button" class="btn-step btn-next" id="btn-to-review" onclick="goStep(3)" disabled>
+                Revisar <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════ STEP 3: Revisão ═══════════ -->
+    <div class="panel" id="panel-3" hidden>
+        <div class="panel-title">Revisão da Movimentação</div>
+        <div class="panel-sub">Confira os dados antes de finalizar</div>
+
+        <div class="summary-grid" id="summary-info"></div>
+
+        <div style="font-size:.85rem; font-weight:700; color:#111827; margin-bottom:14px;">Itens da Movimentação</div>
+
+        <table class="cart-table" id="review-table">
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Estoque Atual</th>
+                    <th>Qtd a Movimentar</th>
+                    <th>Estoque Final</th>
+                </tr>
+            </thead>
+            <tbody id="review-body"></tbody>
+        </table>
+
+        <div class="action-bar">
+            <button type="button" class="btn-step btn-back" onclick="goStep(2)">
+                <i class="bi bi-arrow-left"></i> Voltar e editar
+            </button>
+            <button type="submit" class="btn-step btn-finish">
+                <i class="bi bi-check-circle"></i> Finalizar Movimentação
+            </button>
+        </div>
+    </div>
+</form>
+
 {% endblock %}
 
 {% block 'scripts' %}
 <script>
-    const buscarProdutosUrl = "{% url 'estoque:buscar_produtos' %}";
-</script>
-<script src="{% static 'estoque/js/pdv_movimentacao.js' %}"></script>
-<script src="{% static 'estoque/js/dependent_selects.js' %}" defer></script>
+const buscarProdutosUrl = "{% url 'estoque:buscar_produtos' %}";
+let currentStep = 1;
 
+// ── Tipo selection ──
+function selectTipo(el) {
+    document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('hid_tipo').value = el.dataset.tipo;
+}
+
+// ── Step navigation ──
+function goStep(n) {
+    // Validate step 2 → 3
+    if (n === 3 && document.querySelectorAll('#carrinho-body tr').length === 0) return;
+
+    // Build review if going to step 3
+    if (n === 3) buildReview();
+
+    document.querySelectorAll('.panel').forEach(p => p.hidden = true);
+    document.getElementById('panel-' + n).hidden = false;
+
+    document.querySelectorAll('.step').forEach((s, i) => {
+        s.classList.remove('active', 'done');
+        if (i + 1 < n) s.classList.add('done');
+        if (i + 1 === n) s.classList.add('active');
+    });
+
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Search ──
+$('#busca-produto').on('keyup', function() {
+    let termo = $(this).val();
+    if (termo.length >= 2) {
+        $.get(buscarProdutosUrl, { q: termo }, function(data) {
+            let html = '';
+            data.forEach(p => {
+                html += `<div class="suggest-item" data-id="${p.id}" data-nome="${p.nome}" data-qtd="${p.qtd}" onclick="addProduct(this)">
+                    <span class="suggest-name">${p.nome}</span>
+                    <span class="suggest-stock">Estoque: ${p.qtd}</span>
+                </div>`;
+            });
+            const list = $('#sugestoes');
+            list.html(html || '<div class="suggest-item"><span class="suggest-name" style="color:#9ca3af;">Nenhum produto encontrado</span></div>');
+            list.addClass('visible');
+        });
+    } else {
+        $('#sugestoes').removeClass('visible').empty();
+    }
+});
+
+// Hide suggestions on click outside
+$(document).on('click', function(e) {
+    if (!$(e.target).closest('.search-wrap').length) {
+        $('#sugestoes').removeClass('visible');
+    }
+});
+
+// ── Add product ──
+function addProduct(el) {
+    const id = $(el).data('id');
+    const nome = $(el).data('nome');
+    const qtd = $(el).data('qtd');
+    doAdd(id, nome, qtd);
+}
+
+function addFromChip(el) {
+    const id = $(el).data('id');
+    const nome = $(el).data('nome');
+    const qtd = $(el).data('qtd');
+    doAdd(id, nome, qtd);
+}
+
+function doAdd(id, nome, qtd) {
+    if ($(`#carrinho-body tr[data-id="${id}"]`).length > 0) {
+        $(`#carrinho-body tr[data-id="${id}"] .qty-input`).focus().select();
+        return;
+    }
+
+    $('#carrinho-body').append(`
+        <tr data-id="${id}" data-nome="${nome}" data-qtd="${qtd}">
+            <td>
+                <div class="cart-prod-name">${nome}</div>
+                <input type="hidden" name="produtos" value="${id}">
+            </td>
+            <td class="cart-stock">${qtd} un</td>
+            <td><input type="number" name="quantidade_${id}" min="1" value="1" class="qty-input" onchange="updateCart()"></td>
+            <td><button type="button" class="btn-remove" onclick="removeItem(this)"><i class="bi bi-x-lg"></i></button></td>
+        </tr>
+    `);
+
+    $('#sugestoes').removeClass('visible').empty();
+    $('#busca-produto').val('');
+    updateCart();
+}
+
+function removeItem(btn) {
+    $(btn).closest('tr').remove();
+    updateCart();
+}
+
+function updateCart() {
+    const count = $('#carrinho-body tr').length;
+    $('#cart-count').text(count);
+    $('#cart-empty').toggle(count === 0);
+    $('#cart-table').toggle(count > 0);
+    $('#btn-to-review').prop('disabled', count === 0);
+}
+
+// ── Build review ──
+function buildReview() {
+    const tipo = document.getElementById('hid_tipo').value;
+    const tipoLabel = { Entrada: 'Entrada', Saida: 'Saída', Devolucao: 'Devolução' }[tipo] || tipo;
+    const motivo = document.getElementById('motivo').value || '—';
+    const emp = document.getElementById('empreendimento');
+    const empText = emp.selectedIndex > 0 ? emp.options[emp.selectedIndex].text : '—';
+    const count = document.querySelectorAll('#carrinho-body tr').length;
+
+    document.getElementById('summary-info').innerHTML = `
+        <div class="summary-item">
+            <div class="summary-label">Tipo</div>
+            <div class="summary-value">${tipoLabel}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Empreendimento</div>
+            <div class="summary-value">${empText}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Motivo</div>
+            <div class="summary-value">${motivo}</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Total de Itens</div>
+            <div class="summary-value">${count} produto(s)</div>
+        </div>
+    `;
+
+    const tbody = document.getElementById('review-body');
+    tbody.innerHTML = '';
+    document.querySelectorAll('#carrinho-body tr').forEach(row => {
+        const nome = row.dataset.nome;
+        const estoqueAtual = parseInt(row.dataset.qtd) || 0;
+        const qtyInput = row.querySelector('.qty-input');
+        const movQtd = parseInt(qtyInput.value) || 0;
+
+        let final = estoqueAtual;
+        if (tipo === 'Entrada' || tipo === 'Devolucao') final = estoqueAtual + movQtd;
+        else final = Math.max(0, estoqueAtual - movQtd);
+
+        const color = final < estoqueAtual ? '#dc2626' : '#16a34a';
+
+        tbody.innerHTML += `
+            <tr>
+                <td><span class="cart-prod-name">${nome}</span></td>
+                <td>${estoqueAtual} un</td>
+                <td>${movQtd} un</td>
+                <td style="font-weight:700; color:${color};">${final} un</td>
+            </tr>
+        `;
+    });
+}
+</script>
+<script src="{% static 'estoque/js/dependent_selects.js' %}" defer></script>
 {% endblock %}

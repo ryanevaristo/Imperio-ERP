@@ -1,0 +1,150 @@
+{% extends 'base-home.html' %}
+{% block 'title' %}Detalhe da Venda{% endblock %}
+{% load static %}
+{% block 'head' %}
+<link rel="stylesheet" href="{% static 'core/css/table_view.css' %}">
+{% endblock %}
+{% block 'body' %}
+<div class="container-fluid" id="container">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h2>Detalhe da Venda</h2>
+            <p>Lote {{ venda.id_lote.numero }} — {{ venda.id_lote.quadra }}</p>
+        </div>
+        <div>
+            {% if venda.status_venda == 'Concluída' %}
+                <span class="badge bg-success fs-6">Concluída</span>
+            {% elif venda.status_venda == 'Pendente' %}
+                <span class="badge bg-warning text-dark fs-6">Pendente</span>
+            {% else %}
+                <span class="badge bg-danger fs-6">Cancelada</span>
+            {% endif %}
+        </div>
+    </div>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header"><strong>Dados da Venda</strong></div>
+                <div class="card-body">
+                    <p><strong>Cliente:</strong> {{ venda.id_cliente.nome_completo }}</p>
+                    <p><strong>CPF/CNPJ:</strong> {{ venda.id_cliente.cpf_cnpj }}</p>
+                    <p><strong>Telefone:</strong> {{ venda.id_cliente.telefone|default:"—" }}</p>
+                    <p><strong>Data da Venda:</strong> {{ venda.get_data_venda }}</p>
+                    <p><strong>Empreendimento:</strong> {{ venda.id_lote.quadra.empreendimento }}</p>
+                    <p><strong>Quadra:</strong> {{ venda.id_lote.quadra }}</p>
+                    <p><strong>Lote:</strong> {{ venda.id_lote.numero }} ({{ venda.id_lote.metragem }}m²)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header"><strong>Resumo Financeiro</strong></div>
+                <div class="card-body">
+                    <p><strong>Valor da Venda:</strong> R$ {{ venda.valor_venda|floatformat:"2g" }}</p>
+                    <p><strong>Total Pago:</strong> R$ {{ venda.total_pago|floatformat:"2g" }}</p>
+                    <p><strong>Saldo Restante:</strong>
+                        <span class="{% if venda.saldo_restante <= 0 %}text-success{% else %}text-danger{% endif %}">
+                            R$ {{ venda.saldo_restante|floatformat:"2g" }}
+                        </span>
+                    </p>
+                    <p><strong>Quitado:</strong> {% if venda.quitado %}Sim{% else %}Não{% endif %}</p>
+                </div>
+            </div>
+
+            {% if venda.status_venda != 'Cancelada' %}
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalPagamento">
+                    Registrar Pagamento
+                </button>
+                <a href="{% url 'vendas:cancelar_venda' venda.id_venda %}"
+                   class="btn btn-outline-danger"
+                   onclick="return confirm('Tem certeza que deseja cancelar esta venda? O lote será liberado.')">
+                    Cancelar Venda
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <h4 class="mt-4">Histórico de Pagamentos</h4>
+    <hr>
+    {% if pagamentos %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Forma de Pagamento</th>
+                    <th>Valor</th>
+                    <th>Observação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pag in pagamentos %}
+                <tr>
+                    <td>{{ pag.data_pagamento|date:"d/m/Y" }}</td>
+                    <td>{{ pag.forma_pagamento }}</td>
+                    <td>R$ {{ pag.valor|floatformat:"2g" }}</td>
+                    <td>{{ pag.observacao|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">Nenhum pagamento registrado ainda.</div>
+    {% endif %}
+
+    <a href="{% url 'vendas:home_vendas' %}" class="btn btn-secondary mt-3">Voltar</a>
+</div>
+
+<!-- Modal Pagamento -->
+<div class="modal fade" id="modalPagamento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Pagamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'vendas:registrar_pagamento' venda.id_venda %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label>Forma de Pagamento</label>
+                        <select class="form-control" name="forma_pagamento" required>
+                            <option value="Dinheiro">Dinheiro</option>
+                            <option value="Pix">Pix</option>
+                            <option value="Transferência">Transferência</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Boleto">Boleto</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Valor (R$)</label>
+                        <input type="number" step="0.01" class="form-control" name="valor"
+                               max="{{ venda.saldo_restante }}" required>
+                        <small class="text-muted">Saldo restante: R$ {{ venda.saldo_restante|floatformat:"2g" }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Observação</label>
+                        <input type="text" class="form-control" name="observacao" maxlength="255">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="submit" class="btn btn-success">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

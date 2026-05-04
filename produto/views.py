@@ -8,7 +8,7 @@ from global_variables import lista_permissoes_produto
 
 
 # Create your views here.
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def home_produto(request):
     empreendimentos = Empreendimento.objects.filter(empresa=request.user.empresa)
@@ -30,14 +30,14 @@ def cadastrar_empreendimento(request):
         return redirect(reverse('produto:home_produto'))
     return render(request, 'produto/empreendimento/cadastrar_empreendimento.html')
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def detalhes_empreendimento(request, id):
     empreendimento = Empreendimento.objects.get(id=id, empresa=request.user.empresa)
     quadras = Quadra.objects.filter(empreendimento=id, empresa=request.user.empresa)
     return render(request, 'produto/empreendimento/detalhes_empreendimento.html', {'empreendimento': empreendimento, 'quadras': quadras})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def quadras(request, id):
     quadra = Quadra.objects.get(id=id, empresa=request.user.empresa)
@@ -45,7 +45,7 @@ def quadras(request, id):
     return render(request, 'produto/quadra/home.html', {'quadra': quadra,  'lotes': lotes})
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def cadastrar_quadra(request, id):
     if request.method == 'POST':
@@ -59,13 +59,13 @@ def cadastrar_quadra(request, id):
         return redirect(reverse('produto:detalhes_empreendimento', args=[id]))
     return render(request, 'produto/quadra/cadastrar_quadra.html', {'id': id})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def lotes(request, id):
     lotes = Lote.objects.filter(quadra=id, empresa=request.user.empresa)
     return render(request, 'produto/lotes.html', {'lotes': lotes})
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def cadastrar_lote(request, id_quadra):
     if request.method == 'POST':
@@ -86,7 +86,7 @@ def cadastrar_lote(request, id_quadra):
     return render(request, 'produto/lote/cadastrar_lote.html')
 
 
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def editar_lote(request, id):
     lote = Lote.objects.get(id=id, empresa=request.user.empresa)
@@ -102,7 +102,7 @@ def editar_lote(request, id):
     return render(request, 'produto/lote/cadastrar_lote.html'  , {'lote': lote})
 
     
-@login_required(login_url='/login/')
+@login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_produto)
 def excluir_lote(request, id):
     lote = Lote.objects.get(id=id, empresa=request.user.empresa)

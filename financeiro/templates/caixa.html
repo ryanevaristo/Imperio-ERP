@@ -1,367 +1,497 @@
 {% extends 'base-home.html' %}
-{% block 'title' %}Fechamento de caixa{% endblock %}
+{% block 'title' %}Caixa — Análise{% endblock %}
+{% block 'page_title' %}Caixa — Análise{% endblock %}
+{% block 'breadcrumb' %}Financeiro{% endblock %}
 {% load static %}
+
 {% block 'head' %}
-<link rel="stylesheet" href="{% static 'core/css/home.css' %}">
 <style>
-  .card {
-    border-top: 10px solid #292727;
-    border-radius: 5px;
-    background-color: #ffffffde;
-    
-}
+    .kpi-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        height: 100%;
+    }
+
+    .kpi-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .kpi-icon.green  { background: #dcfce7; color: #16a34a; }
+    .kpi-icon.red    { background: #fee2e2; color: #dc2626; }
+    .kpi-icon.yellow { background: #fef9c3; color: #ca8a04; }
+    .kpi-icon.blue   { background: #dbeafe; color: #2563eb; }
+
+    .kpi-info { flex: 1; min-width: 0; }
+
+    .kpi-label {
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #9ca3af;
+        margin-bottom: 6px;
+    }
+
+    .kpi-value {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .kpi-value.text-success { color: #16a34a !important; }
+    .kpi-value.text-danger  { color: #dc2626 !important; }
+
+    .chart-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 28px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+    }
+
+    .chart-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .chart-title {
+        font-size: .95rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .chart-sub {
+        font-size: .75rem;
+        color: #9ca3af;
+        margin-top: 2px;
+    }
+
+    .filter-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 20px 24px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+        margin-bottom: 24px;
+    }
+
+    .filter-card label {
+        font-size: .72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #6b7280;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .filter-card input[type="date"],
+    .filter-card select {
+        font-size: .82rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 8px 12px;
+        background: #f9fafb;
+        color: #111827;
+        outline: none;
+        width: 100%;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .filter-card input[type="date"]:focus,
+    .filter-card select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+        background: #fff;
+    }
 </style>
 {% endblock %}
 
 {% block 'body' %}
 
-
-<div class="grey-bg container-fluid">
-  <section id="minimal-statistics">
-    <div class="row">
-        <div class="col-12">
-            <div class="card ">
-                <div class="card-content">
-                    <div class="card-body">
-                        <div class="row">
-                            <h4 class="card-title">Fechamento de caixa</h4>
-                            
-                        </div>
-                        <div class="text-end">
-                            
-                            <form class="form-inline d-flex justify-content-end">
-                                <div class="form-group mr-2">
-                                    <label for="start_date" class="mr-2">Data Inicial:</label>
-                                    <input type="date" class="form-control" name="start_date" id="start_date">
-                                </div>
-                                <div class="form-group mr-2">
-                                    <label for="end_date" class="mr-2">Data Final:</label>
-                                    <input type="date" class="form-control" name="end_date" id="end_date">
-                                </div>
-                                <button type="submit" class="btn btn-primary">Filtrar</button>
-                            </form>
-                        </div>
-                    
-                    </div>
-                </div>
-            </div>
+<!-- Filtro de período -->
+<div class="filter-card">
+    <form class="row g-3 align-items-end" id="filter-form" onsubmit="return false;">
+        <div class="col-auto">
+            <label for="start_date">Data Inicial</label>
+            <input type="date" id="start_date" name="start_date">
         </div>
-    </div>
-    <div class="row">
-      <div class="col-xl col-sm-6 col-12"> 
-        <div class="card">
-          <div class="card-content">
-            <div class="card-body">
-              <div class="media d-flex">
-                <div class="align-self-center">
-                  <i class="bi bi-currency-dollar primary font-large-2 float-left"></i>
-                </div>
-                <div class="media-body text-right">
-                <span>Entradas Totais</span>
-                    {% if total_entradas %}
-                      <h3 id="total_entradas">R$ {{ total_entradas|floatformat:"2g" }}</h3>
-                    {% else %}
-                      <h3 id="total_entradas">R$ 0,00</h3>
-                    {% endif %}
-                  
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="col-auto">
+            <label for="end_date">Data Final</label>
+            <input type="date" id="end_date" name="end_date">
         </div>
-      </div>
-      <div class="col-xl col-sm-6 col-12"> 
-        <div class="card">
-          <div class="card-content">
-            <div class="card-body">
-              <div class="media d-flex">
-                <div class="align-self-center">
-                  <i class="bi bi-cash-stack danger font-large-2 float-left"></i>
-                </div>
-                <div class="media-body text-right">
-                <span>Despesas Totais</span>
-                    {% if total_despesas %}
-                      <h3 id="total_despesas">R$ {{ total_despesas|floatformat:"2g" }}</h3>
-                    {% else %}
-                      <h3 id="total_despesas">R$ 0,00</h3>
-                    {% endif %}
-
-                  
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" onclick="applyFilter()">
+                <i class="bi bi-funnel me-1"></i> Filtrar
+            </button>
         </div>
-      </div>
-      <div class="col-xl col-sm-6 col-12"> 
-        <div class="card">
-          <div class="card-content">
-            <div class="card-body">
-              <div class="media d-flex">
-                <div class="align-self-center">
-                  <i class="bi bi-cassette warning font-large-2 float-left"></i>
-                </div>
-                <div class="media-body text-right">
-                <span>Cheques em Aberto</span>
-                    {% if total_cheque_emitido %}
-                      <h3 id="total_cheque_emitido">R$ {{ total_cheque_emitido|floatformat:"2g" }}</h3>
-                    {% else %}
-                      <h3 id="total_cheque_emitido">R$ 0,00</h3>
-                    {% endif %}
-
-                  
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-outline-secondary" onclick="clearFilter()">
+                <i class="bi bi-x me-1"></i> Limpar
+            </button>
         </div>
-      </div>
-      <div class="col-xl col-sm-6 col-12"> 
-        <div class="card">
-          <div class="card-content">
-            <div class="card-body media-body text-center">
-              <div class="row">
-                <div class="col-12 ">
-                  <h5 class="card-title">Saldo</h5>
-                  </div>
-                  <div class="col-12">
-                    {% if saldo %}
-                      {% if saldo > 0 %}
-                        <h3 class="card-text text-success">R$ {{ saldo|floatformat:"2g" }}</h3>
-                      {% else %}
-                        <h3 class="card-text text-danger">R$ {{ saldo|floatformat:"2g" }}</h3>
-                      {% endif %}
-                    {% else %}
-                      <h3 class="card-text text-danger">R$ 0,00</h3>
-                    {% endif %}
-                  </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-
-
-
-    </div>
-
-  </section>
-
+    </form>
 </div>
 
-<!-- aqui começa o gráfico -->
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-content">
-          <div class="card-body">
-            <div class="row">
-              <div class="col-12 d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Saldo Mensal</h5>
-                <div class="form-group mb-0">
-                  <label for="year_filter" class="mr-2">Ano:</label>
-                  <select class="form-control" id="year_filter" style="width: auto; display: inline-block;">
-                    <option value="">Carregando...</option>
-                  </select>
-                </div>
-              </div>
-                
-              <div class="col-12">
-                <canvas id="myChart2" style="max-height: 375px;height: 100%;"></canvas>
-                <br>
-                <p class="text-center">meses</p>
-              </div>
+<!-- KPI Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <div class="kpi-card">
+            <div class="kpi-icon green">
+                <i class="bi bi-arrow-down-circle-fill"></i>
             </div>
-          </div>
+            <div class="kpi-info">
+                <div class="kpi-label">Entradas Totais</div>
+                <div class="kpi-value" id="kpi-entradas">
+                    R$ {% if total_entradas %}{{ total_entradas|floatformat:"2g" }}{% else %}0,00{% endif %}
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="kpi-card">
+            <div class="kpi-icon red">
+                <i class="bi bi-arrow-up-circle-fill"></i>
+            </div>
+            <div class="kpi-info">
+                <div class="kpi-label">Despesas Totais</div>
+                <div class="kpi-value" id="kpi-despesas">
+                    R$ {% if total_despesas %}{{ total_despesas|floatformat:"2g" }}{% else %}0,00{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="kpi-card">
+            <div class="kpi-icon yellow">
+                <i class="bi bi-bank2"></i>
+            </div>
+            <div class="kpi-info">
+                <div class="kpi-label">Cheques em Aberto</div>
+                <div class="kpi-value" id="kpi-cheques">
+                    R$ {% if total_cheque_emitido %}{{ total_cheque_emitido|floatformat:"2g" }}{% else %}0,00{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-sm-6">
+        <div class="kpi-card">
+            <div class="kpi-icon blue">
+                <i class="bi bi-wallet2"></i>
+            </div>
+            <div class="kpi-info">
+                <div class="kpi-label">Saldo</div>
+                <div class="kpi-value {% if saldo and saldo > 0 %}text-success{% else %}text-danger{% endif %}" id="kpi-saldo">
+                    R$ {% if saldo %}{{ saldo|floatformat:"2g" }}{% else %}0,00{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div style="background-color: white; min-width: 500px; max-height: 375px; height: 100%;">
- </canvas>
+<!-- Gráfico -->
+<div class="chart-card">
+    <div class="chart-header">
+        <div>
+            <div class="chart-title">Entradas × Despesas × Saldo</div>
+            <div class="chart-sub">Comparativo mensal — barras agrupadas + linha de saldo</div>
+        </div>
+        <div>
+            <label for="year_filter" style="font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#6b7280; margin-bottom:4px; display:block;">Ano</label>
+            <select id="year_filter" style="font-size:.82rem; border:1px solid #e5e7eb; border-radius:8px; padding:7px 12px; background:#f9fafb; color:#111827; outline:none; min-width:100px;">
+                <option>Carregando...</option>
+            </select>
+        </div>
+    </div>
+    <canvas id="myChart2" style="max-height: 380px;"></canvas>
 
-  </div>
+    <!-- Tabela resumo mensal -->
+    <div style="margin-top: 28px; overflow-x: auto;">
+        <table style="width:100%; border-collapse:separate; border-spacing:0; font-size:.78rem;">
+            <thead>
+                <tr>
+                    <th style="padding:10px 14px; text-align:left; font-weight:600; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; border-bottom:2px solid #e5e7eb;">Mês</th>
+                    <th style="padding:10px 14px; text-align:right; font-weight:600; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:#16a34a; border-bottom:2px solid #e5e7eb;">Entradas</th>
+                    <th style="padding:10px 14px; text-align:right; font-weight:600; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:#dc2626; border-bottom:2px solid #e5e7eb;">Despesas</th>
+                    <th style="padding:10px 14px; text-align:right; font-weight:600; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:#2563eb; border-bottom:2px solid #e5e7eb;">Saldo</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-mensal"></tbody>
+        </table>
+    </div>
+</div>
 
 {% endblock %}
 
 {% block 'scripts' %}
-
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
-  let myChart2 = null; // Variável global para armazenar a instância do gráfico
+  Chart.register(ChartDataLabels);
 
-  // Função para carregar o gráfico com base no ano selecionado
-  function loadChart(year) {
+  const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  let myChart2 = null;
+
+  // ── Formatação ──────────────────────────────────────────────
+  function fmt(v) {
+      if (v === 0) return 'R$ 0';
+      const abs = Math.abs(v);
+      if (abs >= 1000000) return 'R$ ' + (v/1000000).toLocaleString('pt-BR', {minimumFractionDigits:1}) + 'M';
+      if (abs >= 1000)    return 'R$ ' + (v/1000).toLocaleString('pt-BR', {minimumFractionDigits:1}) + 'k';
+      return 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2});
+  }
+  function fmtFull(v) {
+      return 'R$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  // ── Estado dos filtros ───────────────────────────────────────
+  function getFilters() {
+      return {
+          start_date: $('#start_date').val() || '',
+          end_date:   $('#end_date').val()   || '',
+      };
+  }
+
+  // ── Atualizar KPI cards via AJAX ─────────────────────────────
+  function updateKPIs(filters) {
       $.ajax({
-          url: "{% url 'financeiro:saldo_anual' %}",
+          url: "{% url 'financeiro:caixa_kpi' %}",
           method: 'GET',
-          data: { year: year },
-          success: function(response) {
-              // transformar objeto em map 
-              var labels = response['meses'];
-              var meses_label = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
-              
-              labels = labels.map((label, index) => response['entradas'][index] > 0 ? meses_label[label - 1] : '').filter(el => el !== '');
-
-              ['entradas', 'despesas', 'saldo'].forEach(key => {
-                  response[key] = response[key].filter(el => el !== 0);
-              });
-
-              var ctx = document.getElementById('myChart2').getContext('2d');
-              
-              // Destruir o gráfico anterior se existir
-              if (myChart2) {
-                  myChart2.destroy();
-              }
-              
-              myChart2 = new Chart(ctx, {
-                  type: 'bar',
-                  data: {
-                      labels: labels,
-                      datasets: [
-                      {
-                          label: 'Entradas',
-                          data: response['entradas'],
-                          backgroundColor: [
-                              'rgba(128,171,0, 0.8)'
-                          ],
-                          borderColor: [
-                              'rgba(128,171,0, 1)'
-                          ],
-                          borderWidth: 2
-                      },
-                      {
-                          label: 'Despesas',
-                          data: response['despesas'],
-                          backgroundColor: [
-                              'rgba(255, 99, 132, 0.8)'
-                          ],
-                          borderColor: [
-                              'rgba(255, 99, 132, 1)'
-                          ],
-                          borderWidth: 2
-                      },
-                      {
-                          label: 'Saldo',
-                          data: response['saldo'],
-                          backgroundColor: [
-                              'rgba(3, 35, 111, 0.8)'
-                          ],
-                          borderColor: [
-                              'rgba(3, 35, 111, 1)'
-                          ],
-                          borderWidth: 2
-                      }
-                    ]
-                  },
-                  plugins: [ChartDataLabels],
-                  options: {
-                    plugins: {
-                      datalabels: {
-                        color: 'white',
-                        display: true,
-                        anchor: 'center',
-                        align: 'center',
-                        font: {
-                          weight: 'bold',
-                          size: 12
-                        },
-                        formatter: function(value, context) {
-                          if (value === 0) return '';
-                          // Formata o número para o padrão brasileiro
-                          return 'R$ ' + value.toLocaleString('pt-BR', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          });
-                        }
-                      },
-                      legend: {
-                        display: true,
-                        position: 'top',
-                      },
-                      tooltip: {
-                        enabled: true,
-                        callbacks: {
-                          label: function(context) {
-                            let label = context.dataset.label || '';
-                            if (label) {
-                              label += ': ';
-                            }
-                            label += 'R$ ' + context.parsed.y.toLocaleString('pt-BR', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            });
-                            return label;
-                          }
-                        }
-                      }
-                    },
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                              callback: function(value) {
-                                return 'R$ ' + value.toLocaleString('pt-BR', {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2
-                                });
-                              }
-                            }
-                        }
-                    },
-                    
-                },
-              });
-          },
-          error: function(error) {
-              console.error('Erro ao carregar dados do gráfico:', error);
+          data: filters,
+          success: function(d) {
+              $('#kpi-entradas').text(fmtFull(d.total_entradas));
+              $('#kpi-despesas').text(fmtFull(d.total_despesas));
+              $('#kpi-cheques').text(fmtFull(d.total_cheque_emitido));
+              const saldo = d.saldo;
+              $('#kpi-saldo')
+                  .text(fmtFull(saldo))
+                  .removeClass('text-success text-danger')
+                  .addClass(saldo >= 0 ? 'text-success' : 'text-danger');
           }
       });
   }
 
-  // Carregar anos disponíveis
+  // ── Tabela mensal ────────────────────────────────────────────
+  function buildTable(meses, entradas, despesas, saldo) {
+      const tbody = document.getElementById('tabela-mensal');
+      tbody.innerHTML = '';
+      let hasData = false;
+      meses.forEach(function(m, i) {
+          if (entradas[i] === 0 && despesas[i] === 0) return;
+          hasData = true;
+          const s      = saldo[i];
+          const sColor = s >= 0 ? '#16a34a' : '#dc2626';
+          const sBg    = s >= 0 ? '#f0fdf4' : '#fef2f2';
+          tbody.innerHTML += `
+              <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:10px 14px; font-weight:600; color:#374151;">${MESES[m-1]}</td>
+                  <td style="padding:10px 14px; text-align:right; color:#16a34a; font-weight:600;">${fmtFull(entradas[i])}</td>
+                  <td style="padding:10px 14px; text-align:right; color:#dc2626; font-weight:600;">${fmtFull(despesas[i])}</td>
+                  <td style="padding:10px 14px; text-align:right; font-weight:700; color:${sColor}; background:${sBg}; border-radius:6px;">${fmtFull(s)}</td>
+              </tr>`;
+      });
+      if (!hasData) {
+          tbody.innerHTML = `<tr><td colspan="4" style="padding:20px; text-align:center; color:#9ca3af;">Nenhum dado para o período selecionado.</td></tr>`;
+      }
+  }
+
+  // ── Carregar gráfico ─────────────────────────────────────────
+  function loadChart(year, filters) {
+      const params = Object.assign({ year: year }, filters || {});
+      $.ajax({
+          url: "{% url 'financeiro:saldo_anual' %}",
+          method: 'GET',
+          data: params,
+          success: function(r) {
+              const labels   = r.meses.map(m => MESES[m - 1]);
+              const entradas = r.entradas;
+              const despesas = r.despesas;
+              const saldo    = r.saldo;
+
+              const ctx   = document.getElementById('myChart2').getContext('2d');
+              const gradE = ctx.createLinearGradient(0, 0, 0, 340);
+              gradE.addColorStop(0, 'rgba(34,197,94,0.85)');
+              gradE.addColorStop(1, 'rgba(34,197,94,0.4)');
+              const gradD = ctx.createLinearGradient(0, 0, 0, 340);
+              gradD.addColorStop(0, 'rgba(239,68,68,0.85)');
+              gradD.addColorStop(1, 'rgba(239,68,68,0.4)');
+
+              if (myChart2) myChart2.destroy();
+
+              myChart2 = new Chart(ctx, {
+                  data: {
+                      labels: labels,
+                      datasets: [
+                          {
+                              type: 'bar',
+                              label: 'Entradas',
+                              data: entradas,
+                              backgroundColor: gradE,
+                              borderRadius: 6,
+                              order: 2,
+                          },
+                          {
+                              type: 'bar',
+                              label: 'Despesas',
+                              data: despesas,
+                              backgroundColor: gradD,
+                              borderRadius: 6,
+                              order: 2,
+                          },
+                          {
+                              type: 'line',
+                              label: 'Saldo',
+                              data: saldo,
+                              borderColor: '#2563eb',
+                              backgroundColor: 'rgba(37,99,235,0.07)',
+                              borderWidth: 2.5,
+                              pointBackgroundColor: saldo.map(v => v >= 0 ? '#2563eb' : '#dc2626'),
+                              pointBorderColor: '#fff',
+                              pointBorderWidth: 2,
+                              pointRadius: saldo.map(v => v !== 0 ? 5 : 0),
+                              pointHoverRadius: 7,
+                              fill: true,
+                              tension: 0.35,
+                              order: 1,
+                          }
+                      ]
+                  },
+                  options: {
+                      responsive: true,
+                      maintainAspectRatio: true,
+                      interaction: { mode: 'index', intersect: false },
+                      plugins: {
+                          datalabels: {
+                              display: function(ctx) {
+                                  if (ctx.dataset.type !== 'line') return false;
+                                  const v = ctx.dataset.data[ctx.dataIndex];
+                                  return v !== 0;
+                              },
+                              color: function(ctx) {
+                                  const v = ctx.dataset.data[ctx.dataIndex];
+                                  return v >= 0 ? '#1d4ed8' : '#dc2626';
+                              },
+                              backgroundColor: function(ctx) {
+                                  const v = ctx.dataset.data[ctx.dataIndex];
+                                  return v >= 0 ? '#eff6ff' : '#fef2f2';
+                              },
+                              borderRadius: 4,
+                              padding: { top: 4, bottom: 4, left: 8, right: 8 },
+                              font: { weight: '700', size: 10 },
+                              anchor: 'end',
+                              align: 'top',
+                              offset: 6,
+                              formatter: function(v) { return fmt(v); }
+                          },
+                          legend: {
+                              position: 'top',
+                              labels: { font: { size: 12 }, usePointStyle: true, padding: 24 }
+                          },
+                          tooltip: {
+                              backgroundColor: '#1e293b',
+                              titleColor: '#f1f5f9',
+                              bodyColor: '#cbd5e1',
+                              padding: 14,
+                              cornerRadius: 10,
+                              callbacks: {
+                                  label: function(ctx) {
+                                      const icons = { 'Entradas': '▲', 'Despesas': '▼', 'Saldo': '◉' };
+                                      return '  ' + (icons[ctx.dataset.label] || '') + ' ' + ctx.dataset.label + ': ' + fmtFull(ctx.parsed.y);
+                                  }
+                              }
+                          }
+                      },
+                      scales: {
+                          x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#6b7280' } },
+                          y: {
+                              beginAtZero: true,
+                              grid: { color: '#f3f4f6' },
+                              ticks: { font: { size: 11 }, color: '#9ca3af', callback: function(v) { return fmt(v); } }
+                          }
+                      }
+                  }
+              });
+
+              buildTable(r.meses, entradas, despesas, saldo);
+          },
+          error: function(e) { console.error('Erro ao carregar gráfico:', e); }
+      });
+  }
+
+  // ── Filtros ──────────────────────────────────────────────────
+  function applyFilter() {
+      const f = getFilters();
+      if (!f.start_date || !f.end_date) {
+          alert('Selecione data inicial e final.');
+          return;
+      }
+      // Deriva o ano do start_date para o chart
+      const year = parseInt(f.start_date.substring(0, 4));
+      // Atualiza o select de ano
+      if ($('#year_filter option[value="' + year + '"]').length) {
+          $('#year_filter').val(year);
+      }
+      updateKPIs(f);
+      loadChart(year, f);
+  }
+
+  function clearFilter() {
+      $('#start_date').val('');
+      $('#end_date').val('');
+      const year = parseInt($('#year_filter').val()) || new Date().getFullYear();
+      updateKPIs({});
+      loadChart(year, {});
+  }
+
+  // ── Inicialização ────────────────────────────────────────────
   $.ajax({
       url: "{% url 'financeiro:get_available_years' %}",
       method: 'GET',
       success: function(response) {
-          var yearSelect = $('#year_filter');
-          yearSelect.empty();
-          
-          // Adicionar opções de anos
-          response.years.forEach(function(year) {
-              var option = $('<option></option>')
-                  .attr('value', year)
-                  .text(year);
-              
-              // Selecionar o ano atual por padrão
-              if (year === response.current_year) {
-                  option.attr('selected', 'selected');
-              }
-              
-              yearSelect.append(option);
+          const sel = $('#year_filter');
+          sel.empty();
+          response.years.forEach(function(y) {
+              sel.append('<option value="' + y + '"' + (y === response.current_year ? ' selected' : '') + '>' + y + '</option>');
           });
-          
-          // Carregar o gráfico com o ano atual
-          loadChart(response.current_year);
+          updateKPIs({});
+          loadChart(response.current_year, {});
       },
-      error: function(error) {
-          console.error('Erro ao carregar anos disponíveis:', error);
-          // Carregar o gráfico com o ano atual mesmo se houver erro
-          var currentYear = new Date().getFullYear();
-          $('#year_filter').html('<option value="' + currentYear + '">' + currentYear + '</option>');
-          loadChart(currentYear);
+      error: function() {
+          const y = new Date().getFullYear();
+          $('#year_filter').html('<option value="' + y + '">' + y + '</option>');
+          updateKPIs({});
+          loadChart(y, {});
       }
   });
 
-  // Event listener para mudança de ano
+  // Mudança de ano — atualiza chart e limpa datas
   $('#year_filter').on('change', function() {
-      var selectedYear = $(this).val();
-      loadChart(selectedYear);
+      $('#start_date').val('');
+      $('#end_date').val('');
+      const year = parseInt($(this).val());
+      updateKPIs({});
+      loadChart(year, {});
   });
 </script>
 {% endblock %}
