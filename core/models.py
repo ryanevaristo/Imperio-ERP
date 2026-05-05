@@ -4,6 +4,23 @@ from django.utils import timezone
 from datetime import date
 
 class Empresa(models.Model):
+
+    PLANO_OBRA         = 'obra'
+    PLANO_LOTEADORA    = 'loteadora'
+    PLANO_INCORPORADORA = 'incorporadora'
+
+    PLANOS = [
+        (PLANO_OBRA,          'Obra — R$ 97/mês'),
+        (PLANO_LOTEADORA,     'Loteadora — R$ 197/mês'),
+        (PLANO_INCORPORADORA, 'Incorporadora — R$ 397/mês'),
+    ]
+
+    PLANO_PRECOS = {
+        PLANO_OBRA:          97,
+        PLANO_LOTEADORA:     197,
+        PLANO_INCORPORADORA: 397,
+    }
+
     id = models.UUIDField(primary_key=True, editable=False, default=uuid4)
     nome = models.CharField(max_length=255, unique=True)
     cnpj = models.CharField(max_length=18, blank=True, null=True)
@@ -11,7 +28,16 @@ class Empresa(models.Model):
     telefone = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+    # Plano de assinatura
+    plano = models.CharField(
+        verbose_name='Plano',
+        max_length=20,
+        choices=PLANOS,
+        default=PLANO_OBRA,
+        help_text='Plano contratado pela empresa',
+    )
+
     # Campos de Mensalidade
     data_vencimento_mensalidade = models.DateField(
         verbose_name='Data de Vencimento da Mensalidade',

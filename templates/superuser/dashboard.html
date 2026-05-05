@@ -363,7 +363,8 @@
             margin-bottom: 7px;
         }
 
-        .modal-select {
+        .modal-select,
+        .modal-input {
             width: 100%;
             padding: 11px 14px;
             border: 2px solid #e2e8f0;
@@ -372,9 +373,34 @@
             font-family: inherit;
             outline: none;
             color: #0f172a;
+            background: #f8fafc;
         }
 
-        .modal-select:focus { border-color: #2563eb; }
+        .modal-select:focus,
+        .modal-input:focus { border-color: #2563eb; background: #fff; }
+
+        .plano-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .plano-obra          { background: #f0fdf4; color: #15803d; }
+        .plano-loteadora     { background: #eff6ff; color: #1d4ed8; }
+        .plano-incorporadora { background: #faf5ff; color: #7e22ce; }
+
+        .btn-plano {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #ddd6fe;
+        }
+        .btn-plano:hover { background: #ede9fe; border-color: #c4b5fd; }
 
         .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
@@ -530,6 +556,7 @@
                 <tr>
                     <th>Empresa</th>
                     <th>Contato</th>
+                    <th>Plano</th>
                     <th>Status</th>
                     <th>Vencimento</th>
                     <th>Ações</th>
@@ -556,6 +583,20 @@
                             <div class="td-email">
                                 <i class="bi bi-phone"></i> {{ row.empresa.telefone }}
                             </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.empresa.plano == 'obra' %}
+                            <span class="plano-badge plano-obra"><i class="bi bi-hammer"></i> Obra</span>
+                        {% elif row.empresa.plano == 'loteadora' %}
+                            <span class="plano-badge plano-loteadora"><i class="bi bi-map"></i> Loteadora</span>
+                        {% elif row.empresa.plano == 'incorporadora' %}
+                            <span class="plano-badge plano-incorporadora"><i class="bi bi-building"></i> Incorporadora</span>
+                        {% else %}
+                            <span style="color:#cbd5e1">—</span>
+                        {% endif %}
+                        {% if row.empresa.mensalidade_valor %}
+                            <div style="font-size:.75rem;color:#94a3b8;margin-top:3px;">R$ {{ row.empresa.mensalidade_valor }}/mês</div>
                         {% endif %}
                     </td>
                     <td>
@@ -589,6 +630,13 @@
                     </td>
                     <td>
                         <div class="actions">
+                            <!-- Editar Plano -->
+                            <button type="button"
+                                    class="btn-action btn-plano"
+                                    onclick="openEditarPlano('{{ row.empresa.id }}', '{{ row.empresa.nome|escapejs }}', '{{ row.empresa.plano }}', '{{ row.empresa.mensalidade_valor|default:'' }}')">
+                                <i class="bi bi-tag"></i> Plano
+                            </button>
+
                             <!-- Renovar -->
                             <button type="button"
                                     class="btn-action btn-renovar"
@@ -655,7 +703,75 @@
     </div>
 </div>
 
+<!-- ── Modal de edição de plano ── -->
+<div class="modal-overlay" id="modal-plano">
+    <div class="modal-box">
+        <div class="modal-title"><i class="bi bi-tag-fill"></i> Editar Plano</div>
+        <div class="modal-subtitle" id="modal-plano-empresa-nome">—</div>
+
+        <form method="post" id="form-plano">
+            {% csrf_token %}
+            <div class="modal-input-wrap">
+                <label class="modal-label" for="plano-select">Plano</label>
+                <select name="plano" id="plano-select" class="modal-select" onchange="onPlanoChange(this.value)">
+                    <option value="obra">Obra — R$ 97/mês</option>
+                    <option value="loteadora">Loteadora — R$ 197/mês</option>
+                    <option value="incorporadora">Incorporadora — R$ 397/mês</option>
+                </select>
+            </div>
+            <div class="modal-input-wrap">
+                <label class="modal-label" for="plano-valor">
+                    Valor mensal (R$)
+                    <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0"> — deixe vazio para usar o preço padrão do plano</span>
+                </label>
+                <input type="text"
+                       name="mensalidade_valor"
+                       id="plano-valor"
+                       class="modal-input"
+                       placeholder="Ex: 197.00">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeModalPlano()">Cancelar</button>
+                <button type="submit" class="btn-modal-confirm">
+                    <i class="bi bi-check2"></i> Salvar plano
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+const PLANO_PRECOS = { obra: 97, loteadora: 197, incorporadora: 397 };
+
+function openEditarPlano(empresaId, empresaNome, currentPlano, currentValor) {
+    document.getElementById('modal-plano-empresa-nome').textContent = empresaNome;
+    document.getElementById('form-plano').action = '/superuser/' + empresaId + '/plano/';
+
+    const sel = document.getElementById('plano-select');
+    sel.value = currentPlano || 'obra';
+
+    const valInput = document.getElementById('plano-valor');
+    valInput.value = currentValor ? parseFloat(currentValor).toFixed(2) : '';
+
+    document.getElementById('modal-plano').classList.add('open');
+}
+
+function closeModalPlano() {
+    document.getElementById('modal-plano').classList.remove('open');
+}
+
+function onPlanoChange(plano) {
+    const valInput = document.getElementById('plano-valor');
+    // Auto-preenche com o preço padrão só se o campo estiver vazio
+    if (!valInput.value) {
+        valInput.placeholder = 'Ex: ' + (PLANO_PRECOS[plano] || '') + '.00';
+    }
+}
+
+document.getElementById('modal-plano').addEventListener('click', function(e) {
+    if (e.target === this) closeModalPlano();
+});
+
 function openRenovar(empresaId, empresaNome) {
     document.getElementById('modal-empresa-nome').textContent = empresaNome;
     document.getElementById('form-renovar').action = '/superuser/' + empresaId + '/renovar/';

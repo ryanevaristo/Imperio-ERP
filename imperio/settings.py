@@ -167,7 +167,6 @@ AUTH_USER_MODEL = 'usuarios.Users'
 # Authentication Backends
 AUTHENTICATION_BACKENDS = [
     'usuarios.backends.MensalidadeBackend',  # Backend customizado com verificação de mensalidade
-    # Removido o ModelBackend padrão para garantir que apenas o backend customizado seja usado
 ]
 
 # Role Permissions
@@ -204,4 +203,17 @@ MIDDLEWARE.append('django.middleware.cache.FetchFromCacheMiddleware')
 CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 3  # 10 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'imperio'
+
+# ── Segurança em produção (ativado automaticamente quando DEBUG=False) ────────
+if not DEBUG:
+    SECURE_SSL_REDIRECT            = True
+    SESSION_COOKIE_SECURE          = True
+    CSRF_COOKIE_SECURE             = True
+    SECURE_HSTS_SECONDS            = 31536000   # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD            = True
+    SECURE_CONTENT_TYPE_NOSNIFF    = True
+    SECURE_BROWSER_XSS_FILTER      = True
+    X_FRAME_OPTIONS                = 'DENY'
+# ─────────────────────────────────────────────────────────────────────────────
 

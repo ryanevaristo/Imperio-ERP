@@ -12,4 +12,5 @@ urlpatterns = [
     path('superuser/', views.superuser_dashboard, name='superuser_dashboard'),
     path('superuser/<uuid:empresa_id>/toggle/', views.superuser_toggle_ativo, name='superuser_toggle_ativo'),
     path('superuser/<uuid:empresa_id>/renovar/', views.superuser_renovar, name='superuser_renovar'),
+    path('superuser/<uuid:empresa_id>/plano/', views.superuser_editar_plano, name='superuser_editar_plano'),
 ]

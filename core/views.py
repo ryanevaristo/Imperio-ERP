@@ -148,6 +148,48 @@ def superuser_toggle_ativo(request, empresa_id):
 
 @superuser_required
 @require_POST
+def superuser_editar_plano(request, empresa_id):
+    """Altera o plano e/ou valor da mensalidade de uma empresa."""
+    empresa = get_object_or_404(Empresa, id=empresa_id)
+
+    plano = request.POST.get('plano', '').strip()
+    valor_raw = request.POST.get('mensalidade_valor', '').strip().replace(',', '.')
+
+    campos = []
+
+    if plano and plano in dict(Empresa.PLANOS):
+        empresa.plano = plano
+        campos.append('plano')
+
+        # Auto-preenche valor padrão do plano se não foi informado
+        if not valor_raw:
+            empresa.mensalidade_valor = Empresa.PLANO_PRECOS[plano]
+            campos.append('mensalidade_valor')
+
+    if valor_raw:
+        try:
+            empresa.mensalidade_valor = float(valor_raw)
+            campos.append('mensalidade_valor')
+        except ValueError:
+            messages.error(request, 'Valor inválido. Use formato numérico (ex: 197.00).')
+            return redirect('superuser_dashboard')
+
+    if campos:
+        empresa.save(update_fields=list(set(campos)))
+        plano_label = dict(Empresa.PLANOS).get(empresa.plano, empresa.plano)
+        messages.success(
+            request,
+            f'Plano de "{empresa.nome}" atualizado para {plano_label} '
+            f'(R$ {empresa.mensalidade_valor or "—"}/mês).'
+        )
+    else:
+        messages.error(request, 'Nenhum dado para atualizar.')
+
+    return redirect('superuser_dashboard')
+
+
+@superuser_required
+@require_POST
 def superuser_renovar(request, empresa_id):
     """Renova a assinatura da empresa por N dias a partir de hoje (ou do vencimento atual)."""
     empresa = get_object_or_404(Empresa, id=empresa_id)

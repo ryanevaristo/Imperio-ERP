@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponse, redirect
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from rolepermissions.decorators import has_role_decorator
 from rolepermissions.roles import assign_role
 from django.core.exceptions import PermissionDenied
@@ -64,7 +64,7 @@ def Usuarios(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator("Administrador")
 def editar_usuario(request, id):
-    usuario = Users.objects.get(id=id)
+    usuario = get_object_or_404(Users, id=id, empresa=request.user.empresa)
     if request.method == "GET":
         return render(request, 'cadastrar_usuario.html', {'usuario': usuario})
     elif request.method == "POST":
@@ -87,7 +87,7 @@ def editar_usuario(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator("Administrador")
 def excluir_usuario(request, id):
-    vendedor = Users.objects.get(id=id)
+    vendedor = get_object_or_404(Users, id=id, empresa=request.user.empresa)
     vendedor.delete()
     return redirect(reverse('usuarios:Usuarios'))
 
@@ -128,52 +128,91 @@ def exportar_Usuarios_xlsx(request):
     return response
      
 
+def _get_client_ip(request):
+    """Retorna o IP real do cliente mesmo atrás de proxy/nginx."""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', '0.0.0.0')
+
+
 def login(request):
     if request.method == "GET":
         if request.user.is_authenticated:
             return redirect(reverse('home'))
         return render(request, 'login.html')
+
     elif request.method == "POST":
-        email = request.POST.get('email')
-        senha = request.POST.get('senha')
-        print(email, senha)
-        
-        # Primeiro, tenta autenticar o usuário
-        user = auth.authenticate(username=email, password=senha)
-        
+        from django.core.cache import cache
+
+        email = request.POST.get('email', '').strip().lower()
+        senha = request.POST.get('senha', '')
+        ip    = _get_client_ip(request)
+
+        # ── Brute-force: bloqueia após 5 tentativas por IP (1 hora) ──────────
+        cache_key  = f'login_fail_{ip}'
+        fail_count = cache.get(cache_key, 0)
+        LOCKOUT_LIMIT   = 5
+        LOCKOUT_SECONDS = 3600  # 1 hora
+
+        if fail_count >= LOCKOUT_LIMIT:
+            minutes = LOCKOUT_SECONDS // 60
+            messages.error(
+                request,
+                f'Muitas tentativas de login. Seu acesso está bloqueado por {minutes} minutos.',
+                extra_tags='danger',
+            )
+            return redirect(reverse('usuarios:login'))
+        # ─────────────────────────────────────────────────────────────────────
+
+        # Tenta autenticar o usuário
+        user = auth.authenticate(request, username=email, password=senha)
+
         if user is None:
-            # Verifica se o usuário existe mas a mensalidade está vencida
+            # Incrementa contador de falhas
+            cache.set(cache_key, fail_count + 1, LOCKOUT_SECONDS)
+
+            # Verifica se existe mas mensalidade vencida
             try:
-                
                 user_check = Users.objects.select_related('empresa').get(username=email)
-                
-                # Verifica a senha manualmente
                 if user_check.check_password(senha):
-                    # Senha correta, mas autenticação falhou - provavelmente mensalidade vencida
                     if user_check.empresa and not user_check.empresa.pode_acessar_sistema():
                         messages.error(
-                            request, 
+                            request,
                             'Sua mensalidade está vencida. Entre em contato com o suporte para renovar o acesso ao sistema.',
-                            extra_tags='danger'
+                            extra_tags='danger',
                         )
                         return redirect(reverse('usuarios:login'))
             except Users.DoesNotExist:
                 pass
-            
-            # Se chegou aqui, é realmente usuário ou senha inválidos
-            messages.error(request, 'Usuário ou senha inválidos', extra_tags='danger')
+
+            remaining = LOCKOUT_LIMIT - (fail_count + 1)
+            if remaining > 0:
+                messages.error(
+                    request,
+                    f'Usuário ou senha inválidos. {remaining} tentativa{"s" if remaining != 1 else ""} restante{"s" if remaining != 1 else ""} antes do bloqueio.',
+                    extra_tags='danger',
+                )
+            else:
+                messages.error(
+                    request,
+                    'Acesso bloqueado por 1 hora devido a múltiplas tentativas de login.',
+                    extra_tags='danger',
+                )
             return redirect(reverse('usuarios:login'))
-        
-        # Verifica novamente a mensalidade antes de fazer login (segurança extra)
+
+        # Verifica mensalidade antes de logar
         if hasattr(user, 'empresa') and user.empresa:
             if not user.empresa.pode_acessar_sistema():
                 messages.error(
                     request,
                     'Sua mensalidade está vencida. Entre em contato com o suporte para renovar o acesso ao sistema.',
-                    extra_tags='danger'
+                    extra_tags='danger',
                 )
                 return redirect(reverse('usuarios:login'))
-        
+
+        # Login bem-sucedido — reseta contador de falhas
+        cache.delete(cache_key)
         auth.login(request, user)
         return redirect(reverse('home'))
     
