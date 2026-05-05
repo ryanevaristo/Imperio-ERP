@@ -1,146 +1,92 @@
-# Sistema de Mensalidade - Implementação Completa ✅
+# TODO — Produção Imperio ERP
 
-## ✅ Planejamento
-- [x] Analisar estrutura do projeto
-- [x] Identificar arquivos relevantes
-- [x] Criar plano de implementação
+## 🔴 Fase 1 — Crítico (sem isso não vai ao ar)
 
-## ✅ Implementação Concluída
+### Infraestrutura
+- [ ] **Gunicorn** — substituir `runserver` pelo gunicorn no `docker-compose.yml` e adicionar ao `requirements.txt`
+- [ ] **Nginx** — criar `nginx.conf` + serviço no `docker-compose.yml` (reverse proxy, static files, SSL termination)
+- [ ] **SSL/HTTPS** — certificado via Let's Encrypt (Certbot) ou do provedor de hospedagem
+- [ ] **`collectstatic` no build** — adicionar `python manage.py collectstatic --noinput` no `Dockerfile`
+- [ ] **`ALLOWED_HOSTS`** — colocar domínio real no `.env` (`ALLOWED_HOSTS=imperioerp.com.br,www.imperioerp.com.br`)
+- [ ] **`CSRF_TRUSTED_ORIGINS`** — obrigatório com nginx na frente: `CSRF_TRUSTED_ORIGINS=https://imperioerp.com.br`
 
-### 1. Modelo de Dados ✅
-- [x] Adicionar campos de mensalidade ao modelo Empresa (core/models.py)
-  - [x] data_vencimento_mensalidade
-  - [x] mensalidade_ativa
-  - [x] mensalidade_valor
-  - [x] mensalidade_dia_vencimento
-  - [x] Método mensalidade_vencida()
-  - [x] Método pode_acessar_sistema()
+### Email
+- [ ] **Configurar SMTP real no `.env`** — Gmail App Password, SendGrid, Resend ou Mailgun (sem isso recuperação de senha não funciona)
+  ```
+  EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+  EMAIL_HOST=smtp.gmail.com
+  EMAIL_PORT=587
+  EMAIL_USE_TLS=True
+  EMAIL_HOST_USER=seu@gmail.com
+  EMAIL_HOST_PASSWORD=sua_app_password
+  DEFAULT_FROM_EMAIL=Imperio ERP <seu@gmail.com>
+  ```
 
-### 2. Migrações ✅
-- [x] Criar migração para novos campos (0003_empresa_mensalidade_fields.py)
-- [x] Aplicar migração no banco de dados
+### Banco de dados
+- [ ] **Trocar senha do PostgreSQL** — `POSTGRES_PASSWORD=postgres` não pode ir para produção, gerar senha forte
+- [ ] **Testar backup manualmente** — rodar `scripts/backup.sh` antes de confiar no serviço automático do docker-compose
 
-### 3. Backend de Autenticação ✅
-- [x] Criar arquivo usuarios/backends.py
-- [x] Implementar MensalidadeBackend com verificação de mensalidade
-- [x] Registrar backend customizado no settings.py
-- [x] Remover ModelBackend padrão para evitar bypass
+---
 
-### 4. View de Login ✅
-- [x] Atualizar usuarios/views.py
-- [x] Adicionar validação dupla de mensalidade após autenticação
-- [x] Implementar mensagens de erro apropriadas
+## 🟠 Fase 2 — Importante (afeta usuários)
 
-### 5. Middleware ✅
-- [x] Criar usuarios/middleware.py
-- [x] Implementar MensalidadeMiddleware para verificação durante sessão ativa
-- [x] Registrar middleware no settings.py
-- [x] Logout automático quando mensalidade vence durante sessão
+### Cron jobs
+- [ ] **Agendar `enviar_avisos_vencimento`** — o comando existe mas não roda automaticamente; adicionar cron no docker-compose ou serviço separado para rodar diariamente
 
-### 6. Template de Login ✅
-- [x] Atualizar usuarios/templates/login.html
-- [x] Adicionar mensagem específica para mensalidade vencida
-- [x] Incluir informações de contato do suporte
-- [x] Estilização com alert-warning
+### Funcionalidades ausentes
+- [ ] **Alterar senha (usuário logado)** — existe recuperação por email mas não existe "trocar senha" dentro do sistema; criar view + template + URL para `PasswordChangeView`
+- [ ] **Página 404 customizada** — sem ela Django mostra página padrão em produção (quando `DEBUG=False`)
+- [ ] **Página 500 customizada** — idem para erros internos
+- [ ] **Servir MEDIA_ROOT via nginx** — uploads de imagens (empreendimentos, quadras) precisam ser servidos corretamente em produção
 
-### 7. Interface Admin ✅
-- [x] Configurar core/admin.py
-- [x] Adicionar EmpresaAdmin com campos de mensalidade
-- [x] Criar método status_mensalidade() com indicadores visuais
-- [x] Fieldsets organizados para gerenciamento
+### Limpeza de código
+- [ ] **Remover `print()` do código** — há vários `print(request.POST)` em `financeiro/views.py`, `estoque/views.py` e `usuarios/views.py` que poluem os logs em produção
 
-### 8. Testes ✅
-- [x] Testar login com mensalidade ativa ✅
-- [x] Testar bloqueio com mensalidade vencida ✅
-- [x] Testar bloqueio com mensalidade inativa ✅
-- [x] Testar sem data de vencimento ✅
-- [x] Testar vencimento no dia atual ✅
-- [x] Verificar mensagens de erro ✅
-- [x] Verificar backend de autenticação ✅
+### Logs
+- [ ] **Configurar `LOGGING` no `settings.py`** — direcionar erros para arquivo ou serviço externo para poder investigar problemas em produção
 
-## 📝 Arquivos Criados/Modificados
+---
 
-### Novos Arquivos:
-1. `usuarios/backends.py` - Backend customizado de autenticação
-2. `usuarios/middleware.py` - Middleware de verificação de sessão
-3. `core/migrations/0003_empresa_mensalidade_fields.py` - Migração
-4. `SISTEMA_MENSALIDADE_README.md` - Documentação completa
-5. `test_login_scenarios.py` - Testes automatizados
+## 🟡 Fase 3 — Recomendado (maturidade)
 
-### Arquivos Modificados:
-1. `core/models.py` - Campos e métodos de mensalidade
-2. `usuarios/views.py` - Validação no login
-3. `usuarios/templates/login.html` - Mensagens de erro
-4. `imperio/settings.py` - Backend e middleware
-5. `core/admin.py` - Interface administrativa
+### Monitoramento
+- [ ] **Sentry** — `pip install sentry-sdk` + DSN no `.env`; captura exceções automaticamente sem precisar monitorar logs
+- [ ] **Uptime monitoring** — UptimeRobot (gratuito) ou Better Uptime para alertas se o servidor cair
+- [ ] **Health check endpoint** — rota `/health/` retornando 200 OK, usada pelo nginx/load balancer
 
-## 🎯 Funcionalidades Implementadas
+### Segurança
+- [ ] **Rate limiting no cadastro** — o endpoint `/auth/cadastro/` pode ser abusado para criar contas em massa; aplicar o mesmo controle que o login já tem
+- [ ] **`SESSION_COOKIE_AGE`** — definir timeout de sessão (ex: 8 horas); hoje a sessão dura indefinidamente
+- [ ] **Remover debug info dos erros** — verificar que `str(e)` não vaza stack traces para o usuário em produção
 
-✅ **Bloqueio de Login:**
-- Bloqueia quando `mensalidade_ativa = False`
-- Bloqueia quando `data_vencimento_mensalidade < hoje`
-- Permite quando sem data de vencimento definida
-- Permite no dia do vencimento
+### Performance
+- [ ] **Redis para cache** — hoje o cache é `LocMemCache` (perde ao reiniciar e não funciona com múltiplos workers); trocar por Redis
+- [ ] **Compressão de respostas** — `Brotli` já está no `requirements.txt` mas precisa ser configurado no nginx
 
-✅ **Mensagens ao Usuário:**
-- Mensagem clara sobre mensalidade vencida
-- Informações de contato do suporte
-- Estilização visual apropriada
+---
 
-✅ **Verificação em Sessão:**
-- Middleware monitora sessões ativas
-- Logout automático se mensalidade vencer
-- Redirecionamento para login com mensagem
+## 🔵 Legal / Compliance (LGPD)
 
-✅ **Interface Administrativa:**
-- Gerenciamento fácil de mensalidades
-- Status visual (🟢 Ativa / 🔴 Vencida / ⚠️ Inativa)
-- Campos organizados em fieldsets
+- [ ] **Política de Privacidade** — página informando quais dados são coletados, por quanto tempo e para quê
+- [ ] **Termos de Uso** — contrato entre a empresa e o cliente que usa o sistema
+- [ ] **Consentimento no cadastro** — checkbox "Li e aceito os Termos de Uso e Política de Privacidade" no formulário de registro
+- [ ] **Processo de exclusão de dados** — LGPD garante ao usuário o direito de solicitar exclusão; definir fluxo (email de suporte no mínimo)
 
-## 📊 Resultados dos Testes
+---
 
-Todos os 5 cenários testados com sucesso:
-1. ✅ Mensalidade Ativa - Login permitido
-2. ✅ Mensalidade Vencida - Login bloqueado
-3. ✅ Mensalidade Inativa - Login bloqueado
-4. ✅ Sem Data de Vencimento - Login permitido
-5. ✅ Vencimento Hoje - Login permitido
+## ✅ Já feito
 
-## 🚀 Como Usar
-
-### 1. Configurar Mensalidade no Admin
-Acesse: `http://localhost:8000/admin/core/empresa/`
-
-Configure os campos:
-- **Mensalidade Ativa**: Marque para ativar o controle
-- **Data de Vencimento**: Defina a data de vencimento
-- **Valor da Mensalidade**: (Opcional) Valor mensal
-- **Dia do Vencimento**: (Opcional) Dia do mês para cobrança
-
-### 2. Testar o Bloqueio
-1. Configure uma data de vencimento no passado
-2. Tente fazer login
-3. Verifique a mensagem de bloqueio
-
-### 3. Renovar Mensalidade
-1. Acesse o admin
-2. Atualize a data de vencimento para o futuro
-3. O usuário poderá fazer login novamente
-
-## 📞 Personalizar Informações de Suporte
-
-Edite o arquivo `usuarios/templates/login.html` e substitua:
-- Telefone: (XX) XXXX-XXXX
-- Email: suporte@exemplo.com
-- WhatsApp: (XX) XXXXX-XXXX
-
-## 🔒 Segurança Implementada
-
-1. **Backend de Autenticação**: Primeira camada de verificação
-2. **View de Login**: Segunda camada de verificação
-3. **Middleware**: Verificação contínua durante sessão
-4. **Sem Bypass**: ModelBackend padrão removido
-
-## ✅ Sistema Pronto para Produção!
-
-O sistema de mensalidade está completamente implementado, testado e pronto para uso em produção.
+- [x] `python-decouple` — secrets via `.env`, nenhuma chave no código
+- [x] `DEBUG=False` por padrão em produção
+- [x] Configurações HTTPS automáticas quando `DEBUG=False` (`SECURE_SSL_REDIRECT`, `HSTS`, `SESSION_COOKIE_SECURE`, etc.)
+- [x] Multi-tenancy corrigido — todos os querysets filtrados por `empresa`
+- [x] Brute force no login — bloqueio após 5 tentativas por IP (1 hora)
+- [x] Backup automático do banco — `scripts/backup.sh` + serviço diário no docker-compose
+- [x] Superuser dashboard — gerenciamento de empresas, planos e assinaturas
+- [x] Gestão de planos — troca de plano com auto-preenchimento de valor
+- [x] Avisos de vencimento — management command `enviar_avisos_vencimento` (D-7, D-3, D-1)
+- [x] Cadastro funcionando com trial de 7 dias
+- [x] Recuperação de senha — templates, URLs e email configurados
+- [x] Django 5.2 LTS + Python 3.13
+- [x] `psycopg2-binary` — sem necessidade de compilar do fonte
+- [x] `.gitignore` — `.env`, `media/`, `staticfiles/` ignorados

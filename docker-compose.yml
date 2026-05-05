@@ -1,29 +1,57 @@
 services:
   db:
-      image: postgres:15
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-      environment:
-        - POSTGRES_DB=postgres
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
-        - POSTGRES_HOST_AUTH_METHOD=trust
-      ports:
-        - "5432:5432"
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_NAME:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
+
   web:
-    image: imperioerp-web
+    build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
+    env_file:
+      - .env
     ports:
       - "8000:8000"
-    environment:
-      - POSTGRES_NAME=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
     depends_on:
       - db
-  
+
+  backup:
+    image: postgres:15
+    volumes:
+      - backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_DB=${POSTGRES_NAME:-postgres}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - BACKUP_KEEP_DAYS=30
+    # Executa backup todo dia às 02:00 (UTC)
+    entrypoint: >
+      sh -c "while true; do
+        now=$$(date +%H:%M);
+        if [ \"$$now\" = '02:00' ]; then
+          bash /backup.sh;
+          sleep 60;
+        fi;
+        sleep 30;
+      done"
+    depends_on:
+      - db
+    restart: unless-stopped
+
 volumes:
   postgres_data:
-  
+  backups:

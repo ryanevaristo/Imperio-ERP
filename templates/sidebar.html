@@ -3,6 +3,18 @@
 
 {% if user.is_authenticated %}
 
+{% if user.is_superuser %}
+<p class="sb-section">Sistema</p>
+<ul>
+    <li class="sb-item">
+        <a href="{% url 'superuser_dashboard' %}" class="sb-link">
+            <i class="bi bi-shield-lock-fill sb-icon" style="color:#f59e0b"></i>
+            <span class="sb-label">Painel Superuser</span>
+        </a>
+    </li>
+</ul>
+{% endif %}
+
 {% if user|has_role:'administrador' or user|has_role:'gerente' %}
 
 <p class="sb-section">Principal</p>

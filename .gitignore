@@ -1,1 +1,7 @@
 env/
+.env
+*.pyc
+__pycache__/
+media/
+staticfiles/
+static/

@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
-load_dotenv()
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-scaw9y(gh-pni9tn)^k3tgz_smzmmr!i6i&4v9w^@9nn5)erbe'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
 
 # Application definition
@@ -94,11 +93,11 @@ WSGI_APPLICATION = 'imperio.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_NAME'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'host.docker.internal',
-        'PORT': 5432,
+        'NAME': config('POSTGRES_NAME'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('DB_HOST', default='host.docker.internal'),
+        'PORT': config('DB_PORT', default=5432, cast=int),
         'CONN_MAX_AGE': 600,  # Connection pooling: mantém conexões por 10 minutos
         'OPTIONS': {
             'connect_timeout': 10,
@@ -168,7 +167,6 @@ AUTH_USER_MODEL = 'usuarios.Users'
 # Authentication Backends
 AUTHENTICATION_BACKENDS = [
     'usuarios.backends.MensalidadeBackend',  # Backend customizado com verificação de mensalidade
-    # Removido o ModelBackend padrão para garantir que apenas o backend customizado seja usado
 ]
 
 # Role Permissions
@@ -177,13 +175,13 @@ ROLEPERMISSIONS_MODULE = 'imperio.roles'
 DEFAULT_CHARSET = 'utf-8'
 
 # Email configuration
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Imperio ERP <noreply@imperioerp.com.br>')
+EMAIL_BACKEND     = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST        = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT        = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS     = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER   = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='Imperio ERP <noreply@imperioerp.com.br>')
 
 # Login redirect
 LOGIN_URL = '/auth/login/'
@@ -205,4 +203,17 @@ MIDDLEWARE.append('django.middleware.cache.FetchFromCacheMiddleware')
 CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 3  # 10 minutes
 CACHE_MIDDLEWARE_KEY_PREFIX = 'imperio'
+
+# ── Segurança em produção (ativado automaticamente quando DEBUG=False) ────────
+if not DEBUG:
+    SECURE_SSL_REDIRECT            = True
+    SESSION_COOKIE_SECURE          = True
+    CSRF_COOKIE_SECURE             = True
+    SECURE_HSTS_SECONDS            = 31536000   # 1 ano
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD            = True
+    SECURE_CONTENT_TYPE_NOSNIFF    = True
+    SECURE_BROWSER_XSS_FILTER      = True
+    X_FRAME_OPTIONS                = 'DENY'
+# ─────────────────────────────────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template import loader
 from .models import Movimentacao, Produtos, EstoqueCategoria, Notificacao, MovimentacaoItem
@@ -59,8 +59,10 @@ def home_estoque(request):
         'empreendimentos': empreendimentos
     })
 
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_estoque)
 def detalhes_produto(request, id):
-    produto = Produtos.objects.get(id=id, empresa=request.user.empresa)
+    produto = get_object_or_404(Produtos, id=id, empresa=request.user.empresa)
     return render(request, 'estoque/detalhes_produto.html', {'produto': produto})
 
 @login_required(login_url='/auth/login/')
@@ -128,7 +130,7 @@ def editar_produto(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_estoque)
 def deletar_produto(request, id):
-    produto = Produtos.objects.get(id=id)
+    produto = get_object_or_404(Produtos, id=id, empresa=request.user.empresa)
     produto.delete()
     messages.success(request, 'Produto deletado com sucesso!')
     return redirect(reverse('estoque:home_estoque'))
@@ -312,16 +314,24 @@ def historico_todas_movimentacoes(request):
         'pesquisar': pesquisar
     })
 
+@login_required(login_url='/auth/login/')
 def get_quadras(request, empreendimento_id):
-    quadras = Quadra.objects.filter(empreendimento_id=empreendimento_id)
+    quadras = Quadra.objects.filter(
+        empreendimento_id=empreendimento_id,
+        empreendimento__empresa=request.user.empresa,
+    )
     data = [{'id': str(q.id), 'nome': q.nome} for q in quadras]
     return JsonResponse({'quadras': data})
 
 
+@login_required(login_url='/auth/login/')
 def get_lotes(request, quadra_id):
-    lotes = Lote.objects.filter(quadra_id=quadra_id)
+    lotes = Lote.objects.filter(
+        quadra_id=quadra_id,
+        quadra__empreendimento__empresa=request.user.empresa,
+    )
     data = [{'id': str(l.id), 'numero': l.numero} for l in lotes]
-    return JsonResponse({'lotes':data}, safe=False)
+    return JsonResponse({'lotes': data}, safe=False)
 
 
 @login_required(login_url='/auth/login/')

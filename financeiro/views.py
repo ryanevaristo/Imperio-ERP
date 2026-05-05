@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 
 from cliente.models import Cliente
@@ -94,7 +94,7 @@ def cadastrar_despesas(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def editar_despesas(request, id):
-    despesas = ContaPagar.objects.get(id=id)
+    despesas = get_object_or_404(ContaPagar, id=id, empresa=request.user.empresa)
     categorias = DespesasCategoria.objects.all()
     if request.method == "GET":
         return render(request, 'cadastrar_despesas.html', {'despesas': despesas, 'categorias': categorias})
@@ -124,7 +124,7 @@ def editar_despesas(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def excluir_despesas(request, id):
-    despesas = ContaPagar.objects.get(id=id)
+    despesas = get_object_or_404(ContaPagar, id=id, empresa=request.user.empresa)
     despesas.delete()
     return redirect('/financeiro/despesas/')
 
@@ -188,6 +188,8 @@ def exportar_despesas_xlsx(request):
     response['Content-Disposition'] = 'attachment; filename=despesas.xlsx'
     return response
 
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_financeiro)
 def importar_despesa_xlsx(request):
     if request.method == "POST":
         file = request.FILES['file']
@@ -291,9 +293,10 @@ def contas_a_receber(request):
     
     return render(request, 'contas_receber.html', {'entrada_obj': page_obj, 'start_date': start_date, 'end_date': end_date, 'pesquisar': pesquisar})
 @login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_financeiro)
 def cadastrar_entrada(request):
     if request.method == "GET":
-        clientes = Cliente.objects.all()
+        clientes = Cliente.objects.filter(empresa=request.user.empresa)
         return render(request, 'cadastrar_entrada.html', {'clientes': clientes})
     elif request.method == "POST":
         cliente = request.POST.get('cliente')
@@ -317,6 +320,8 @@ def cadastrar_entrada(request):
         return redirect('financeiro:entradas')
     
 
+@login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_financeiro)
 def importar_entrada_xlsx(request):
     m = {1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril', 5: 'Maio', 6: 'Junho', 7: 'Julho', 8: 'Agosto', 9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'}
     if request.method == "POST":
@@ -348,8 +353,8 @@ def importar_entrada_xlsx(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def editar_entrada(request, id):
-    entrada = ContaReceber.objects.get(id=id)
-    clientes = Cliente.objects.all()
+    entrada = get_object_or_404(ContaReceber, id=id, empresa=request.user.empresa)
+    clientes = Cliente.objects.filter(empresa=request.user.empresa)
     if request.method == "GET":
         return render(request, 'cadastrar_entrada.html', {'entrada': entrada, 'clientes': clientes})
     elif request.method == "POST":
@@ -377,14 +382,14 @@ def editar_entrada(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def excluir_entrada(request, id):
-    conta_receber = ContaReceber.objects.get(id=id)
+    conta_receber = get_object_or_404(ContaReceber, id=id, empresa=request.user.empresa)
     conta_receber.delete()
     return redirect('financeiro:entradas')
 
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def total_entradas(request):
-    entradas = ContaReceber.objects.all()
+    entradas = ContaReceber.objects.filter(empresa=request.user.empresa)
     total_valor = 0
     for entrada in entradas:
         total_valor += entrada.valor
@@ -428,7 +433,7 @@ def exportar_entrada_xlsx(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def cheques(request):
-    cheques = Cheque.objects.all()
+    cheques = Cheque.objects.filter(empresa=request.user.empresa)
 
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -452,7 +457,7 @@ def cheques(request):
 @has_role_decorator(lista_permissoes_financeiro)
 def cadastrar_cheque(request):
     if request.method == "GET":
-        clientes = Cliente.objects.all()
+        clientes = Cliente.objects.filter(empresa=request.user.empresa)
         return render(request, 'cheques/cadastrar_cheque.html', {'clientes': clientes})
     elif request.method == "POST":
         numero = request.POST.get('numero')
@@ -462,21 +467,22 @@ def cadastrar_cheque(request):
         nome_repassador = request.POST.get('nome_repassador')
         banco = request.POST.get('banco')
         status = request.POST.get('status')
-        print(status)
-        cheque_unico = Cheque.objects.filter(numero=numero)
+        cheque_unico = Cheque.objects.filter(numero=numero, empresa=request.user.empresa)
         if cheque_unico.exists():
             messages.error(request,'Cheque já cadastrado', extra_tags='danger')
             return redirect("financeiro:cadastrar_cheque")
-        cheque = Cheque(numero=numero, valor=valor,  data_compensacao=data_compensacao, nome_titular=Cliente.objects.get(id=nome_titular), banco=banco, nome_repassador=nome_repassador, situacao=status)
+        titular = get_object_or_404(Cliente, id=nome_titular, empresa=request.user.empresa)
+        cheque = Cheque(numero=numero, valor=valor, data_compensacao=data_compensacao, nome_titular=titular, banco=banco, nome_repassador=nome_repassador, situacao=status, empresa=request.user.empresa)
         cheque.save()
         return redirect('financeiro:cheques')
 
 
 @login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_financeiro)
 def editar_cheque(request, id):
-    cheque = Cheque.objects.get(id=id)
+    cheque = get_object_or_404(Cheque, id=id, empresa=request.user.empresa)
     if request.method == "GET":
-        clientes = Cliente.objects.all()
+        clientes = Cliente.objects.filter(empresa=request.user.empresa)
         return render(request, 'cheques/cadastrar_cheque.html', {'cheque': cheque, 'clientes': clientes})
     elif request.method == "POST":
         numero = request.POST.get('numero')
@@ -487,11 +493,10 @@ def editar_cheque(request, id):
         status = request.POST.get('status')
         banco = request.POST.get('banco')
 
-        # Aqui você deve atualizar os dados do cheque no banco de dados
         cheque.numero = numero
         cheque.valor = valor
         cheque.data_compensacao = data_compensacao
-        cheque.nome_titular = Cliente.objects.get(id=nome_titular)
+        cheque.nome_titular = get_object_or_404(Cliente, id=nome_titular, empresa=request.user.empresa)
         cheque.banco = banco
         cheque.nome_repassador = nome_repassador
         cheque.situacao = status
@@ -500,8 +505,9 @@ def editar_cheque(request, id):
     
 
 @login_required(login_url='/auth/login/')
+@has_role_decorator(lista_permissoes_financeiro)
 def excluir_cheque(request, id):
-    cheque = Cheque.objects.get(id=id)
+    cheque = get_object_or_404(Cheque, id=id, empresa=request.user.empresa)
     cheque.delete()
     return redirect('financeiro:cheques')
 
@@ -510,7 +516,7 @@ def excluir_cheque(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def exportar_cheque_xlsx(request):
-    cheques = Cheque.objects.all()
+    cheques = Cheque.objects.filter(empresa=request.user.empresa)
     
     df = pd.DataFrame(list(cheques.values()))
     df['situacao'] = df['situacao'].apply(lambda x: dict(Cheque.choice_situacao)[x])
@@ -531,7 +537,7 @@ def exportar_cheque_xlsx(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def fornecedores(request):
-    fornecedores = Fornecedor.objects.all()
+    fornecedores = Fornecedor.objects.filter(empresa=request.user.empresa)
     return render(request, 'fornecedores.html', {'fornecedores': fornecedores})
 
 @login_required(login_url='/auth/login/')
@@ -544,7 +550,7 @@ def cadastrar_fornecedor(request):
         cnpj = request.POST.get('cnpj')
         print(nome, cnpj)
         # Aqui você deve salvar os dados do fornecedor no banco de dados
-        fornecedor = Fornecedor(nome=nome, cnpj=cnpj)
+        fornecedor = Fornecedor(nome=nome, cnpj=cnpj, empresa=request.user.empresa)
         fornecedor.save()
         return redirect('fornecedores')
     
@@ -552,7 +558,7 @@ def cadastrar_fornecedor(request):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def editar_fornecedor(request, id):
-    fornecedor = Fornecedor.objects.get(id=id)
+    fornecedor = get_object_or_404(Fornecedor, id=id, empresa=request.user.empresa)
     if request.method == "GET":
         return render(request, 'editar_fornecedor.html', {'fornecedor': fornecedor})
     elif request.method == "POST":
@@ -569,7 +575,7 @@ def editar_fornecedor(request, id):
 @login_required(login_url='/auth/login/')
 @has_role_decorator(lista_permissoes_financeiro)
 def excluir_fornecedor(request, id):
-    fornecedor = Fornecedor.objects.get(id=id)
+    fornecedor = get_object_or_404(Fornecedor, id=id, empresa=request.user.empresa)
     fornecedor.delete()
     return redirect('fornecedores')
 

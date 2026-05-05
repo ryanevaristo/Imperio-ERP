@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin — Imperio ERP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            background: #0a1628;
+            padding: 0 32px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: -.02em;
+        }
+
+        .topbar-brand-icon {
+            width: 32px; height: 32px;
+            background: rgba(37,99,235,.3);
+            border: 1px solid rgba(37,99,235,.5);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .85rem; color: #60a5fa;
+        }
+
+        .topbar-badge {
+            background: #ef4444;
+            color: #fff;
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .topbar-user {
+            color: rgba(255,255,255,.7);
+            font-size: .82rem;
+        }
+
+        .topbar-logout {
+            color: rgba(255,255,255,.5);
+            font-size: .82rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color .2s;
+        }
+
+        .topbar-logout:hover { color: #fff; }
+
+        /* ── Main ── */
+        .main { padding: 32px; max-width: 1400px; margin: 0 auto; }
+
+        /* ── Page header ── */
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -.03em;
+            margin-bottom: 4px;
+        }
+
+        .page-subtitle { font-size: .85rem; color: #64748b; }
+
+        /* ── KPI cards ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .kpi-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px 22px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+        }
+
+        .kpi-card.total::before  { background: #2563eb; }
+        .kpi-card.ativa::before  { background: #22c55e; }
+        .kpi-card.alerta::before { background: #f59e0b; }
+        .kpi-card.vencida::before { background: #ef4444; }
+        .kpi-card.inativa::before { background: #94a3b8; }
+
+        .kpi-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #64748b; }
+        .kpi-value { font-size: 2rem; font-weight: 900; letter-spacing: -.04em; }
+
+        .kpi-card.total  .kpi-value { color: #2563eb; }
+        .kpi-card.ativa  .kpi-value { color: #16a34a; }
+        .kpi-card.alerta .kpi-value { color: #d97706; }
+        .kpi-card.vencida .kpi-value { color: #dc2626; }
+        .kpi-card.inativa .kpi-value { color: #64748b; }
+
+        /* ── Filters ── */
+        .filters {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 9px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: .84rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: #f8fafc;
+            outline: none;
+            transition: border-color .2s;
+            min-width: 240px;
+        }
+
+        .filter-input:focus { border-color: #2563eb; background: #fff; }
+
+        .filter-select {
+            padding: 9px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: .84rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: #f8fafc;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-filter {
+            padding: 9px 18px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .84rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .btn-filter:hover { background: #1d4ed8; }
+
+        .btn-clear {
+            padding: 9px 14px;
+            background: transparent;
+            color: #64748b;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: .84rem;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-clear:hover { border-color: #94a3b8; color: #374151; }
+
+        /* ── Table ── */
+        .table-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            padding: 12px 18px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: #64748b;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background .15s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
+
+        td {
+            padding: 14px 18px;
+            font-size: .85rem;
+            vertical-align: middle;
+        }
+
+        .td-empresa { font-weight: 600; color: #0f172a; }
+        .td-cnpj { font-size: .78rem; color: #94a3b8; margin-top: 2px; }
+        .td-email { font-size: .8rem; color: #64748b; }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .badge-ativa   { background: #dcfce7; color: #15803d; }
+        .badge-alerta  { background: #fef3c7; color: #b45309; }
+        .badge-vencida { background: #fee2e2; color: #b91c1c; }
+        .badge-inativa { background: #f1f5f9; color: #64748b; }
+
+        .dias-text { font-size: .8rem; color: #64748b; }
+        .dias-alert { color: #d97706; font-weight: 600; }
+        .dias-danger { color: #dc2626; font-weight: 600; }
+
+        /* Actions */
+        .actions { display: flex; gap: 8px; align-items: center; }
+
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: .78rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all .15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-renovar {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+        .btn-renovar:hover { background: #dbeafe; border-color: #93c5fd; }
+
+        .btn-ativar {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+        .btn-ativar:hover { background: #dcfce7; }
+
+        .btn-desativar {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        .btn-desativar:hover { background: #fee2e2; }
+
+        /* Modal overlay simples */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.2);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle { font-size: .85rem; color: #64748b; margin-bottom: 20px; }
+
+        .modal-input-wrap { margin-bottom: 20px; }
+
+        .modal-label {
+            display: block;
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #374151;
+            margin-bottom: 7px;
+        }
+
+        .modal-select,
+        .modal-input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 9px;
+            font-size: .88rem;
+            font-family: inherit;
+            outline: none;
+            color: #0f172a;
+            background: #f8fafc;
+        }
+
+        .modal-select:focus,
+        .modal-input:focus { border-color: #2563eb; background: #fff; }
+
+        .plano-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: .72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .plano-obra          { background: #f0fdf4; color: #15803d; }
+        .plano-loteadora     { background: #eff6ff; color: #1d4ed8; }
+        .plano-incorporadora { background: #faf5ff; color: #7e22ce; }
+
+        .btn-plano {
+            background: #f5f3ff;
+            color: #7c3aed;
+            border-color: #ddd6fe;
+        }
+        .btn-plano:hover { background: #ede9fe; border-color: #c4b5fd; }
+
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+        .btn-modal-cancel {
+            padding: 10px 18px;
+            background: #f1f5f9;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .btn-modal-confirm {
+            padding: 10px 18px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .85rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .btn-modal-confirm:hover { background: #1d4ed8; }
+
+        /* Alerts */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: .84rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+        .alert-error   { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .empty-state i { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .empty-state p { font-size: .88rem; }
+
+        @media (max-width: 1024px) {
+            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .main { padding: 20px; }
+        }
+
+        @media (max-width: 640px) {
+            .kpi-grid { grid-template-columns: 1fr 1fr; }
+            .topbar { padding: 0 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Top bar ── -->
+<nav class="topbar">
+    <div class="topbar-brand">
+        <div class="topbar-brand-icon"><i class="bi bi-buildings"></i></div>
+        Imperio ERP
+        <span class="topbar-badge">Superuser</span>
+    </div>
+    <div class="topbar-right">
+        <span class="topbar-user">
+            <i class="bi bi-person-circle"></i> {{ request.user.username }}
+        </span>
+        <a href="{% url 'home' %}" class="topbar-logout">
+            <i class="bi bi-grid"></i> ERP
+        </a>
+        <a href="{% url 'usuarios:logout' %}" class="topbar-logout">
+            <i class="bi bi-box-arrow-right"></i> Sair
+        </a>
+    </div>
+</nav>
+
+<!-- ── Main ── -->
+<div class="main">
+
+    <div class="page-header">
+        <h1 class="page-title">Painel de Empresas</h1>
+        <p class="page-subtitle">Gerencie assinaturas e acesso de todas as construtoras cadastradas.</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if 'error' in message.tags %}alert-error{% else %}alert-success{% endif %}">
+                <i class="bi {% if 'error' in message.tags %}bi-x-circle{% else %}bi-check-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- KPI cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card total">
+            <div class="kpi-label">Total</div>
+            <div class="kpi-value">{{ totais.total }}</div>
+        </div>
+        <div class="kpi-card ativa">
+            <div class="kpi-label">Ativas</div>
+            <div class="kpi-value">{{ totais.ativas }}</div>
+        </div>
+        <div class="kpi-card alerta">
+            <div class="kpi-label">Vence em breve</div>
+            <div class="kpi-value">{{ totais.alerta }}</div>
+        </div>
+        <div class="kpi-card vencida">
+            <div class="kpi-label">Vencidas</div>
+            <div class="kpi-value">{{ totais.vencidas }}</div>
+        </div>
+        <div class="kpi-card inativa">
+            <div class="kpi-label">Inativas</div>
+            <div class="kpi-value">{{ totais.inativas }}</div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <form method="get" class="filters">
+        <input type="text" name="q" class="filter-input"
+               placeholder="Buscar por nome da empresa..." value="{{ q }}">
+        <select name="status" class="filter-select">
+            <option value="">Todos os status</option>
+            <option value="ativa"   {% if status_filter == 'ativa' %}selected{% endif %}>Ativa</option>
+            <option value="alerta"  {% if status_filter == 'alerta' %}selected{% endif %}>Vence em breve</option>
+            <option value="vencida" {% if status_filter == 'vencida' %}selected{% endif %}>Vencida</option>
+            <option value="inativa" {% if status_filter == 'inativa' %}selected{% endif %}>Inativa</option>
+        </select>
+        <button type="submit" class="btn-filter">
+            <i class="bi bi-search"></i> Filtrar
+        </button>
+        {% if q or status_filter %}
+            <a href="{% url 'superuser_dashboard' %}" class="btn-clear">
+                <i class="bi bi-x"></i> Limpar
+            </a>
+        {% endif %}
+    </form>
+
+    <!-- Tabela -->
+    <div class="table-card">
+        {% if rows %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>Contato</th>
+                    <th>Plano</th>
+                    <th>Status</th>
+                    <th>Vencimento</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td>
+                        <div class="td-empresa">{{ row.empresa.nome }}</div>
+                        {% if row.empresa.cnpj %}
+                            <div class="td-cnpj">CNPJ: {{ row.empresa.cnpj }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="td-email">
+                            {% if row.empresa.email %}
+                                <i class="bi bi-envelope"></i> {{ row.empresa.email }}
+                            {% else %}
+                                <span style="color:#cbd5e1">—</span>
+                            {% endif %}
+                        </div>
+                        {% if row.empresa.telefone %}
+                            <div class="td-email">
+                                <i class="bi bi-phone"></i> {{ row.empresa.telefone }}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.empresa.plano == 'obra' %}
+                            <span class="plano-badge plano-obra"><i class="bi bi-hammer"></i> Obra</span>
+                        {% elif row.empresa.plano == 'loteadora' %}
+                            <span class="plano-badge plano-loteadora"><i class="bi bi-map"></i> Loteadora</span>
+                        {% elif row.empresa.plano == 'incorporadora' %}
+                            <span class="plano-badge plano-incorporadora"><i class="bi bi-building"></i> Incorporadora</span>
+                        {% else %}
+                            <span style="color:#cbd5e1">—</span>
+                        {% endif %}
+                        {% if row.empresa.mensalidade_valor %}
+                            <div style="font-size:.75rem;color:#94a3b8;margin-top:3px;">R$ {{ row.empresa.mensalidade_valor }}/mês</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.status == 'ativa' %}
+                            <span class="badge badge-ativa"><i class="bi bi-check-circle-fill"></i> Ativa</span>
+                        {% elif row.status == 'alerta' %}
+                            <span class="badge badge-alerta"><i class="bi bi-exclamation-triangle-fill"></i> Alerta</span>
+                        {% elif row.status == 'vencida' %}
+                            <span class="badge badge-vencida"><i class="bi bi-x-circle-fill"></i> Vencida</span>
+                        {% else %}
+                            <span class="badge badge-inativa"><i class="bi bi-dash-circle"></i> Inativa</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if row.empresa.data_vencimento_mensalidade %}
+                            <div>{{ row.empresa.data_vencimento_mensalidade|date:"d/m/Y" }}</div>
+                            {% if row.dias is not None %}
+                                {% if row.dias < 0 %}
+                                    <div class="dias-text dias-danger">Vencida há {{ row.dias|cut:"-" }} dia{{ row.dias|cut:"-"|pluralize }}</div>
+                                {% elif row.dias == 0 %}
+                                    <div class="dias-text dias-danger">Vence hoje</div>
+                                {% elif row.dias <= 7 %}
+                                    <div class="dias-text dias-alert">{{ row.dias }} dia{{ row.dias|pluralize }}</div>
+                                {% else %}
+                                    <div class="dias-text">{{ row.dias }} dias</div>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <span style="color:#cbd5e1">Sem data</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <!-- Editar Plano -->
+                            <button type="button"
+                                    class="btn-action btn-plano"
+                                    onclick="openEditarPlano('{{ row.empresa.id }}', '{{ row.empresa.nome|escapejs }}', '{{ row.empresa.plano }}', '{{ row.empresa.mensalidade_valor|default:'' }}')">
+                                <i class="bi bi-tag"></i> Plano
+                            </button>
+
+                            <!-- Renovar -->
+                            <button type="button"
+                                    class="btn-action btn-renovar"
+                                    onclick="openRenovar('{{ row.empresa.id }}', '{{ row.empresa.nome|escapejs }}')">
+                                <i class="bi bi-arrow-clockwise"></i> Renovar
+                            </button>
+
+                            <!-- Toggle ativo -->
+                            <form method="post"
+                                  action="{% url 'superuser_toggle_ativo' row.empresa.id %}"
+                                  style="margin:0"
+                                  onsubmit="return confirm('{% if row.empresa.mensalidade_ativa %}Desativar{% else %}Ativar{% endif %} assinatura de \'{{ row.empresa.nome|escapejs }}\'?')">
+                                {% csrf_token %}
+                                {% if row.empresa.mensalidade_ativa %}
+                                    <button type="submit" class="btn-action btn-desativar">
+                                        <i class="bi bi-pause-circle"></i> Desativar
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="btn-action btn-ativar">
+                                        <i class="bi bi-play-circle"></i> Ativar
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-buildings"></i>
+            <p>Nenhuma empresa encontrada{% if q or status_filter %} com os filtros aplicados{% endif %}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ── Modal de renovação ── -->
+<div class="modal-overlay" id="modal-renovar">
+    <div class="modal-box">
+        <div class="modal-title"><i class="bi bi-arrow-clockwise"></i> Renovar Assinatura</div>
+        <div class="modal-subtitle" id="modal-empresa-nome">—</div>
+
+        <form method="post" id="form-renovar">
+            {% csrf_token %}
+            <div class="modal-input-wrap">
+                <label class="modal-label" for="dias-select">Adicionar quantos dias?</label>
+                <select name="dias" id="dias-select" class="modal-select">
+                    <option value="30">30 dias (1 mês)</option>
+                    <option value="60">60 dias (2 meses)</option>
+                    <option value="90">90 dias (3 meses)</option>
+                    <option value="180">180 dias (6 meses)</option>
+                    <option value="365">365 dias (1 ano)</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeModal()">Cancelar</button>
+                <button type="submit" class="btn-modal-confirm">
+                    <i class="bi bi-check2"></i> Confirmar renovação
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── Modal de edição de plano ── -->
+<div class="modal-overlay" id="modal-plano">
+    <div class="modal-box">
+        <div class="modal-title"><i class="bi bi-tag-fill"></i> Editar Plano</div>
+        <div class="modal-subtitle" id="modal-plano-empresa-nome">—</div>
+
+        <form method="post" id="form-plano">
+            {% csrf_token %}
+            <div class="modal-input-wrap">
+                <label class="modal-label" for="plano-select">Plano</label>
+                <select name="plano" id="plano-select" class="modal-select" onchange="onPlanoChange(this.value)">
+                    <option value="obra">Obra — R$ 97/mês</option>
+                    <option value="loteadora">Loteadora — R$ 197/mês</option>
+                    <option value="incorporadora">Incorporadora — R$ 397/mês</option>
+                </select>
+            </div>
+            <div class="modal-input-wrap">
+                <label class="modal-label" for="plano-valor">
+                    Valor mensal (R$)
+                    <span style="font-weight:400;color:#94a3b8;text-transform:none;letter-spacing:0"> — deixe vazio para usar o preço padrão do plano</span>
+                </label>
+                <input type="text"
+                       name="mensalidade_valor"
+                       id="plano-valor"
+                       class="modal-input"
+                       placeholder="Ex: 197.00">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeModalPlano()">Cancelar</button>
+                <button type="submit" class="btn-modal-confirm">
+                    <i class="bi bi-check2"></i> Salvar plano
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+const PLANO_PRECOS = { obra: 97, loteadora: 197, incorporadora: 397 };
+
+function openEditarPlano(empresaId, empresaNome, currentPlano, currentValor) {
+    document.getElementById('modal-plano-empresa-nome').textContent = empresaNome;
+    document.getElementById('form-plano').action = '/superuser/' + empresaId + '/plano/';
+
+    const sel = document.getElementById('plano-select');
+    sel.value = currentPlano || 'obra';
+
+    const valInput = document.getElementById('plano-valor');
+    valInput.value = currentValor ? parseFloat(currentValor).toFixed(2) : '';
+
+    document.getElementById('modal-plano').classList.add('open');
+}
+
+function closeModalPlano() {
+    document.getElementById('modal-plano').classList.remove('open');
+}
+
+function onPlanoChange(plano) {
+    const valInput = document.getElementById('plano-valor');
+    // Auto-preenche com o preço padrão só se o campo estiver vazio
+    if (!valInput.value) {
+        valInput.placeholder = 'Ex: ' + (PLANO_PRECOS[plano] || '') + '.00';
+    }
+}
+
+document.getElementById('modal-plano').addEventListener('click', function(e) {
+    if (e.target === this) closeModalPlano();
+});
+
+function openRenovar(empresaId, empresaNome) {
+    document.getElementById('modal-empresa-nome').textContent = empresaNome;
+    document.getElementById('form-renovar').action = '/superuser/' + empresaId + '/renovar/';
+    document.getElementById('modal-renovar').classList.add('open');
+}
+
+function closeModal() {
+    document.getElementById('modal-renovar').classList.remove('open');
+}
+
+// Fecha modal clicando fora
+document.getElementById('modal-renovar').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// Fecha alerts automaticamente
+setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(a => {
+        a.style.transition = 'opacity .5s';
+        a.style.opacity = '0';
+        setTimeout(() => a.remove(), 500);
+    });
+}, 4000);
+</script>
+
+</body>
+</html>

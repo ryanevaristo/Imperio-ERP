@@ -15,7 +15,7 @@ class MensalidadeMiddleware(MiddlewareMixin):
         '/auth/login/',
         '/auth/logout/',
         '/auth/cadastro/',
-        '/auth/recuperar-senha/',
+        '/auth/recuperar-senha/',   # cobre todas as sub-rotas: /enviado/, /confirmar/, /concluido/
         '/landing/',
         '/admin/',
         '/static/',
