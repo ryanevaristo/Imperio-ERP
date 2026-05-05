@@ -1,6 +1,6 @@
 #!/bin/bash
-# ── Restore do PostgreSQL — Imperio ERP ───────────────────────────────────────
-# Uso: bash scripts/restore.sh /backups/imperio_erp_20240101_120000.sql.gz
+# ── Restore do PostgreSQL — Alicerce ───────────────────────────────────────
+# Uso: bash scripts/restore.sh /backups/alicerce_20240101_120000.sql.gz
 # ──────────────────────────────────────────────────────────────────────────────
 
 set -e
@@ -10,7 +10,7 @@ BACKUP_FILE="$1"
 if [ -z "${BACKUP_FILE}" ]; then
     echo "Uso: bash scripts/restore.sh <arquivo_backup.sql.gz>"
     echo "Backups disponíveis em /backups/:"
-    ls -lh /backups/imperio_erp_*.sql.gz 2>/dev/null || echo "  (nenhum backup encontrado)"
+    ls -lh /backups/alicerce_*.sql.gz 2>/dev/null || echo "  (nenhum backup encontrado)"
     exit 1
 fi
 

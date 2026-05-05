@@ -299,16 +299,16 @@ def cadastro(request):
     # — Envia e-mail de boas-vindas (silencioso em caso de falha) —
     try:
         send_mail(
-            subject='Bem-vindo ao Imperio ERP! 🏗️',
+            subject='Bem-vindo ao Alicerce! 🏗️',
             message=(
                 f'Olá {nome_completo},\n\n'
-                f'Sua conta no Imperio ERP foi criada com sucesso!\n\n'
+                f'Sua conta no Alicerce foi criada com sucesso!\n\n'
                 f'Empresa: {nome_empresa}\n'
                 f'E-mail: {email}\n\n'
                 f'Você tem 7 dias de avaliação gratuita. Aproveite!\n\n'
-                f'Acesse agora: https://imperioerp.com.br/auth/login/\n\n'
+                f'Acesse agora: https://alicerce.pulsarianalytics.com.br/auth/login/\n\n'
                 f'Qualquer dúvida, fale com nosso suporte.\n\n'
-                f'Equipe Imperio ERP'
+                f'Equipe Alicerce — Pulsari Analytics'
             ),
             from_email=None,
             recipient_list=[email],
