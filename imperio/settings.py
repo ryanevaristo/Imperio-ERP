@@ -254,8 +254,10 @@ CACHE_MIDDLEWARE_KEY_PREFIX = 'imperio'
 
 # ── Segurança em produção (ativado automaticamente quando DEBUG=False) ────────
 if not DEBUG:
-    SECURE_SSL_REDIRECT            = True
-    SECURE_REDIRECT_EXEMPT         = [r'^health/$']  # Railway healthcheck usa HTTP
+    # Railway (e PaaS em geral) faz SSL no proxy — não redirecionar aqui
+    # pois causaria loop infinito. Usar SECURE_PROXY_SSL_HEADER no lugar.
+    SECURE_SSL_REDIRECT            = False
+    SECURE_PROXY_SSL_HEADER        = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE          = True
     CSRF_COOKIE_SECURE             = True
     SECURE_HSTS_SECONDS            = 31536000   # 1 ano
