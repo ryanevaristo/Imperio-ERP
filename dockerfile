@@ -29,3 +29,11 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 COPY . /code/
 
 EXPOSE 8000
+
+# Railway injeta $PORT dinamicamente; fallback 8000 para dev local
+CMD gunicorn imperio.wsgi:application \
+    --bind 0.0.0.0:${PORT:-8000} \
+    --workers 2 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile -
