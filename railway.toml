@@ -4,7 +4,7 @@ dockerfilePath = "dockerfile"
 
 [deploy]
 # Roda antes de cada deploy: aplica migrations e coleta arquivos estáticos
-releaseCommand = "python manage.py migrate --noinput && python manage.py collectstatic --noinput"
+preDeployCommand = "python manage.py migrate --noinput && python manage.py collectstatic --noinput"
 healthcheckPath = "/auth/login/"
 healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
