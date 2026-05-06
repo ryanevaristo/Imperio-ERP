@@ -46,15 +46,15 @@ def _enviar_aviso(empresa, dias, dry_run=False):
 
     if dias == 1:
         urgencia = 'URGENTE — Sua assinatura vence amanhã!'
-        intro = 'Sua assinatura do Imperio ERP vence <strong>amanhã</strong>.'
+        intro = 'Sua assinatura do Alicerce vence <strong>amanhã</strong>.'
     elif dias <= 3:
         urgencia = f'Sua assinatura vence em {dias} dias'
-        intro = f'Sua assinatura do Imperio ERP vence em <strong>{dias} dias</strong> ({data_fmt}).'
+        intro = f'Sua assinatura do Alicerce vence em <strong>{dias} dias</strong> ({data_fmt}).'
     else:
         urgencia = f'Lembrete: assinatura vence em {dias} dias'
         intro = f'Este é um lembrete de que sua assinatura vence em <strong>{dias} dias</strong> ({data_fmt}).'
 
-    assunto = f'[Imperio ERP] {urgencia}'
+    assunto = f'[Alicerce] {urgencia}'
 
     mensagem_txt = (
         f'Olá, equipe {empresa.nome}!\n\n'
@@ -62,8 +62,8 @@ def _enviar_aviso(empresa, dias, dry_run=False):
         f'Vencimento: {data_fmt}\n\n'
         f'Para renovar, entre em contato com o suporte:\n'
         f'WhatsApp: (62) 99999-0000\n'
-        f'E-mail: suporte@imperioerp.com.br\n\n'
-        f'Equipe Imperio ERP'
+        f'E-mail: suporte@pulsarianalytics.com.br\n\n'
+        f'Equipe Alicerce — Pulsari Analytics'
     )
 
     if dry_run:

@@ -148,13 +148,54 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'Templates/static')
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# ── Armazenamento de arquivos (Cloudflare R2 ou local) ────────────────────────
+_R2_BUCKET = config('R2_BUCKET_NAME', default='')
+
+if _R2_BUCKET:
+    # Produção: arquivos no Cloudflare R2
+    _R2_ACCOUNT_ID = config('R2_ACCOUNT_ID')
+    _R2_CUSTOM_DOMAIN = config('R2_CUSTOM_DOMAIN', default='')
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key":         config('R2_ACCESS_KEY_ID'),
+                "secret_key":         config('R2_SECRET_ACCESS_KEY'),
+                "bucket_name":        _R2_BUCKET,
+                "endpoint_url":       f"https://{_R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+                "region_name":        "auto",
+                "default_acl":        None,   # R2 não suporta ACLs
+                "file_overwrite":     False,
+                "querystring_auth":   True,   # URLs assinadas (acesso privado)
+                "querystring_expire": 3600,   # Expiram em 1 hora
+                "signature_version":  "s3v4",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+
+    # Se tiver domínio personalizado (ex: files.alicerce.com.br), usa ele
+    # Se não, aponta pro endpoint R2 direto
+    if _R2_CUSTOM_DOMAIN:
+        MEDIA_URL = f"https://{_R2_CUSTOM_DOMAIN}/"
+    else:
+        MEDIA_URL = f"https://{_R2_ACCOUNT_ID}.r2.cloudflarestorage.com/{_R2_BUCKET}/"
+
+    MEDIA_ROOT = None   # Não usado quando R2 está ativo
+
+else:
+    # Desenvolvimento: arquivos locais
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# ─────────────────────────────────────────────────────────────────────────────
 
 
 # Default primary key field type
@@ -181,7 +222,7 @@ EMAIL_PORT        = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS     = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER   = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='Imperio ERP <noreply@imperioerp.com.br>')
+DEFAULT_FROM_EMAIL  = config('DEFAULT_FROM_EMAIL', default='Alicerce by Pulsari <noreply@pulsarianalytics.com.br>')
 
 # Login redirect
 LOGIN_URL = '/auth/login/'

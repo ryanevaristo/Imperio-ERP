@@ -1,8 +1,8 @@
-# Sistema de Mensalidade - Imperio ERP
+# Sistema de Mensalidade - Alicerce
 
 ## 📋 Visão Geral
 
-Este sistema implementa controle de mensalidade para empresas no Imperio ERP. Quando a mensalidade de uma empresa vence, todos os usuários associados a ela são impedidos de acessar o sistema até que a mensalidade seja renovada.
+Este sistema implementa controle de mensalidade para empresas no Alicerce. Quando a mensalidade de uma empresa vence, todos os usuários associados a ela são impedidos de acessar o sistema até que a mensalidade seja renovada.
 
 ## 🔒 Funcionalidades
 
@@ -243,4 +243,4 @@ Para dúvidas ou problemas com o sistema de mensalidade, entre em contato com a 
 
 **Versão**: 1.0  
 **Data**: 2024  
-**Autor**: Imperio ERP Team
+**Autor**: Pulsari Analytics

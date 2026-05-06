@@ -1,4 +1,4 @@
-# TODO — Produção Imperio ERP
+# TODO — Produção Alicerce
 
 ## 🔴 Fase 1 — Crítico (sem isso não vai ao ar)
 
@@ -7,8 +7,8 @@
 - [ ] **Nginx** — criar `nginx.conf` + serviço no `docker-compose.yml` (reverse proxy, static files, SSL termination)
 - [ ] **SSL/HTTPS** — certificado via Let's Encrypt (Certbot) ou do provedor de hospedagem
 - [ ] **`collectstatic` no build** — adicionar `python manage.py collectstatic --noinput` no `Dockerfile`
-- [ ] **`ALLOWED_HOSTS`** — colocar domínio real no `.env` (`ALLOWED_HOSTS=imperioerp.com.br,www.imperioerp.com.br`)
-- [ ] **`CSRF_TRUSTED_ORIGINS`** — obrigatório com nginx na frente: `CSRF_TRUSTED_ORIGINS=https://imperioerp.com.br`
+- [ ] **`ALLOWED_HOSTS`** — colocar domínio real no `.env` (`ALLOWED_HOSTS=alicerce.pulsarianalytics.com.br,www.alicerce.pulsarianalytics.com.br`)
+- [ ] **`CSRF_TRUSTED_ORIGINS`** — obrigatório com nginx na frente: `CSRF_TRUSTED_ORIGINS=https://alicerce.pulsarianalytics.com.br`
 
 ### Email
 - [ ] **Configurar SMTP real no `.env`** — Gmail App Password, SendGrid, Resend ou Mailgun (sem isso recuperação de senha não funciona)
@@ -19,7 +19,7 @@
   EMAIL_USE_TLS=True
   EMAIL_HOST_USER=seu@gmail.com
   EMAIL_HOST_PASSWORD=sua_app_password
-  DEFAULT_FROM_EMAIL=Imperio ERP <seu@gmail.com>
+  DEFAULT_FROM_EMAIL=Alicerce by Pulsari <seu@gmail.com>
   ```
 
 ### Banco de dados

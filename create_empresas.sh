@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script para criar empresas e usuários de exemplo no sistema Imperio ERP
+# Script para criar empresas e usuários de exemplo no sistema Alicerce
 # Uso: ./create_empresas.sh
 
-echo "🚀 Criando empresas e usuários para o sistema Imperio ERP"
+echo "🚀 Criando empresas e usuários para o sistema Alicerce"
 echo "=========================================================="
 
 # Verificar se estamos no diretório correto

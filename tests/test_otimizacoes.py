@@ -1,5 +1,5 @@
 """
-Testes para validar as otimizações implementadas no Imperio ERP
+Testes para validar as otimizações implementadas no Alicerce
 Execute com: python manage.py test tests.test_otimizacoes
 """
 

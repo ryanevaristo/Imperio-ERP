@@ -1,5 +1,5 @@
 #!/bin/bash
-# ── Backup automático do PostgreSQL — Imperio ERP ──────────────────────────────
+# ── Backup automático do PostgreSQL — Alicerce ──────────────────────────────
 # Uso manual:  bash scripts/backup.sh
 # Em produção: executado diariamente pelo serviço 'backup' no docker-compose.yml
 # ──────────────────────────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ KEEP_DAYS="${BACKUP_KEEP_DAYS:-30}"   # Mantém últimos 30 dias de backup
 export PGPASSWORD
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-FILENAME="${BACKUP_DIR}/imperio_erp_${TIMESTAMP}.sql.gz"
+FILENAME="${BACKUP_DIR}/alicerce_${TIMESTAMP}.sql.gz"
 
 mkdir -p "${BACKUP_DIR}"
 
@@ -32,5 +32,5 @@ pg_dump \
 echo "[$(date)] Backup concluído: ${FILENAME} ($(du -h "${FILENAME}" | cut -f1))"
 
 # Remove backups mais antigos que KEEP_DAYS dias
-find "${BACKUP_DIR}" -name "imperio_erp_*.sql.gz" -mtime "+${KEEP_DAYS}" -delete
+find "${BACKUP_DIR}" -name "alicerce_*.sql.gz" -mtime "+${KEEP_DAYS}" -delete
 echo "[$(date)] Backups antigos (>${KEEP_DAYS} dias) removidos."
