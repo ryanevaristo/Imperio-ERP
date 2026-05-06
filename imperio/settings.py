@@ -255,6 +255,7 @@ CACHE_MIDDLEWARE_KEY_PREFIX = 'imperio'
 # ── Segurança em produção (ativado automaticamente quando DEBUG=False) ────────
 if not DEBUG:
     SECURE_SSL_REDIRECT            = True
+    SECURE_REDIRECT_EXEMPT         = [r'^health/$']  # Railway healthcheck usa HTTP
     SESSION_COOKIE_SECURE          = True
     CSRF_COOKIE_SECURE             = True
     SECURE_HSTS_SECONDS            = 31536000   # 1 ano
