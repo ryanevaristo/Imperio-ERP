@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -88,29 +89,35 @@ WSGI_APPLICATION = 'imperio.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Railway injeta DATABASE_URL automaticamente; fallback para variáveis individuais (dev local)
+_DATABASE_URL = config('DATABASE_URL', default='')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_NAME'),
-        'USER': config('POSTGRES_USER'),
-        'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('DB_HOST', default='host.docker.internal'),
-        'PORT': config('DB_PORT', default=5432, cast=int),
-        'CONN_MAX_AGE': 600,  # Connection pooling: mantém conexões por 10 minutos
-        'OPTIONS': {
-            'connect_timeout': 10,
-            'options': '-c statement_timeout=30000'  # 30 segundos timeout para queries
+if _DATABASE_URL:
+    # Produção (Railway): usa DATABASE_URL — inclui SSL e todas as configs
+    DATABASES = {
+        'default': dj_database_url.parse(
+            _DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Desenvolvimento local: variáveis individuais do .env
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('POSTGRES_NAME'),
+            'USER': config('POSTGRES_USER'),
+            'PASSWORD': config('POSTGRES_PASSWORD'),
+            'HOST': config('DB_HOST', default='host.docker.internal'),
+            'PORT': config('DB_PORT', default=5432, cast=int),
+            'CONN_MAX_AGE': 600,
+            'OPTIONS': {
+                'connect_timeout': 10,
+                'options': '-c statement_timeout=30000',
+            }
         }
     }
-}
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 
 # Password validation
