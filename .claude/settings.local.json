@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l **/*.py)",
+      "Bash(ls -la *.md)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(docker compose:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(where gh:*)",
+      "Bash(python -c ':*)",
+      "Bash(python -c \"import secrets, string; print\\(''.join\\(secrets.choice\\(string.ascii_letters+string.digits+'!@#$%^&*\\(-_=+\\)'\\) for _ in range\\(50\\)\\)\\)\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ]
+  }
+}
