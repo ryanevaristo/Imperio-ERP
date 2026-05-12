@@ -29,7 +29,17 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if origin.strip()]
+# 1. Buscamos a string da variável de ambiente
+csrf_env = config('CSRF_TRUSTED_ORIGINS', default='')
+
+# 2. Transformamos em lista e limpamos sujeiras (espaços, aspas, etc)
+if csrf_env:
+    CSRF_TRUSTED_ORIGINS = [
+        origin.strip() for origin in csrf_env.split(',') if origin.strip()
+    ]
+else:
+    # Caso a variável esteja vazia, evite que o Django quebre
+    CSRF_TRUSTED_ORIGINS = []
 # Application definition
 
 INSTALLED_APPS = [
