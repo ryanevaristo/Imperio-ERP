@@ -157,9 +157,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'templates/static')
+    os.path.join(BASE_DIR, 'static')
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # ── Armazenamento de arquivos (Cloudflare R2 ou local) ────────────────────────
 _R2_BUCKET = config('R2_BUCKET_NAME', default='')
