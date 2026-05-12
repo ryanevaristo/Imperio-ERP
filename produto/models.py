@@ -62,16 +62,16 @@ class Quadra(models.Model):
 
 class Lote(models.Model):
     CHOICE_STATUS ={
-        ('D', 'Disponível'),
-        ('V', 'Vendido'),
-        ('R', 'Reservado'),
+        ('Disponivel', 'Disponível'),
+        ('Vendido', 'Vendido'),
+        ('Reservado', 'Reservado'),
     }
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     numero = models.IntegerField(auto_created=True)
     metragem = models.CharField(max_length=10)
     preco = models.DecimalField(max_digits=10, decimal_places=2)
     data_aquisicao = models.DateField(null=True, blank=True, default=datetime(1900, 1, 1))
-    status = models.CharField(max_length=1, default=True, choices=CHOICE_STATUS)
+    status = models.CharField(max_length=20, default=True, choices=CHOICE_STATUS, blank=True, null=True)
     proprietario = models.ForeignKey(Cliente, blank=True, null=True, related_name="Lotes", on_delete=models.CASCADE)
     quadra = models.ForeignKey(Quadra, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
