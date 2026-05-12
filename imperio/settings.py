@@ -29,8 +29,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
-
-
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS')
 # Application definition
 
 INSTALLED_APPS = [
@@ -151,9 +150,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://imperio-erp-production.up.railway.app',
-]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
